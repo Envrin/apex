@@ -1,0 +1,13 @@
+
+.default_PopupPanel {
+  border-bottom: 1px solid #EFEFEF;
+  z-index: 10050 !important;
+  padding: 0px 37px 15px 15px;
+  background: #fff;
+}
+
+.default_PopupPanel h3{
+  font-weight: 300;
+}
+
+

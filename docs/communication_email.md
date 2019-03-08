@@ -1,0 +1,187 @@
+
+# Communication -- E-Mail Messages
+
+Sending and processing e-mails securely via rotating SMTP servers is very simple with Apex.  This document explains all 
+you need to know regarding e-mail messages within Apex.
+
+
+## E-Mail Servers
+
+Within the *Settings->General* menu of the administration panel you can define multiple SMTP servers.  Apex will evenly distribute 
+all outgoing e-mails amongst the SMTP servers listed in this menu.
+
+
+## Send Individual E-Mail
+
+Although not generally required, sending an individual e-mail manually is quite simple with Apex by using the (message::send_email()* function.  This 
+function routes the e-mail to the back-end application servers via RabbitMQ, which then send it via one of the configured SMTP servers in an evenly distributed manner.
+
+
+**Parameters:**
+
+Variable | Type | Required | Description
+------------- |------------- |------------- |-------------
+`$to_email` | string | Yes | The e-mail address to send to.
+`$to_name` | string | Yes | The full name of the recipient to send e-mail to.
+`$from_email` | string | Yes | The e-mail address of the sener.
+`$from_name` | string | Yes | The full name of the sender.
+`$subject` | string | Yes | The subject of the e-mail message
+`$message` | string | Yes | The contents of the e-mail message
+`$content_type~ | string | No | The content-type of the e-mail message.  Defaults to `plain/text`
+`$reply_to` | string | No | The reply-to address of the e-mail, if relevant
+`$cc` | string | No | The CC e-mail address of the message, if relevant
+`$bcc` | string | Yes | The BCC e-mail address of the message, if relevant
+`$attachments` | array | No | An array containing any file attachments to include in the e-mail message.  The keys of the array are the filenames, and the values are the contents of the file in binary format.
+
+
+**Example:**
+
+~~~php
+namespace apex;
+
+use apex\message;
+
+message::send_email("customer@domain.com", "Customer Name", "support@mydomain.com", "My Company", "Your Invoice", "Please find below your invoice for this month....");
+~~~
+
+
+## Define Notifications
+
+Apex uses a conditional trigger based system for e-mail notifications, and all e-mail messages can be defined through 
+the *Settings->Notifications* menu of the administration panel.  Through this menu you can select the notification type, which will display the conditions that need to be 
+met for the e-mail to go out (eg. user created, transaction status changed to approved, etc.).  On the next page you can define the actual contents of the e-mail message, and on this 
+page it also lists all available merge variables that are supported by the notification type.
+
+See below for how to develop your own notification types / controllers, and how to add default e-mail notifications into package installation.
+
+
+## Processing E-Mails `message::process_emails()`
+
+You can trigger any necessary e-mails to be sent via the `message::process_emails()` function.  This function will go through all notifications of a specific controller, 
+and check the conditional requirements against the condition passed, and if they match will automatically send the necessary e-mail messages.
+
+
+**Parameters:**
+
+Variable | Type | Required | Description
+------------- |------------- |------------- |-------------
+`$controller` | string | Yes | The alias of the *core::notifications* controller of which notification type to process.  See below for creating your own notification controller.
+`$userid` | int | No | The ID# of the user this notification is being processed for.
+`$condition` | array | No | An array containing the conditional arguments to check notifications against.  This is the action that occurred, and available variables change depending on notification type.  For example, when a transaction is processed, this will include the type of transaction and the current status of the transaction.
+`$data` | array | No | An array containing any extra data that may be necessary depending on the transaction type to pull merge variables to personalize the e-mail messages.  For example, when processing a transaction, this will contain the ID# of the transaction.
+
+
+**Example:**
+
+~~~php
+namespace apex;
+
+use apex\message;
+
+// Set variables
+$userid = 54;
+$transaction_id = 1593;
+$status = 'declined';
+
+// Process notifications
+message::process_emails('transaction', $userid, array('status' => $status), array('transaction_id' => $transaction_id));
+~~~
+
+In the above example the transaction ID# 1593 is being processed against the user ID# 54 with a status of "declined".  This will go through all notifications created with the controller alias "transaction", check the conditional arguments they were created 
+with, and for any that match a "status" of "declined", will send the e-mail message.  Again, see below for creating your own notification type to get a better understanding of how this works.
+
+
+## Create Notification Controller
+
+There will be times where you need to create your own notifications controller, allowing the administrator to define their own set of e-mail notifications, and have them automatically 
+sent when certain actions occur within the software.  For example, you may be creating a lottery package, and want various notifications sent when people enter or win the lottery.  To do this, within terminal create the 
+controller by typing:
+
+`php apex.php create controller core:notifications:lottery lottery`
+
+This will create a notification controller with the alias "lottery", and include it within the package "lottery", and a new PHP file will be 
+located at */src/core/controller/notifications/lottery.php*.  Below explains all methods available within this PHP class.
+
+#### Properties
+
+Variable | Type | Required | Description
+------------- |------------- |------------- |-------------
+`$display_name` | string | Yes | The display name of the notification type which is displayed in the web browser / administration panel.
+`$fields` | array | Yes | An array of form fields that define the available conditional arguments the administrator can select from when defining e-mail notifications.  This is the same array as standard "form" components within Apex, and please visit the [HTML Forms](components/form.md) page for further information on how to format this array.
+`$senders` | array | Yes | Array listing the available senders that the administrator can choose from when defining notifications for this notification type.  See below for more info.
+`$recipients` | array | Yes | Array listing the available recipients that the administrator can choose from when defining notifications for this notification type.  See below for more info. 
+
+#### `$senders / $recipients` arrays
+
+When defining an e-mail notification via the *Settings->Notifications* menu, you will notice there are select lists allowing the administrator to choose who the sender and 
+recipient of the e-mail notification area.  These two arrays define what options are available within those select lits for this notification type.  The keys of the array are the 
+database values, while the values of the arrays are what is displayed within the web browser.  The keys are generally always 
+"admin" and "user", where when "admin" appears as a key it will be replaced with a list of all administrators currently in the database.  However, 
+this can also be used for other recipients / senders, such as the support ticketing system includes the key "support_tech", which checks the tech assigned to the given support ticket and notifies them via 
+e-mail a response has been made.
+
+
+#### `array = get_sender(string $sender) / array = get_recipient($recipient)`
+
+These two methods are optional within the class, and are only needed if the `$senders / $recipients` property arrays include anything 
+other than "admin" and "user" as keys.  When determining the sender / recipient e-mail address and name, the software will first generally check if it's "admin" or "user", and if not, will call this 
+method.  This method needs to return the e-mail address and name of the sender / recipieint as an array.
+
+
+#### `array get_merge_fields()`
+
+This returns an array of associative arrays providing all the merge variables that are available to this notification type.  These are the merge variables that can be 
+placed within the e-mail message, and be replaced with personalized information.  Each notification type is different, such as for example, transaction based notification have transaction related merge variables available to them.  For examples of how this array looks, 
+please look at the existing PHP classes within the */src/core/controller/notifications/* directory.
+
+This function is only executed while the administrator is defining e-mail notifications via the *Settings->Notifications* menu.
+
+
+#### `array = get_merge_vars(int $userid, array $data)`
+
+This function is executed every time an e-mail of this notification type is sent, and gathers the values of the merge variables to personalize the 
+e-mail message with.  The keys of the array returned must be the same as the keys of the array given in the `get_merge_fields()` function explained above.  Apex will 
+go through all key-value pairs in the array, and place `~key~` with the respective value within the subject and contents of the e-mail message.
+
+
+## Define Default Notifications
+
+You may also define default e-mail notifications to be created upon package installation, making setup easier for the 
+administrator, instead of forcing them to define their own e-mail messages.  For example, upon installing the User Management package, there are default e-mail notifications created that are sent to the 
+administrator and user upon registration.
+
+You can define default e-mail notifications by modifying the */etc/PACKAGE/package.php* file of the package.  Simply add a `$this->notifications` array that contians the following variables:
+
+Variable | Type | Description
+------------- |------------- |-------------
+`controller` | string | The alias of the notification controller.
+`sender` | string | The sender of the e-mail message, from the `$senders` property of the notification controller.  If set to "admin" will use the first administrator in the database.
+`recipient` | string | The recipient of the e-mail message, from the `$recipients` property of the notification controller.  If set to "admin" will use the first administrator in the database.
+`content_type` | string | Optional, and allows you to set the content type of the e-mail message.  Defaults to "text/plain".
+`subject` | string | The subject of the e-mail message.
+`message` | string | The contents of the e-mail message, encoded with BASE64.  Simply use the `base64_encode()` PHP function to get this value.
+`condition` | array | Array of key-value pairs that define the condition that must be matched for the e-mail notification to be sent.  Check the `$fields` property of the controller PHP class for which variables are available.
+
+
+**Example:**
+
+When your package is installed, if you want a default notification created that is automatically sent to the user everytime someone registers, you 
+would add something like the following to the */etc/PACKAGE/package.php* file of the package.
+
+~~~php
+$this->notifications = array();
+$this->notifications[] = array(
+    'controller' => 'users', 
+    'sender' => 'admin', 
+    'recipient' => 'user', 
+    'subject' => 'Welcome new member, ~profile-username~', 
+    'message' => 'SnVzdCBhIHRlc3QgbWVzc2FnZSwgZ2l2aW5nIGFuIGV4YW1wbGUgb2Ygc2V0dGluZyB1cCBkZWZhdWx0IG5vdGlmaWNhdGlvbnM=', 
+    'condition' => array(
+        'action' => 'create'
+    )
+);
+~~~
+
+Every time your package is installed, a new e-mail notification will be created that is automatically sent every time a user is created, and can be managed / deleted via the *Settings->Notifications* menu of the administration panel.
+
+

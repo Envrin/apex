@@ -1,0 +1,82 @@
+#! /bin/sh
+# Installation
+# - Move this to /etc/init.d/apex_worker
+# - chmod +x this
+#
+# Starting and stopping
+# - Start: `service myservice start` or `/etc/init.d/myservice start`
+# - Stop: `service myservice stop` or `/etc/init.d/myservice stop`
+
+
+
+SITE_PATH="~site_path~";
+DAEMON="/usr/bin/php"
+DAEMON_OPTS="$SITE_PATH/src/worker.php"
+RPC_OPTS="$SITE_PATH/src/rpc_server.php"
+
+x=1
+total=`expr $2 + 1`
+
+test -x $DAEMON || exit 0
+
+set -e
+
+case "$1" in
+    start)
+        echo -n "Starting $2 Apex workers"
+
+        while [ $x -lt $total ]
+        do
+            start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/worker$x.pid --exec ${DAEMON} ${DAEMON_OPTS} > $SITE_PATH/log/services/worker$x.log
+            start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/rpc$x.pid --exec ${DAEMON} ${RPC_OPTS} > $SITE_PATH/log/services/rpc$x.log
+            x=`expr $x + 1`
+        done
+
+        echo "Started"
+        ;;
+    stop)
+        echo -n "Stopping $2 Apex workers"
+
+        while [ $x -lt $total ]
+        do
+            start-stop-daemon --stop --pidfile $SITE_PATH/tmp/worker$x.pid
+            start-stop-daemon --stop --pidfile $SITE_PATH/tmp/rpc$x.pid
+            rm -f $SITE_PATH/tmp/worker$x.pid
+            rm -f $SITE_PATH/tmp/rpc$x.pid
+            x=`expr $x + 1`
+        done
+
+        echo "Stopped Apex workers"
+
+        ;;
+    restart|force-reload)
+        echo -n "Restarting $2 Apex workers"
+
+        while [ $x -lt $total ]
+        do
+            start-stop-daemon --stop --pidfile $SITE_PATH/tmp/worker$x.pid
+            start-stop-daemon --stop --pidfile $SITE_PATH/tmp/rpc$x.pid
+            rm -f $SITE_PATH/tmp/worker$x.pid
+            rm -f $SITE_PATH/tmp/rpc$x.pid
+
+            sleep1;
+            start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/worker$x.pid --exec ${DAEMON} ${DAEMON_OPTS} > $SITE_PATH/log/services/worker$x.log
+            start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/rpc$x.pid --exec ${DAEMON} ${RPC_OPTS} > $SITE_PATH/log/services/rpc$x.log
+            x=`expr $x + 1`
+        done
+
+
+
+        echo "Restarted Apex workers"
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+
+
+

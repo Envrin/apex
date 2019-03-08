@@ -1,0 +1,35 @@
+{
+    "name": "Apex",
+    "description": "Powerful PHP based framework to efficiently develop quality, robust, streamlined, and professional online operations.",
+    "keywords": ["apex", "framework", "platform", "infrastructure"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Envrin Group",
+            "email": "matt@envrin.com",
+            "role": "Creator / Main Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "cboden/ratchet": "*", 
+        "textalk/websocket": "1.0.*", 
+        "michelf/php-markdown": ">=1.8.0", 
+        "phpunit/phpunit": ">=7.3.0", 
+        "phpDocumentor/phpDocumentor": "*", 
+        "composer/xdebug-handler": "*",
+        "php-amqplib/php-amqplib": "*",  
+        "ext-mysqli": "*", 
+        "ext-openssl": "*",
+        "ext-curl": "*", 
+        "ext-json": "*", 
+        "ext-mbstring": "*", 
+        "ext-zip": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "apex\\": "src/"
+        }
+    }
+}
+
