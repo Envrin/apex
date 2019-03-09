@@ -6,25 +6,33 @@ namespace apex;
 use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_Constraint_IsEqual;
 
+
+/**
+* Providers support for various custom assertions that can be executed within 
+* unit test classes.  Please refer to the developer documentation 
+* for full details on all custom assertions available within Apex.
+*/
 class test extends TestCase
 {
 
-/**
-* Check page title
-*/
-final public function assertpagetitle($expected)
-{
-    $this->assertequals($expected, template::$page_title, tr("Page title at /%s/%s does not equal: %s", registry::$panel, registry::$route, $expected));
-}
 
 /**
-* Page title contains
+* Check title of most recently requested page to see if it equals expected title.
+*     Assertions:   assertpagetitle / assertnotpagetitle
+* 
+*     @param string $title The page of the page that must match
 */
-final public function assertpagetitlecontains($text)
+final public function assertpagetitle(string $title) { $this->checkpagetitle($title, true); }
+final public function assertnotpagetitle(string $title) { $this->checkpagetitle($title, true); }
+
+private function checkpagetitle(string $title, bool $has = true)
 {
 
-    if (!preg_match("/$text/", template::$page_title)) { 
-        $this->asserttrue(false, tr("Page title at /%s/%s does not contain the text: %x", registry::$panel, registry::$route, $text));
+    // Assert
+    $ok = $title == template::$page_title ? true : false;
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("Title of page at {1}/{2} does $not equal the title: {3}", registry::$panel, registry::$route, $title));
     } else { 
         $this->asserttrue(true);
     }
@@ -32,17 +40,22 @@ final public function assertpagetitlecontains($text)
 }
 
 /**
-* Ensure page contains certain text
+* Check if the title of the most recently requested page contains a string of text.
+*     Assertions:  assertpagetitlecontains / assertpagetitlenotcontains
+* 
+*     @param string $text The string of text to check the page title for.
 */
-final public function assertpagecontains($text)
+final public function assertpagetitlecontains(string $text) { $this->checkpagetitlecontains($text, true); }
+final public function assertpagetitlenotcontains(string $text) { $this->checkpagetitlecontains($text, true); }
+
+private function checkpagetitlecontains(string $text, bool $has = true)
 {
 
-    // Get HTML
-    $html = registry::get_response();
-
-    // Check if text exists
-    if (!preg_match("/$text/", $html)) { 
-        $this->asserttrue(false, tr("Page /%s/%s does not contain the text: %s", registry::$panel, registry::$route, $text));
+    // Assert
+    $ok = strpos(template::$page_title, $text) ? true : false;
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : array();
+        $this->asserttrue(false, fmsg("Title of page {1}/{2} does $not contain the text: {3}", registry::$panel, registry::$route, $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -50,56 +63,65 @@ final public function assertpagecontains($text)
 }
 
 /**
-* Check for user message type / contents
+* Check if the most recently requested page contains a string of text.
+*     Assertions:   assertpagecontains / assertpagenotcontains
+* 
+*     @param string $text The string of text to check if the page contains.
 */
-final public function asserthasusermessage($type = 'success', $text = '')
+final public function assertpagecontains(string $text) { $this->checkpagecontains($text, true); }
+final public function assertpagenotcontains(string $text) { $this->checkpagecontains($text, false); }
+
+private function checkpagecontains(string $text, bool $has = true)
 {
 
-    // Initialize
+    // Check
+    $ok = strpos(registry::get_response(), $text) ? true : false;
+
+    // Assert
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain the text {3}", registry::$panel, registry::$route, $text));
+    } else { 
+        $this->asserttrue(true);
+    }
+
+}
+
+/**
+* Check if most recent page requested contains user message / callout of 
+* specified type and contains specified text.
+*     Assertions:  asserthasusermessage / assertnothasusermessage
+*
+*     @param string $type The type of message (success, error, info, warning)
+*     @param string $text The text should one of the messages should contain
+*/
+final public function asserthasusermessage($type = 'success', $text = '') { $this->checkhasusermessage($type, $text, true); }
+final public function assertnowhasusermessage($type = 'success', $text = '') { $this->checkhasusermessage($type, $text, true); }
+
+private function checkhasusermessage(string $type, string $text = '', bool $has = true)
+{
+
+    // Get the messages to check
     $msg = template::$user_messages;
     if (!isset($msg[$type])) { $msg[$type] = array(); }
 
-    // Check if message exists
-    if (count($msg[$type]) == 0) { 
-        $this->asserttrue(false, tr("No user message of type '%s' appeared on the page /%s/%s", $type, registry::$panel, registry::$route));
-        return;
-    }
+    // Check message type
+    $found = count($msg[$type]) > 0 && $text == '' ? true : false;
 
-// Check for text, if needed
+    // Check for text, if needed
     if ($text != '') {
-        $text = str_replace("/", "\\/", $text);
-        $this->assertpagecontains($text);
-
-        $found = false; 
-        foreach ($msg[$type] as $msg) { 
-            if (preg_match("/$text/", $msg)) { $found = true; }
+        foreach ($msg[$type] as $message) { 
+            if (strpos($message, $text)) { $found = true; }
         }
 
-        // Check
-        if ($found === false) { 
-            $this->asserttrue(false, tr("No user message with type '%s' on page /%s/%s contains the text: %s", $type, registry::$panel, registry::$route, $text));
-            return;
-        }
+        // Ensure it appears on page
+        if (!strpos(registry::get_response(), $text)) { $found = false; }
     }
 
-    // True
-    $this->asserttrue(true);
-
-}
-
-/**
-* Check if page contains submit button
-'*/
-final public function asserthassubmit(string $value, string $label)
-{
-
-    // Set variables
-    $html = registry::get_response();
-    $chk = "<button type=\"submit\" name=\"submit\" value=\"$value\" class=\"btn btn-primary btn-lg\">$label</button>";
-
-    // Check
-    if (!strpos($html, $chk)) { 
-        $this->asserttrue(false, tr("Page does not contain submit button with value '%s', label '%s'", $value, $label));
+    // Assert
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a user message of type {3} that contains the text: {4}", registry::$panel, registry::$route, $type, $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -107,13 +129,23 @@ final public function asserthassubmit(string $value, string $label)
 }
 
 /**
-* Contains a form error
+* Checks the most recently requested page to see whether or not it contains the specified 
+* form validation error.  These are the validation errors given off by the 
+* forms::validate_form() method.
+*     Assertions:  asserthasformerror / assertnothasformerror
+*
+*     @param string $type The type of validation error (blank, email, alphanum)
+*     @param string $name The name of the form field to check. 
 */
-final public function asserthasformerror(string $type, string $name)
+final public function asserthasformerror(string $type, string $name) { $this->checkhasformerror($type, $name, true); }
+final public function assertnothasformerror(string $type, string $name) { $this->checkhasformerror($type, $name, false); }
+
+private function checkhasformerror(string $type, string $name, bool $has = true)
 {
 
     // Set variables
     $name = ucwords(str_replace("_", " ", $name));
+    $errors = template::$user_messages['error'] ?? array();
 
     // Create message
     if ($type == 'blank') { $msg = "The form field $name was left blank, and is required"; } 
@@ -121,15 +153,61 @@ final public function asserthasformerror(string $type, string $name)
     elseif ($type == 'alphanum') { $msg = "The form field $name must be alpha-numeric, and can not contain spaces or special characters."; }
     else { return; }
 
+    // Check messages
+    $found = false;
+    foreach ($errors as $message) { 
+        if (strpos($msg, $message)) { $found = true; }
+    }
+
     // Assert
-    $this->asserthasusermessage('error', $msg);
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a form error of type: {3} for the form field: {4}", registry::$panel, registry::$route, $type, $name));
+    } else { 
+        $this->asserttrue(true);
+    }
+
+}
+/** 
+* Check whether or not most recent page requested contains a submit button 
+* with specified value and label.
+*     Assertions:  asserthassubmit / assertnothassubmit
+*  
+*     @param string $value The value of the submit button
+*     @param string $label The label of the submit button (what is shown in the web browser)
+*/
+final public function asserthassubmit(string $value, string $label) { $this->checkhassubmit($value, $label, true); }
+final public function assertnothassubmit(string $value, string $label) { $this->checkhassubmit($value, $label, false); }
+
+private function checkhassubmit(string $value, string $label, $has = true)
+{
+
+    // Set variables
+    $html = registry::get_response();
+    $chk = "<button type=\"submit\" name=\"submit\" value=\"$value\" class=\"btn btn-primary btn-lg\">$label</button>";
+
+    // Assert
+    $ok = strpos($html, $chk) ? true : false;
+    if ($ok !== $has) { 
+        $word = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, "The page does $word contain a submit button with the value: $value, and label: $label");
+    } else { 
+        $this->asserttrue(true);
+    }
 
 }
 
 /**
-* Check if table exists within HTML response
+* Check if most recently requested page contains a specific HTML table 
+* that is displayed via the <e:function> tag.
+*     Assertions:  asserthastable / assertnothastable
+* 
+*     @param string $Table_alias The alias of the table in Apex format (ie. PACKAGE:ALIAS)
 */
-final public function asserthastable(string $table_alias)
+final public function asserthastable(string $table_alias) { $this->checkhastable($table_alias, true); }
+final public function assertnothastable(string $table_alias) { $this->checkhastable($table_alias, true); }
+
+private function checkhastable(string $table_alias, bool $has = true)
 {
 
     // Set variables
@@ -146,57 +224,27 @@ final public function asserthastable(string $table_alias)
     }
 
     // Assert
-    $this->asserttrue($found, "Unable to find table within HTML with ID: $chk");
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a table with the alias: {3}", registry::$panel, registry::$route, $table_alias));
+    } else { 
+        $this->asserttrue(true);
+    }
 
 }
 
 /**
-* Check a database field exists, and contains a certain value
+* Check all rows within a HTML tab and see if a column contains specified value.
+*     Assertions:asserthastablefield / assertnothastablefield
+* 
+*     @param string $table_alias The alias of the HTML tab in Apex format (ie. PACKAGE:ALIAS)
+*     @param int $col_num The number of the column, 0 being the left most column
+*     @param string $value The value to check the column for.  
 */
-final public function asserthasdbfield(string $sql, string $column, string $value)
-{
+final public function asserthastablefield(string $table_alias, int $column_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, true); }
+final public function assertnothastablefield(string $table_alias, int $column_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, false); }
 
-    // Execute SQL
-    $row = DB::get_row($sql);
-    $this->assertnotfalse($row, "Unable to retrieve row with SQL statement: $sql");
-    $this->assertarrayhaskey($column, $row, "Database row found, but no column exists with $column");
-    $this->assertequals($row[$column], $value, "Database row is found, but field does not equal $value");
-
-}
-
-/**
-* Check that column within HTML table contains a certain value
-*/
-final public function asserthastablefield(string $table_alias, int $column_num, string $value)
-{
-
-    // Check table
-    $found = $this->check_table_field($table_alias, $column_num, $value);
-
-    // Assert
-    $this->asserttrue($found, tr("Unable to find table field within table ID: %s, column#: %s, value: %s", $table_alias, $column_num, $value));
-
-}
-
-/**
-* Check that a table does not contain a certain value within the column.
-*/
-final public function assertnothastablefield(string $table_alias, int $column_num, string $value)
-{
-
-    // Check table
-    $found = $this->check_table_field($table_alias, $column_num, $value);
-
-    // Assert
-    $this->assertfalse($found, tr("Table field exists when it should not, table field within table ID: %s, column#: %s, value: %s", $table_alias, $column_num, $value));
-
-}
-
-/**
-* Check if value exists within table column.  Private function, used 
-* by the other two assert functions to obtain the value.
-*/
-final private function check_table_field(string $table_alias, int $column_num, string $value)
+private function checkhastablefield(string $table_alias, int $column_num, string $value, bool $has = true)
 {
 
     // Set variables
@@ -236,71 +284,112 @@ final private function check_table_field(string $table_alias, int $column_num, s
 
     }
 
-    // Return
-    return $found;
+    // Assert
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("On the page {1}/{2} the table with alias {3} does $not have a row that contains the text {4} on column number {5}", registry::$panel, registry::$route, $table_alias, $value, $col_num));
+    } else { 
+        $this->asserttrue(true);
+    }
 
 }
 
 /**
-* Assert does not have a table row matching the given SQL statement
+* Retrieve one row from the mySQL database using a SQL query, and check to ensure the 
+* row exists, and contains a column with the specified value.
+*     Assertions:   asserthasdbfield / assertnothasdbfield
+* 
+*     @param string $sql The SQL query to perform to retrieve the one row
+*     @param string $column The name of the column to check.
+*      @param string $value The value the column name should match
 */
-final public function assertnothasdbrow(string $sql)
+final public function asserthasdbfield(string $sql, string $column, string $value) { $this->checkdbhasfield($sql, $column, $value, true); }
+final public function assertnowhasdbfield(string $sql, string $column, string $value) { $this->checkdbhasfield($sql, $column, $value, false); }
+
+private function checkhasdbfield(string $sql, string $column, string $value, bool $has = true)
 {
 
-    // Check
-    $row = DB::get_row($sql);
+    // Perform check
+    $ok = false;
+    if ($row = DB::get_row($sql)) { 
+        $ok = isset($row[$column]) && $row[$column] == $value ? true : false;
+    }
 
     // Assert
-    $this->assertfalse($row, "Database table exists when it shoul not with SQL: $sql");
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("Database row does $not contain a column with the name {1} with the value {2}, retrived from the SQL query: {3}", $column, $value, $sql));
+    } else { 
+        $this->asserttrue(true);
+    }
 
 }
 
 /**
-* Has form field
+* Check if the most recently requested page contains a form field with 
+* the specified name.
+*     Assertions:   asserthasformfield / assertnothasformfield
+* 
+*     @param string $name The name of the form field. 
 */
-final public function asserthasformfield(string $name)
+final public function asserthasformfield(string $name) { $this->checkhasformfield($name, true); }
+final public function assertnowhasformfield(string $name) { $this->checkhasformfield($name, true); }
+
+private function checkhasformfield(string $name, bool $has = true)
 {
 
     // Get HTML
     $html = registry::get_response();
-//file_put_contents(SITE_PATH . '/public/error.html', $html);
+
     // Go through form fields
     $found = false;
     preg_match_all("/<input(.*?)>/si", $html, $field_match, PREG_SET_ORDER);
     foreach ($field_match as $match) { 
         $attr = template::parse_attr($match[1]);
-        if (!isset($attr['name'])) { continue; }
-        if ($attr['name'] != $name) { continue; }
-        $found = true;
-        break;
+        if (isset($attr['name']) && $attr['name'] == $name) { 
+            $found = true;
+            break;
+        }
     }
 
     // Go through select lists
     preg_match_all("/<select(.*?)>/si", $html, $select_match, PREG_SET_ORDER);
     foreach ($select_match as $match) { 
         $attr = template::parse_attr($match[1]);
-        if (!isset($attr['name'])) { continue; }
-        if ($attr['name'] != $name) { continue; }
-        $found = true;
-        break;
+        if (isset($attr['name']) && $attr['name'] == $name) { 
+            $found = true;
+            break;
+        }
     }
 
     // Assert
-    $this->asserttrue($found, "No form field exists with the name, $name");
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("Page at {1}/{2} does $not contain a form field with the name {3}", registry::$panel, registry::$route, $name));
+    } else { 
+        $this->asserttrue(true);
+    }
 
 }
 
 /**
 * Assert a string contains certain text
+*     Assertions:  assertstringcontains / assertstringnotcontains
+* 
 *      @param string $string The string
 *       @param string $text The text to see if it's contained within the string
 */
-final public function assertstringcontains(string $string, string $text)
+final public function assertstringcontains(string $string, string $text) { $this->checkstringcontains($string, $text, true); }
+final public function assertstringnotcontains(string $string, string $text) { $this->checkstringcontains($string, $text, false); }
+
+private function checkstringcontains(string $string, string $text, bool $has = true)
 {
 
-    // Check if text exists
-    if (!preg_match("/$text/", $string)) { 
-        $this->asserttrue(false, tr("String '%s's does not contain the text: %s", $string, $text));
+    // Check
+    $ok = strpos($string, $text) ? true : false;
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The provided string does $not contain the text: {1}", $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -308,45 +397,36 @@ final public function assertstringcontains(string $string, string $text)
 }
 
 /**
-* Assert a string does NOT contain certain text
-*      @param string $string The string
-*       @param string $text The text to see if it's contained within the string
-*/
-final public function assertstringnotcontains(string $string, string $text)
-{
-
-    // Check if text exists
-    if (preg_match("/$text/", $string)) { 
-        $this->asserttrue(false, tr("String '%s' contains the text: %s", $string, $text));
-    } else { 
-        $this->asserttrue(true);
-    }
-
-}
-
-/**
-* Assert that the contents of a file contains a certain text
+* Check that the contents of a file contains the specified text.
+*      Assertions:   assertfilecontains / assertfilenotcontains
+* 
 *     @param string $file The filename to check
 *     @param string $text The text to check if the file contents contains
 */
-final public function assertfilecontains(string $filename, string $text)
+final public function assertfilecontains(string $filename, string $text) { $this->checkfilecontains($filename, $text, true); }
+final public function assertfilenotcontains(string $filename, string $text) { $this->checkfilecontains($filename, $text, false); }
+
+private function checkfilecontains(string $filename, string $text, bool $has = true)
 {
 
-    // Get file contents
-    $contents = file_get_contents($filename);
+    // Check
+    $ok = false;
+    if (file_exists($filename)) { 
+        $contents = file_get_contents($filename);
+        $ok = strpos($contents, $text) ? true : false;
+    }
 
-    // Check if text exists
-    if (!preg_match("/$text/", $contents)) { 
-        $this->asserttrue(false, "The file $filename does not contain the text $text");
+    // Assert
+    if ($ok !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The file {1} does $not contain the text: {2}", $filename, $text));
     } else { 
         $this->asserttrue(true);
     }
 
 }
 
-
-
-
-
 }
+
+
 

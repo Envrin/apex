@@ -225,14 +225,14 @@ public function compile($upgrade_id)
         $done[] = implode(":", array($row['type'], $row['package'], $row['parent'], $row['alias']));
     }
 
-    // Save components.json file
-    file_put_contents("$this->upgrade_dir/toc.json", json_encode($this->toc));
-    file_put_contents("$this->upgrade_dir/components.json", json_encode($this->components));
-
     // Go through external files
     foreach ($pkg->ext_files as $file) { 
         $this->compile_single_file($file);
     }
+
+    // Save components.json file
+    file_put_contents("$this->upgrade_dir/toc.json", json_encode($this->toc));
+    file_put_contents("$this->upgrade_dir/components.json", json_encode($this->components));
 
     // Debug
     debug::add(5, fmsg("Compiling upgrade, went through all existing components, package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);
@@ -262,7 +262,19 @@ public function compile($upgrade_id)
     $pkg_files = array('package.php', 'install.sql', 'install_after.sql', 'reset.sql', 'remove.sql');
     foreach ($pkg_files as $file) { 
         if (!file_exists("$pkg_dir/$file")) { continue; }
+
+        // Update version if package.php file of core package
+        if ($upgrade['package'] == 'core' && $file == 'package.php') { 
+            $text = str_replace("~version~", $upgrade['version'], file_get_contents(SITE_PATH . '/etc/core/package.php'));
+            file_put_contents("$this->upgrade_dir/pkg/package.php", $text);
+            continue;
+        }
+
+        // Copy if not package.php of core package
         copy("$pkg_dir/$file", "$this->upgrade_dir/pkg/$file");
+
+
+
     }
 
     // Archive file
@@ -398,8 +410,10 @@ public function publish(int $upgrade_id)
     DB::query("UPDATE internal_packages SET version = %s WHERE alias = %s", $upgrade['version'], $upgrade['package']);
 
     // Publish package
-    $package = new package();
-    $package->publish($upgrade['package']);
+    if ($upgrade['package'] != 'core') { 
+        $package = new package();
+        $package->publish($upgrade['package']);
+    }
 
     // Debug
     debug::add(1, fmsg("Successfully published upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);

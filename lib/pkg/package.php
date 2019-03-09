@@ -690,7 +690,17 @@ public function compile_core()
     );
     foreach ($pkg_files as $file) { 
         if (!file_exists(SITE_PATH . '/etc/core/' . $file)) { continue; }
-        copy(SITE_PATH . '/etc/core/' . $file, $destdir . '/etc/core/' . $file);
+
+        // Copy, if not package.php
+        if ($file != 'package.php') { 
+            copy(SITE_PATH . '/etc/core/' . $file, $destdir . '/etc/core/' . $file);
+            continue;
+        }
+
+        // Update version in package.php file
+        $version = DB::get_field("SELECT version FROM internal_packages WHERE alias = 'core'");
+        $text = str_replace("~version~", $version, file_get_contents(SITE_PATH . '/etc/core/package.php'));
+        file_put_contents($destdir . '/etc/core/package.php', $text);
     }
 
     // Save blank /data/config.php file

@@ -446,6 +446,9 @@ private function complete_install()
     $client = new package_config('core');
     $pkg = $client->load();
 
+    // Update version
+    DB::update('internal_packages', array('version' => $pkg->version), "alias = %s", 'core');
+
     // Execute PHP, if needed
     if (method_exists($pkg, 'install_before')) { 
         $pkg->install_before();
