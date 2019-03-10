@@ -81,7 +81,7 @@ public function process(string $html, array $data = array()):string
     }
 
     // Return
-    $html = $html_tags->form_table(array('display' => $display), $html);
+    $html = $html_tags->form_table(array(), $html);
     return $html;
 
 }

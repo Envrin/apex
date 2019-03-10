@@ -7,6 +7,8 @@ use apex\DB;
 use apex\registry;
 use apex\log;
 use apex\debug;
+use apex\encrypt;
+
 
 class repos extends \apex\abstracts\table
 {
@@ -94,6 +96,8 @@ public function format_row(array $row):array
 
     // Format row
     $row['is_active'] = $row['is_active'] == 1 ? 'Yes' : 'No';
+    if ($row['username'] != '') { $row['username'] = encrypt::decrypt_basic($row['username']); }
+    $row['manage'] = "<center><a href=\"/admin/maintenance/repo_manage?repo_id=$row[id]\" class=\"btn btn-primary btn-md\">Manage</a></center>";
 
     // Return
     return $row;

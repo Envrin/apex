@@ -52,7 +52,7 @@ private function checkpagetitlecontains(string $text, bool $has = true)
 {
 
     // Assert
-    $ok = strpos(template::$page_title, $text) ? true : false;
+    $ok = strpos(template::$page_title, $text) === false ? false : true;
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : array();
         $this->asserttrue(false, fmsg("Title of page {1}/{2} does $not contain the text: {3}", registry::$panel, registry::$route, $text));
@@ -75,7 +75,7 @@ private function checkpagecontains(string $text, bool $has = true)
 {
 
     // Check
-    $ok = strpos(registry::get_response(), $text) ? true : false;
+    $ok = strpos(registry::get_response(), $text) === false ? false : true;
 
     // Assert
     if ($ok !== $has) { 
@@ -111,11 +111,11 @@ private function checkhasusermessage(string $type, string $text = '', bool $has 
     // Check for text, if needed
     if ($text != '') {
         foreach ($msg[$type] as $message) { 
-            if (strpos($message, $text)) { $found = true; }
+            if (strpos($message, $text) !== false) { $found = true; }
         }
 
         // Ensure it appears on page
-        if (!strpos(registry::get_response(), $text)) { $found = false; }
+        if (strpos(registry::get_response(), $text) === false) { $found = false; }
     }
 
     // Assert
@@ -156,7 +156,7 @@ private function checkhasformerror(string $type, string $name, bool $has = true)
     // Check messages
     $found = false;
     foreach ($errors as $message) { 
-        if (strpos($msg, $message)) { $found = true; }
+        if (strpos($msg, $message) !== false) { $found = true; }
     }
 
     // Assert
@@ -168,6 +168,37 @@ private function checkhasformerror(string $type, string $name, bool $has = true)
     }
 
 }
+
+/**
+* Check if the page contains the specified <hX> tag with the specified text.
+*      Assertions:  asserthasheading / assertnothasheading
+* 
+*      @param int $hnum The heading number (1 - 6)
+*      @param string $text The text to check for
+*/
+final public function asserthasheading($hnum, string $text) { $this->checkhasheading($hnum, $text, true); }
+final public function assertnothasheading($hnum, string $text) { $this->checkhasheading($hnum, $text, false); }
+
+private function checkhasheading($hnum, string $text, bool $has = true)
+{
+
+    // Check for heading
+    $found = false;
+    preg_match_all("/<h" . $hnum . ">(.*?)<\/h" . $hnum . ">/si", registry::get_response(), $hmatch, PREG_SET_ORDER);
+    foreach ($hmatch as $match) { 
+        if ($match[1] == $text) { $found = true; }
+    }
+
+    // Assert
+    if ($found !== $has) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a heading of h{3} with the text: {4}", registry::$panel, registry::$route, $hnum, $text));
+    } else { 
+        $this->asserttrue(true);
+    }
+
+}
+
 /** 
 * Check whether or not most recent page requested contains a submit button 
 * with specified value and label.
@@ -187,7 +218,7 @@ private function checkhassubmit(string $value, string $label, $has = true)
     $chk = "<button type=\"submit\" name=\"submit\" value=\"$value\" class=\"btn btn-primary btn-lg\">$label</button>";
 
     // Assert
-    $ok = strpos($html, $chk) ? true : false;
+    $ok = strpos($html, $chk) === false ? false : true;
     if ($ok !== $has) { 
         $word = $has === true ? ' NOT ' : '';
         $this->asserttrue(false, "The page does $word contain a submit button with the value: $value, and label: $label");
@@ -216,7 +247,7 @@ private function checkhastable(string $table_alias, bool $has = true)
 
     // GO through all tables on page
     $found = false;
-    preg_match_all("/<table(.+?)>(.*?)<\/table>/si", $html, $table_match, PREG_SET_ORDER);
+    preg_match_all("/<table(.*?)>/si", $html, $table_match, PREG_SET_ORDER);
     foreach ($table_match as $match) { 
         $attr = template::parse_attr($match[1]);
         $id = $attr['id'] ?? '';
@@ -241,8 +272,8 @@ private function checkhastable(string $table_alias, bool $has = true)
 *     @param int $col_num The number of the column, 0 being the left most column
 *     @param string $value The value to check the column for.  
 */
-final public function asserthastablefield(string $table_alias, int $column_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, true); }
-final public function assertnothastablefield(string $table_alias, int $column_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, false); }
+final public function asserthastablefield(string $table_alias, int $col_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, true); }
+final public function assertnothastablefield(string $table_alias, int $col_num, string $value) { $this->checkhastablefield($table_alias, $col_num, $value, false); }
 
 private function checkhastablefield(string $table_alias, int $column_num, string $value, bool $has = true)
 {
@@ -287,7 +318,30 @@ private function checkhastablefield(string $table_alias, int $column_num, string
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("On the page {1}/{2} the table with alias {3} does $not have a row that contains the text {4} on column number {5}", registry::$panel, registry::$route, $table_alias, $value, $col_num));
+        $this->asserttrue(false, fmsg("On the page {1}/{2} the table with alias {3} does $not have a row that contains the text {4} on column number {5}", registry::$panel, registry::$route, $table_alias, $value, $column_num));
+    } else { 
+        $this->asserttrue(true);
+    }
+
+}
+
+/**
+* Checks if a row exists within the database with the specified SQL statement.
+*     Assertions:  asserthasdbrow / assertnothasdbrow
+* 
+*     @param string $sql The SQL statement to check if row exists
+*/
+final public function asserthasdbrow(string $sql) { $this->checkhasdbrow($sql, true); }
+final public function assertnothasdbrow(string $sql) { $this->checkhasdbrow($sql, false); }
+
+private function checkhasdbrow(string $sql, bool $has = true)
+{
+
+    // Assert
+    $row = DB::get_row($sql);
+    if (($row === false && $has === true) || (is_array($row) && $has === false)) { 
+        $not = $has === true ? ' NOT ' : '';
+        $this->asserttrue(false, "Database row does $not exist for the SQL statement, $sql");
     } else { 
         $this->asserttrue(true);
     }
@@ -303,8 +357,8 @@ private function checkhastablefield(string $table_alias, int $column_num, string
 *     @param string $column The name of the column to check.
 *      @param string $value The value the column name should match
 */
-final public function asserthasdbfield(string $sql, string $column, string $value) { $this->checkdbhasfield($sql, $column, $value, true); }
-final public function assertnowhasdbfield(string $sql, string $column, string $value) { $this->checkdbhasfield($sql, $column, $value, false); }
+final public function asserthasdbfield(string $sql, string $column, string $value) { $this->checkhasdbfield($sql, $column, $value, true); }
+final public function assertnowhasdbfield(string $sql, string $column, string $value) { $this->checkhasdbfield($sql, $column, $value, false); }
 
 private function checkhasdbfield(string $sql, string $column, string $value, bool $has = true)
 {
@@ -386,7 +440,7 @@ private function checkstringcontains(string $string, string $text, bool $has = t
 {
 
     // Check
-    $ok = strpos($string, $text) ? true : false;
+    $ok = strpos($string, $text) === false ? false : true;
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
         $this->asserttrue(false, fmsg("The provided string does $not contain the text: {1}", $text));
@@ -413,7 +467,7 @@ private function checkfilecontains(string $filename, string $text, bool $has = t
     $ok = false;
     if (file_exists($filename)) { 
         $contents = file_get_contents($filename);
-        $ok = strpos($contents, $text) ? true : false;
+        $ok = strpos($contents, $text) === false ? false : true;
     }
 
     // Assert

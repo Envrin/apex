@@ -9,6 +9,7 @@ use apex\log;
 use apex\debug;
 use apex\template;
 use apex\test;
+use apex\network;
 use apex\core\forms;
 
 class test_admin_panel extends \apex\test
@@ -359,6 +360,9 @@ if ($error_type == 'alphanum') { file_put_contents(SITE_PATH . '/public/error.ht
 public function provider_create_admin()
 {
 
+    // Delete admin, if exists
+    DB::query("DELETE FROM admin WHERE username = 'unit_test'");
+
     // Set legitimate vars
     $vars = array(
         'username' => 'unit_test', 
@@ -557,6 +561,99 @@ public function test_page_admin_settings_notifications()
     $this->assertfalse($row, "Unable to delete the e-mail notification");
 
 }
+
+/**
+* Maintenance->Package Manager page
+*/
+public function test_page_admin_maintenance_package_manager()
+{
+
+    // Temporarily change core version
+    $version = DB::get_field("SELECT version FROM internal_packages WHERE alias = 'core'");
+    DB::query("UPDATE internal_packages SET version = '1.0.0' WHERE alias = 'core'");
+
+    // Get latest version
+    $client = new network();
+    $upgrades = $client->check_upgrades();
+    $new_version = '<b>v' . $upgrades['core'] . '</b>';
+
+    // Ensure page loads
+    $html = registry::test_request('admin/maintenance/package_manager', 'GET', array(), array(), $this->cookie);
+    DB::query("UPDATE internal_packages SET version = '$version' WHERE alias = 'core'");
+
+    // Initial checks
+    $this->assertpagetitle('Package Manager');
+    $this->asserthasheading(3, 'Installed Packages');
+    $this->asserthasheading(3, 'Available Packages');
+    $this->asserthasheading(3, 'Repositories');
+    $this->asserthasheading(5, 'Existing Repositories');
+    $this->asserthasheading(5, 'Add New Repository');
+    $this->asserthasformfield('repo_url');
+    $this->asserthasformfield('repo_username');
+    $this->asserthasformfield('repo_password');
+
+    // Check data tables
+    $this->asserthastable('core:packages');
+    $this->asserthastable('core:available_packages');
+    $this->asserthastable('core_repos');
+    $this->asserthastablefield('core:packages', 0, '<b>Core Framework v1.0.0</b>');
+    $this->asserthastablefield('core:packages', 1, $new_version);
+    $this->asserthastablefield('core:available_packages', 0, 'bitcoin_block_explorer');
+
+// Add an invalid repo
+    $request = array(
+        'repo_url' => 'http://google.com', 
+        'repo_username' => '', 
+        'repo_password' => '', 
+        'submit' => 'add_repo'
+    );
+    $html = registry::test_request('admin/maintenance/package_manager', 'POST', $request, array(), $this->cookie);
+    $this->asserthasusermessage('error', 'Test connection to repository failed');
+
+    // Update repo name
+    $repo_name = registry::config('devkit:repo_name');
+    registry::update_config_var('devkit:repo_name', 'unit test');
+
+    // Add new repoy
+    $request['repo_url'] = 'http://127.0.0.1:8001';
+    $html = registry::test_request('admin/maintenance/package_manager', 'POST', $request, array(), $this->cookie);
+    $this->asserthasusermessage('success', "Successfully added new repository");
+    $this->asserthastable('core:repos');
+    $this->asserthastablefield('core:repos', 1, 'unit test');
+    $this->asserthasdbfield("SELECT * FROM internal_repos WHERE display_name = 'unit test'", 'url', 'http://127.0.0.1:8001');
+
+    // Update repo
+    $repo_id = DB::get_field("SELECT id FROM internal_repos WHERE display_name = 'unit test'");
+    $html = registry::test_request('admin/maintenance/repo_manage', 'GET', array(), array('repo_id' => $repo_id), $this->cookie);
+    $this->assertpagetitle('Manage Repository');
+    $this->asserthasheading(3, 'Repo Details');
+    $this->asserthasformfield('repo_username');
+    $this->asserthasformfield('repo_password');
+    $this->asserthassubmit('update_repo', 'Update Repository');
+
+    // Update the repo
+    $request = array(
+        'repo_id' => $repo_id, 
+        'repo_username' => 'test', 
+        'repo_password' => 'test', 
+        'submit' => 'update_repo'
+    );
+    $html = registry::test_request('admin/maintenance/package_manager', 'POST', $request, array(), $this->cookie);
+    $this->assertpagetitle('Package Manager');
+    $this->asserthasusermessage('success', "Successfully updated repository login details");
+
+    // Delete repos
+
+    // Delete repo
+    registry::update_config_var('devkit:repo_name', $repo_name);
+    DB::query("DELETE FROM internal_repos WHERE id = %i", $repo_id);
+
+}
+
+/**
+* Maintenance->Theme Manager menu
+*/
+
 
 
 

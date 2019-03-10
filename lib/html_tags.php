@@ -753,7 +753,7 @@ public function pagination(array $attr, string $text = ''):string
         $nav_func = "<a href=\"/" . registry::$route . "?page=~page~\">";
     } else { 
         $ajaxdata = isset($attr['ajaxdata']) ? $attr['ajaxdata'] . '&page=~page~' : 'page=~page~';
-        $href = "<a href=\"javascript:ajax_send('core/navigate_table', '$ajaxdata', 'none');\">";
+        $nav_func = "<a href=\"javascript:ajax_send('core/navigate_table', '$ajaxdata', 'none');\">";
     }
 
     // Return, if not enough rows

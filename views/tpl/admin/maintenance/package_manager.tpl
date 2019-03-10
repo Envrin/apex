@@ -8,8 +8,8 @@
     <e:tab_page name="Installed Packages">
         <h3>Installed Packages</h3>
 
-        <p>The below table lists all packages currently installed on this system, including any available upgrades.  To install upgrades or remove packages, 
-        you must do so via SSH and the apex.php script.  Please consult the documentation for further information.</p>
+        <p>The below table lists all packages currently installed on the system, plus any upgrades that are currently available.  To install 
+        the upgrades, login to your server via SSH, change to the installation directory, and at the prompt type: php apex.php upgrade</p>
 
         <e:function alias="display_table" table="core:packages">
 
@@ -17,7 +17,9 @@
 
     <e:tab_page name="Available Packages">
         <h3>Available Packages</h3>
-<p>The below table lists all packages that are currently available, but not installed on your system.  To install a package, you must do so via SSH with the apex.php script.  Please consult the docuemtation for further details.</p></br />
+
+        <p>The below table lists all packages that are currently available, but not installed on your system.  To install a package, login to your server via SSH, change to the installation directory, and at the 
+        prompt type:  php apex.php install PACKAGE where PACKAGE is the alias of the package as listed below.</p>
 
         <e:function alias="display_table" table="core:available_packages">
 
@@ -26,7 +28,7 @@
     <e:tab_page name="Repositories">
         <h3>Repositories</h3>
 
-        <p>The below table lists all repositories currently configured on this system.  You may add /c manage login credentials to any repository listed by clicking the appropriate Manage button below.</p><br />
+        <p>The below table lists all repositories currently configured on this system.  You may add /manage login credentials to any repository listed by clicking the appropriate Manage button below.</p><br />
 
         <h5>Existing Repositories</h5>
 

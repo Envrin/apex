@@ -207,7 +207,8 @@ public static function parse_html(string $html):string
         }
 
         // Check for closing tag
-        $chk_match = str_replace("/", "\\/", $match[0]);
+        //$chk_match = str_replace("/", "\\/", $match[0]);
+        $chk_match = strtr($match[0], array("/" => "\\/", "'" => "\\'", "\"" => "\\\"", "\$" => "\\\$"));
         if (preg_match("/$chk_match(.*?)<\/e\:$tag>/si", $html, $html_match)) { 
 
             $text = $html_match[1];

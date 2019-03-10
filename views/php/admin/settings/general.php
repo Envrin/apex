@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace apex;
 
 use apex\core\forms;
+use apex\pkg\package_config;
 
 
 // Update general settings
@@ -229,7 +230,7 @@ if (registry::$action == 'update_general') {
         // Go through packages
         $packages = DB::get_column("SELECT alias FROM internal_packages");
         foreach ($packages as $alias) { 
-            $client = new Package($alias);
+            $client = new Package_config($alias);
             $pkg = $client->load();
 
             if (!method_exists($pkg, 'redis_reset')) { continue; }

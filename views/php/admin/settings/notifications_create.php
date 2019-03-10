@@ -14,7 +14,8 @@ if (!$client = components::load('controller', registry::post('controller'), 'cor
 // Get condition
 $condition = array();
 foreach ($client->fields as $alias => $vars) { 
-    $condition[$alias] = $_POST['cond_' . $_POST['controller'] . '_' . $alias];
+    $var_name = 'cond_' . registry::post('controller') . '_' . $alias;
+    $condition[$alias] = registry::post($var_name) ?? '';
 }
 
 // Get merge fields

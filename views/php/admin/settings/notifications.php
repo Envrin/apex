@@ -13,7 +13,7 @@ if (registry::$action == 'create') {
     $client->create(registry::getall_post());
 
     // Add message
-    template::add_message("Successfully added new e-mail notification, %s", 'success', $_POST['subject']);
+    template::add_message("Successfully added new e-mail notification, %s", 'success', registry::post('subject'));
 
 // Edit notification
 } elseif (registry::$action == 'edit') { 

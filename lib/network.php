@@ -229,7 +229,7 @@ public function list_themes()
 {
 
     // GO through all repos
-    $response = '';
+    $themes = array();
     $rows = DB::query("SELECT * FROM internal_repos ORDER BY id");
     foreach ($rows as $row) { 
 
@@ -238,21 +238,15 @@ public function list_themes()
             continue; 
         }
         if (!isset($vars['themes'])) { continue; }
-        if (count($vars['themes']) == 0) { continue; }
-
-        // Add repo header
-        $host = preg_replace("/^https?:\/\//", "", $row['url']);
-        $response .= "----- Repo: ID# $row[id] -- $row[display_name] ($host)\n\n";
 
         // Go through themes
         foreach ($vars['themes'] as $alias => $theme) { 
-            $response .= $alias . ' -- ' . $theme['name'] . "\n";
+            $themes[$alias] = $theme['name'];
         }
-        $response .= "\n";
     }
 
     // Return
-    return $response;
+    return $themes;
 
 }
 

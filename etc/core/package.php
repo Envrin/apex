@@ -8,7 +8,7 @@ class pkg_core
 {
 
 // Set package variables
-public $version = '1.0.4';
+public $version = '1.0.5';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
@@ -56,7 +56,21 @@ $this->config = array(
     'default_language' => 'en', 
     'log_level' => 'notice,error,critical,alert,emergency', 
     'debug_level' => 0, 
-    'cookie_name' => 'K9dAmgkd4Uaf'
+    'cookie_name' => 'K9dAmgkd4Uaf', 
+    'backups_enable' => 1, 
+    'backups_save_locally' => 1, 
+    'backups_db_interval' => 'H3', 
+    'backups_full_interval' => 'D1', 
+    'backups_retain_length' => 'W1', 
+    'backups_remote_service' => 'none', 
+    'backups_aws_access_key' => '', 
+    'backups_aws_access_secret' => '', 
+    'backups_dropbox_client_id' => '', 
+    'backups_dropbox_client_secret' => '', 
+    'backups_dropbox_access_token' => '', 
+    'backups_gdrive_client_id' => '', 
+    'backups_gdrive_client_secret' => '', 
+    'backups_gdrive_refresh_token' => ''
 );
 
 // Hashes
@@ -237,6 +251,16 @@ $this->ext_files = array(
 public function define_hashes() { 
 
     $vars = array();
+
+    // Backup remote services
+    $vars['backups_remote_services'] = array(
+        'none' => 'None / Do Not Backup Remotely', 
+        'aws' => 'Amazon Web Services', 
+        'dropbox' => 'Dropbox', 
+        'google_drive' => 'Google Drive', 
+        'tarsnap' => 'Tarsnap'
+    );
+
 
     // Server mode
     $vars['server_mode'] = array(

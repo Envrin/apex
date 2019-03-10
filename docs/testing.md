@@ -92,10 +92,12 @@ Method | Description
 `assertpagetitlecontains($text)` | Checks if the page title contains the specified `$text`.  Inverse is `assertpagetitlenotcontains`.
 `assertpagecontains($text)` | Checks if the page contents anywhere contains `$text`.  Inverse is `assertpagenotcontains`.
 `asserthasusermessage($type, $message)` | Checks if the most recent page requested contains a user message / callout with the type of `$type~ (success, error, or info) and contains the text in `$message`.  The inverse is `assertnothasusermessage`
-`asserthasfirnerrir*$tyoem $field_name)` | Checks if the page has a form validation error given by the `forms::validate_form()` method of the specified type (blank, email, alphanum) on the specified form field.  Inverse of this method is `assertnothasformerror`.
+`asserthasformerror($type, $field_name)` | Checks if the page has a form validation error given by the `forms::validate_form()` method of the specified type (blank, email, alphanum) on the specified form field.  Inverse of this method is `assertnothasformerror`.
+`asserthasheading($hnum, $text)` | Checks if the page contains a <hX> tag with the specified text.  Inverse of this method is `assertnothasheading`.
 `asserthassubmit($value, $label)` | Checks if the last requested page contains a submit button with the specified value and label.  The inverse of this method is `assertnothassubmit`.
 `asserthastable($table_alias)` | Checks if the page contains a HTML table component with the alias in Apex format (ie. PACKAGE:ALIAS) that is displayed via the `<e:function>` tag.  Inverse of this method is `assertnothastable`.
 `asserthastablefield($table_alias, $col_num, $value)` | Checks if the specified HTML tab has a row containing the specified value in the specified column number.  Inverse of this method is `assertnothastablefield`.
+`asserthasdbrow($sql)` | Checks if one row exists in the mySQL database with the specified SQL query.  Inverse of this method is `assertnothasdbrow`.
 `asserthasdbfield($sql, $column, $value)` | Retrives one row from the database with the specified SQL statement, and checks if the specified column name matches the value.  The inverse of this method is `aasertnothasdbfield`.
 `asserthasformfield($name)` | Checkes if the last page requested contains a form field with the specified name.  The inverse of this method is `assertnothasformfield`
 `assertstringcontains($string, $text)` | Checks if the provided string contains the specified text.  Inverse of this method is `assertstringnotcontains`.

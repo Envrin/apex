@@ -117,6 +117,9 @@ public static function finish_session()
     registry::$redis->set('config:debug_log', json_encode($data));
     registry::$redis->expire('config:debug_log', 10800);
 
+    // Save response output
+    file_put_contents(SITE_PATH . '/log/response.txt', registry::get_response());
+
     // Update config, as needed
     if (registry::config('core:debug') != 2) { 
         registry::update_config_var('core:debug', '0');

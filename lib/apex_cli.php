@@ -636,11 +636,17 @@ protected function list_themes($vars)
 
     // Get themes
     $client = new network();
-    $response = $client->list_themes();
+    $themes = $client->list_themes();
 
     // CHeck for no themes
-    if ($response == '') { 
+    if (count($themes) == 0) { 
         $response = "No themes are avilable from any repositories.\n";
+    } else { 
+
+        $response = '';
+        foreach ($themes as $alias => $name) { 
+            $response .= "$alias -- $name\n";
+        }
     }
 
     // Debug

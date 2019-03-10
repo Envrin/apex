@@ -21,11 +21,11 @@ class images
 *     @param string $filename The filename of the image
 *     @param string $contents The contents of the image
 *     @param string $type The type of image (eg. user, product, etc.)
-*     @param int $record_id Optional record ID to retrieve the image later
+*     @param int $recordstring Optional record ID to retrieve the image later
 *     @param int $is_default Boolean (1/0) that defines whether or not the image is default for this type (eg. default user avatar)
 *     @return int The ID# of the new image
 */
-public static function add(string $filename, string $contents, string $type, int $record_id = 0, string $size = 'full', int $is_default = 0):int
+public static function add(string $filename, string $contents, string $type, string $record_id = '', string $size = 'full', int $is_default = 0):int
 {
 
     // Save image to filesystem
@@ -66,11 +66,11 @@ public static function add(string $filename, string $contents, string $type, int
 * Upload a new image
 *     @param string $form_field The name of the form field of the uploaded image.
 *     @param string $type The type of image (eg. user, product, etc.)
-*     @param int $record_id Optional record ID# of the image to retrieve it later.
+*     @param string $record_id Optional record ID# of the image to retrieve it later.
 *     @param int $is_default Whether or not this is the default image for this type.
 *     @return int The ID# of the image
 */
-public static function upload(string $form_field, string $type, int $record_id = 0, int $is_default = 0) 
+public static function upload(string $form_field, string $type, string $record_id = '', int $is_default = 0) 
 {
 
     // Get the uploaded file
@@ -89,10 +89,10 @@ public static function upload(string $form_field, string $type, int $record_id =
 /**
 * Retrive image from the database
 *     @param string $type The type of image (eg. user, product, etc.)
-*     @param int $record_id The record ID# of the image.
+*     @param string $record_id The record ID# of the image.
 *     @param string $size The size of the image
 */
-public static function get(string $type, int $record_id = 0, string $size = 'full')
+public static function get(string $type, string $record_id = '', string $size = 'full')
 {
 
     // Check database
@@ -111,7 +111,7 @@ public static function get(string $type, int $record_id = 0, string $size = 'ful
 /**
 * Add a thumbnail
 */
-public static function add_thumbnail(string $image_type, int $record_id, string $size, int $thumb_width, int $thumb_height) 
+public static function add_thumbnail(string $image_type, string $record_id, string $size, int $thumb_width, int $thumb_height) 
 {
 
     // Get contents of existing image
@@ -194,7 +194,7 @@ public static function add_thumbnail(string $image_type, int $record_id, string 
 /**
 * Display image
 */
-public static function display(string $type, int $record_id = 0, string $size = 'full')
+public static function display(string $type, string $record_id = '', string $size = 'full')
 {
 
     // Get image

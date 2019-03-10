@@ -48,7 +48,7 @@ CREATE TABLE internal_repos (
     description TEXT NOT NULL
 ) engine=InnoDB;	
 
-INSERT INTO internal_repos (url,display_name,description) VALUES ('http://apex.envrin.com', 'Apex Main Repository', 'The main, public repository for the Apex Framework.');
+INSERT INTO internal_repos (url,display_name,description) VALUES ('http://apex.envrin.com', 'Apex Public Repository', 'The main, public repository for the Apex Framework.');
 INSERT INTO internal_repos (is_local,is_active,url,display_name,description) VALUES (1, 0, '', '', '');
 
 CREATE TABLE internal_packages (
@@ -366,7 +366,7 @@ CREATE TABLE notifications_login_notices (
 CREATE TABLE images (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
     type VARCHAR(50) NOT NULL, 
-    record_id INT NOT NULL DEFAULT 0, 
+    record_id VARCHAR(50) NOT NULL DEFAULT '', 
     is_default TINYINT(1) NOT NULL DEFAULT 0, 
     size VARCHAR(15) NOT NULL DEFAULT 'full', 
     width INT NOT NULL DEFAULT 0, 

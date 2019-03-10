@@ -4,6 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\DB;
+use apex\network;
+
 
 class packages extends \apex\abstracts\table
 {
@@ -35,6 +37,19 @@ class packages extends \apex\abstracts\table
 public function get_attributes(array $data = array())
 {
 
+    // Check for devkit
+    $this->devkit = $data['devkit'] ?? 0;
+    $this->upgrades = array();
+
+    // Check for upgrades, if not devkig
+    if ($this->devkit == 0) { 
+        unset($this->columns['manage']);
+
+        // Check for upgrades
+        $client = new network();
+        $this->upgrades = $client->check_upgrades();
+
+    }
 
 }
 
@@ -95,11 +110,21 @@ public function get_rows(int $start = 0, string $search_term = '', string $order
 public function format_row(array $row):array 
 {
 
+// Check if upgrade available
+    if (isset($this->upgrades[$row['alias']])) { 
+        $available = 'v' . $this->upgrades[$row['alias']];
+        list($prefix, $suffix) = array('<b>', '</b>');
+    } else { 
+        list($available, $prefix, $suffix) = array('', '', '');
+    }
+    $last_modified = $row['last_modified'] ?? '';
+
+
     // Format row
-    $row['display_name'] .= ' v' . $row['version'];
-    $row['available'] = '-';
-    $row['last_modified'] = $row['last_modified'] == '' ? '-' : fdate($row['last_modified'], true);
-    $row['date_installed'] = fdate($row['date_installed'], true);
+    $row['display_name'] = $prefix . $row['display_name'] . ' v' . $row['version'] . $suffix;
+    $row['available'] = $prefix . $available . $suffix;
+    $row['last_modified'] = !preg_match("/^2/", $last_modified) ? '-' : $prefix . fdate($last_modified, true) . $suffix;
+    $row['date_installed'] = $prefix . fdate($row['date_installed'], true) . $suffix;
     $row['manage'] = "<center><a href=\"/admin/devkit/packages_manage?package=$row[alias]\" class=\"btn btn-primary btn-sm\">Manage</a></center>";
 
     // Return

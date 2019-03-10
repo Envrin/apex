@@ -612,7 +612,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
     }
 
     // Update database
-    DB::query("UPDATE internal_packages SET version = %s WHERE alias = %s", $version, $pkg_alias);
+    DB::query("UPDATE internal_packages SET version = %s, last_modified = now() WHERE alias = %s", $version, $pkg_alias);
 
     // Add history to database
     DB::insert('internal_upgrades', array(

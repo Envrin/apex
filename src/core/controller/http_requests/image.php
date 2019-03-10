@@ -24,7 +24,7 @@ public function process()
     //$size = strtolower(preg_replace("/\..+$/", "", $parts[3]));
 
     // Display image
-    images::display(registry::$uri[0], (int) registry::$uri[1], $size);
+    images::display(registry::$uri[0], registry::$uri[1], $size);
 
     // Echo response
     registry::echo_response();
