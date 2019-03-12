@@ -1,8 +1,13 @@
 
 # Apex
 
-Welcome to Apex, a powerful, and easy to learn framework to efficiently develop, deploy, and maintain professional online operations.  You  will be amazed at the simplicity for the quality.  Please take a few moments to browse the documentation below.
+Welcome to Apex, a powerful, and easy to learn software platform to efficiently develop, deploy, and maintain professional online operations.  You  will be amazed at the simplicity for the quality.  Please take a few moments to browse the documentation below.
 
+### [Training Guide (developers)](training/index.md)
+
+### [User Manual](user_manual/index.md)
+
+### Table of Contents
 1. [What is Apex?](about.md)
 2. [Installation](install.md)
 3. [General Structure / Overview](overview.md)
@@ -39,12 +44,12 @@ Welcome to Apex, a powerful, and easy to learn framework to efficiently develop,
     1. [redis](database_redis.md)
     2. [mySQL / Back-End](database_mysql.md)
 7. [Template Structure / Engine](templates.md)
-    1. [Template Functions](templates_functions.md)
+    1. [Template PHP Functions](templates_functions.md)
     2. [Template HTML Tags](templates_tags.md)
     3. [Template HTML Forms](templates_forms.md)
     4. [Execute PHP on Existing Template](templates_execute_php.md)
 8. [Themes and Layouts](themes.md)
-    1. [Themes and Layouts](themes.md)
+    1. [Create and Publish Themes](themes_create.md)
     2. [Integrate Existing Theme](themes_integrate.md)
     3. [Envata / ThemeForest Designers, Sell More Themes!](themes_envato.md)
 9. [Communication](communication.md)

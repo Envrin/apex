@@ -50,3 +50,10 @@ as the registry response contents with:
 `registry::set_response(template::parse());`
 
 
+### `registry::echo_template(string $uri)`
+
+**Description:** Should be avoided if possible due to unit tests, but will immediately display the specified template to 
+the web browser, and end execution.  This is used for things such as when 2FA is required for an action, and ensures all execution stops and instead the 
+appropriate 2fa.tpl template is displayed.
+
+

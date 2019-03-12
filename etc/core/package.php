@@ -8,7 +8,7 @@ class pkg_core
 {
 
 // Set package variables
-public $version = '1.0.6';
+public $version = '1.0.7';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
@@ -19,9 +19,6 @@ public function __construct() {
 // Config variables
 $this->config = array(
     'cron_pid' => 0,
-    'worker_pid' => 0, 
-    'rpc_pid' => 0, 
-    'websocket_pid' => 0, 
     'mode' => 'devel', 
     'debug' => 0, 
     'date_format' => 'F j, Y', 

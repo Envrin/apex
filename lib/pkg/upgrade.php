@@ -230,6 +230,15 @@ public function compile($upgrade_id)
         $this->compile_single_file($file);
     }
 
+    // Go through documentation
+    $docs_dirs = $upgrade['package'] == 'core' ? array('', 'components', 'core', 'training', 'user_manual') : array($upgrade['package']);
+    foreach ($docs_dirs as $docdir) { 
+        if (!is_dir(SITE_PATH . "/docs/$docdir")) { continue; }
+        $docs_files = io::parse_dir(SITE_PATH . "/docs/$docdir", false);
+        foreach ($docs_files as $doc_file) { 
+            $this->compile_single_file("docs/$docdir/$doc_file");
+        }
+    }
 
     // Save components.json file
     file_put_contents("$this->upgrade_dir/toc.json", json_encode($this->toc));
@@ -644,16 +653,28 @@ public function rollback(string $pkg_alias, string $version)
 
     // Get package
     if (!$row = DB::get_row("SELECT * FROM internal_packages WHERE alias = %s", $pkg_alias)) { 
-        trigger_error(tr("Package does not exist, %s", $pkg_alias), E_USER_ERROR);
+        throw new PackageException('not_exists', $pkg_alias);
     }
+    $prev_version = $row['prev_version'];
+    $current_version = $row['version'];
+
+    // Debug
+    debug::add(1, fmsg("Starting to rollback package {1} from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), __FILE__, __LINE__, 'info');
 
     // Go through upgrades
     $rows = DB::query("SELECT * FROM internal_upgrades WHERE package = %s AND status = 'installed' ORDER BY id DESC");
     foreach ($rows as $row) { 
 
+        // Check version
+        if (!version_compare($prev_version, $row['version'], '>')) {
+            break;
+        }
+
         // Rollback single upgrade
         $this->rollback_single($pkg_alias, $row['version']);
     }
+
+    debug::add(1, fmsg("Successfully performed rollback to package {1}, from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), __FILE__, __LINE__, 'info');
 
 }
 
@@ -668,8 +689,11 @@ protected function rollback_single(string $pkg_alias, string $version)
     // Ensure rollback directory exists
     $rollback_dir = SITE_PATH . '/etc/' . $pkg_alias . '/rollback/' . $version;
     if (!is_dir($rollback_dir)) { 
-        trigger_error(tr("Rollback information does not exist for package %s, version %s", $pkg_alias, $version), E_USER_ERROR);
+        throw new UpgradeException('no_rollback', $pkg_alias, $version);
     }
+
+    // Debug
+    debug::add(3, fmsg("Starting single rollback for package {1}, version {2}", $pkg_alias, version), __FILE__, __LINE__);
 
     // Get changes
     $toc = json_decode(file_get_contents("$rollback_dir/changes.json"), true);
@@ -710,7 +734,8 @@ protected function rollback_single(string $pkg_alias, string $version)
     DB::query("UPDATE internal_packages SET version = %s WHERE alias = %s", $version, $pkg_alias);
     DB::query("DELETE FROM internal_upgrades WHERE package = %s AND version = %s AND status = 'installed'", $pkg_alias, $version);
 
-
+    // Debug
+    debug::add(3, fmsg("Completed single rollback on package {1} to version {2}", $pkg_alias, $version), __FILE__, __LINE__);
 
 }
 

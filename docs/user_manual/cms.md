@@ -2,7 +2,7 @@
 # CMS
 
 The administration panel contains a CMS menu, which allows you to easily manage navigation menus, page titles / layouts, and placeholders.  Although these 
-menus should be pretty striaght forward, this page gives a brief description of each.
+menus should be pretty straight forward, this page gives a brief description of each.
 
 
 ### Menus
@@ -22,7 +22,7 @@ different layouts for different pages.  For example, some themes will come with 
 ### Placeholders
 
 All templates within the public web site and member's area contain various placeholders, which can be replaced with any text / HTML code you desire.  This menu allows you 
-to enter the contents of each placeholder.  It is highly recommended you define all additional text / HTML code you wish to place within the web pages, espeically the member's area, instead of manually modifying the TPL template files.  This is because 
+to enter the contents of each placeholder.  It is highly recommended you define all additional text / HTML code you wish to place within the web pages here, ecspecially the member's area, instead of manually modifying the TPL template files.  This is because 
 sometimes an upgrade will contain an updated version of templates within the member's area, so upon installing the upgrade, it will overwrite the TPL file, wiping out any manual modification you may have made.  However, all text / HTML code you've defined within 
 the placeholders will remain intact, even if the TPL file is overwritten with a newer version.
 
