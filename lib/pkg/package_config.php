@@ -118,7 +118,6 @@ public function install_configuration($pkg = '')
     // Install placeholders
     $this->install_placeholders($pkg);
 
-
     // Debug
     debug::add(2, fmsg("Completed configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
@@ -232,6 +231,7 @@ protected  function install_menus($pkg)
         $url = $vars['url'] ?? '';
         $require_login = $vars['require_login'] ?? 0;
         $require_nologin = $vars['require_nologin'] ?? 0;
+        $submenus = isset($vars['menus']) && is_array($vars['menus']) ? $vars['menus'] : array();
 
         // Add to $done array
     $done[] = implode(":", array($type, $area, $parent, $alias));
@@ -243,17 +243,13 @@ protected  function install_menus($pkg)
         }
 
         // Go through submenus, if needed
-        if (isset($vars['menus']) && is_array($vars['menus'])) { 
-
-            $last_sub_alias = '';
-            foreach ($vars['menus'] as $sub_alias => $sub_name) {
-                $position = $last_sub_alias == '' ? 'top' : 'after ' . $last_sub_alias;
-                $this->add_single_menu($area, $parent, $sub_alias, $sub_name, $position, 'internal', '', '', $require_login, $require_nologin); 
-                $last_sub_alias = $sub_alias;
-                $done[] = implode(":", array('internal', $area, $parent, $sub_alias));
-            }
+        $last_sub_alias = '';
+        foreach ($submenus as $sub_alias => $sub_name) {
+            $position = $last_sub_alias == '' ? 'top' : 'after ' . $last_sub_alias;
+            $this->add_single_menu($area, $parent, $sub_alias, $sub_name, $position, 'internal', '', '', $require_login, $require_nologin); 
+            $last_sub_alias = $sub_alias;
+            $done[] = implode(":", array('internal', $area, $parent, $sub_alias));
         }
-
     }
 
     // Delete needed menus
@@ -347,10 +343,9 @@ protected function get_menu_position(string $area, string $parent, string $posit
 
         // Get current row
         if ($row = $this->menu_get_current_position_row($area, $match[2], $match[1], $parent)) { 
-            $opr = $match[1] == 'before' ? '>=' : '<=';
-            $opr2 = $match[1] == 'before' ? '+' : '-';
-
-            DB::query("UPDATE cms_menus SET order_num = order_num $opr2 1 WHERE area = %s AND parent = %s AND order_num $opr %i", $area, $parent, $row['order_num']);
+            $opr = $match[1] == 'before' ? '>=' : '>';
+            DB::query("UPDATE cms_menus SET order_num = order_num + 1 WHERE area = %s AND parent = %s AND order_num $opr %i", $area, $parent, $row['order_num']);
+            if ($match[1] == 'after') { $row['order_num']++; }
             return (int) $row['order_num'];
         } else { 
             $position = $match[1] == 'before' ? 'top' : 'bottom';

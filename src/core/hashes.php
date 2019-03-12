@@ -7,8 +7,15 @@ use apex\DB;
 use apex\registry;
 use apex\log;
 use apex\debug;
+use apex\ComponentException;
 use apex\core\components;
 
+
+/**
+* Handles the various has operations against the hashes 
+* defined within the $this->hash array within package.php configuration 
+* files.  Allows you to easily parse a hash, obtain select options, etc.
+*/
 class hashes
 {
 
@@ -26,13 +33,13 @@ public static function create_options(string $hash_alias, $value = '', string $f
 
     // Check hash
     if (!list($package, $parent, $alias) = components::check('hash', $hash_alias)) { 
-        trigger_error(tr("The hash '%s' either does not exist, or exists in more than one package and no package was defined.", $hash_alias), E_USER_ERROR);
+        throw new ComponentException('not_exists_alias', 'hash', $hash_alias);
     }
 
     // Ensure hash exists
     $hash_alias = $package . ':' . $alias;
     if (registry::$redis->hexists('hash', $hash_alias) == 0) {
-        trigger_error("Hash does not exist within redis with the key, $hash_alias", E_USER_ERROR);
+        throw new ComponentException('hash_no_redis', 'hash', $hash_alias);
     }
 
     // Go through all hash variables
@@ -57,6 +64,9 @@ public static function create_options(string $hash_alias, $value = '', string $f
         }
     }
 
+    // Debug
+    debug::add(4, fmsg("Created hash options for the hash: {1}", $hash_alias), __FILE__, __LINE__);
+
     // Return
     return $html;
 
@@ -74,7 +84,7 @@ public static function get_hash_var(string $hash_alias, string $var_alias)
 
     // Check component
     if (!list($package, $parent, $alias) = components::check('hash', $hash_alias)) { 
-        trigger_error(tr("The hash '%s' either does not exist, or exists in more than one package and you did not specify a package.", $hash_alias), E_USER_ERROR);
+        throw new ComponentException('not_exists_alias', 'hash', $hash_alias);
     }
 
     // Get hash variable
@@ -87,6 +97,9 @@ public static function get_hash_var(string $hash_alias, string $var_alias)
     if (!$vars = json_decode($data, true)) { return false; }
 
     if (!isset($vars[$var_alias])) { return false; }
+
+    // Debug
+    debug::add(5, fmsg("Retrieved alue of hash ariable from hash: {1}, key: {2}", $hash_alias, $alias), __FILE__, __LINE__);
 
     // Return
     return $vars[$var_alias];
@@ -106,6 +119,9 @@ public static function get_hash_var(string $hash_alias, string $var_alias)
 */
 public static function parse_data_source(string $data_source, string $value = '', string $form_field = 'select', string $form_name = ''):string
 {
+
+    // Debug
+    debug::add(5, fmsg("Parsing hash data source, {1}", $data_source), __FILE__, __LINE__);
 
     // Initialize
     $source = explode(":", $data_source);
@@ -190,6 +206,9 @@ public static function get_stdvar(string $type, string $abbr, string $column = '
         $vars = explode("::", $value);
         $value = $vars[0];
     } else { $value = ''; }
+
+    // Debug
+    debug::add(5, fmsg("Retrieed stdlist ariable of type {1} with abbr {2}", $type, $abbr), __FILE__, __LINE__);
 
     // Return
     return $value;

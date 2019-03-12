@@ -45,7 +45,7 @@ class registry
     // Localization
     public static $timezone = 'PST';
     public static $language = 'en';
-    private $smtp_connections = array();
+    private static $smtp_connections = array();
 
     // Response variables
     protected static $res_status = 200;
@@ -168,7 +168,7 @@ private static function connect_redis()
     }
 
     // Debug
-    debug::add(4, "Connected to redis, loaded config", __FILE__, __LINE__);
+    //debug::add(4, "Connected to redis, loaded config", __FILE__, __LINE__);
 
 }
 
@@ -427,7 +427,7 @@ public static function set_response(string $content = '')
 {
 
     // Set response content
-    self::$response = $content;
+    self::$response = (string) $content;
 
     // Debug
     debug::add(2, "Set response contents", __FILE__, __LINE__);
@@ -458,10 +458,10 @@ public static function echo_response()
     http_response_code(self::$res_status);
 
     // Content type
-    header("Content-type: " . self::$res_content_type);
+    //header("Content-type: " . self::$res_content_type);
 
     // Echo response
-    echo self::$response;
+    echo (string) self::$response;
 
 }
 
@@ -634,15 +634,15 @@ public static function get_smtp_server()
 
         // Check number of retries
         if ($retries >= $total_servers) { 
-            throw new ApexException('alert', "Unable to connect to any configured SMTP servers");
+            return false;
         }
 
         // Decode JSON, and check status
         $vars = json_decode($value, true);
-        if ($vars['is_active'] != 1) { 
-            $retries++;
-            continue;
-        }
+        //if ($vars['is_active'] != 1) { 
+            //$retries++;
+            //continue;
+        //}
 
         // Check for existing connection
         if (isset(self::$smtp_connections[$vars['host']])) { 
@@ -653,7 +653,7 @@ public static function get_smtp_server()
 
         // Connect to host
         $host = $vars['is_ssl'] == 1 ? 'ssl://' . $vars['host'] : $vars['host'];
-        if (!$connection = fsockopen($host, $vars['port'], $errno, $errstr, 5)) { 
+        if (!$connection = fsockopen($host, (int) $vars['port'], $errno, $errstr, 5)) { 
             $vars['is_active'] = 0;
             self::$redis->lset('config:email_servers', $num, json_encode($vars));
             $retries++;

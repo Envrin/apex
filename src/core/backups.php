@@ -9,6 +9,7 @@ use apex\log;
 use apex\debug;
 use apex\ApexException;
 use apex\core\io;
+use apex\core\date;
 use Kunnu\Dropbox\Dropbox;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\DropboxFile;
@@ -33,9 +34,12 @@ public function perform_backup(string $type = 'full')
 {
 
     // Check if backups enabled
-    if (registry::config('core:backups_enabled') != 1) { 
+    if (registry::config('core:backups_enable') != 1) { 
         return false;
     }
+
+    // Remove expired archives
+    $this->remove_expired_archives();
 
     // Perform local backup
     $archive_file = $this->backup_local($type);
@@ -56,6 +60,39 @@ public function perform_backup(string $type = 'full')
 
     // Return
     return $archive_file;
+
+}
+
+/**
+* Remove expired archives from /data/backups/ directory
+*/
+private function remove_expired_archives()
+{
+
+    // Get time
+    if (!$start_time = date::subtract_interval(registry::config('core:backups_retain_length'), time(), false)) { 
+        return;
+    }
+
+    // Go through all files
+    $files = io::parse_dir(SITE_PATH . '/data/backups', false);
+    foreach ($files as $file) { 
+
+        // Check filename
+        if (!preg_match("/^(\w+)-(\d\d\d\d)-(\d\d)-(\d\d)_(\d+)\.tar\.gz$/", $file, $match)) { 
+            continue;
+        }
+
+        // Check time
+        $secs = mktime(0, 0, 0, (int) $match[3], (int) $match[4], (int) $match[2]) + (int) $match[5];
+        if ($start_time> $secs) { continue; }
+
+        // Delete file
+        @unlink(SITE_PATH . '/data/backups/' . $file);
+
+        // Debug
+        debug::add(4, fmsg("Deleted backup file, as it has expired, {1}", $file), __FILE__, __LINE__, 'info');
+    }
 
 }
 
@@ -89,6 +126,12 @@ private function backup_local(string $type)
     $tar_cmd = "tar --exclude='data/backups/*' -cf " . SITE_PATH . '/data/backups/' . $archive_file . " $backup_source";
     system($tar_cmd);
     system("gzip " . SITE_PATH . "/data/backups/$archive_file");
+
+    // Update next time to run
+    $interval = registry::config('core:backups_' . $type . '_interval');
+    $next_date = registry::add_interval($interval, time(), false);
+    registry::update_config_var('core:backups_nexet_' . $type, $next_date);
+
     // Return
     return $archive_file . '.gz';
 
@@ -109,7 +152,7 @@ private function upload_dropbox(string $filename)
     try {
         $dropboxFile = new DropboxFile(SITE_PATH . '/data/backups/' . $filename);
         $uploadedFile = $dropbox->upload($dropboxFile, "/" . $filename, ['autorename' => true]);
-    } catch (Exception E)
+    } catch (Exception $E) {
         throw new ApexException('error', "Unable to upload to Dropbox: " . $e->getMessage());
     }
 
@@ -128,7 +171,7 @@ private function upload_google_drive(string $filename)
     // Start client
     $client = new \Google_Client();
     $client->setClientId(registry::config('core:backups_gdrive_client_id'));
-    $client->setClientSecret(registry::config('core:backups_gdrive_client_secret');
+    $client->setClientSecret(registry::config('core:backups_gdrive_client_secret'));
     $client->refreshToken(registry::config('core:backups_gdrive_refresh_token'));
 
     // Start service

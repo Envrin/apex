@@ -100,8 +100,8 @@ public static function parse():string
     $tpl_file = SITE_PATH . '/views/tpl/' . registry::$panel . '/' . registry::$route . '.tpl';
     if (file_exists($tpl_file)) { 
         self::$tpl_code = file_get_contents($tpl_file);
-    } elseif (file_exists(SITE_PATH . '/views/' . registry::$panel . '/404.tpl')) {  
-        self::$tpl_code = file_get_contents(SITE_PATH . '/views/' . registry::$panel . '/404.tpl');
+    } elseif (file_exists(SITE_PATH . '/views/tpl/' . registry::$panel . '/404.tpl')) {  
+        self::$tpl_code = file_get_contents(SITE_PATH . '/views/tpl/' . registry::$panel . '/404.tpl');
     } else { 
         return "We're sorry, but no TPL file exists for the location " . registry::$route . " within the panel " . registry::$panel . ", and no 404 template was found.";
     }

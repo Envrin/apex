@@ -4,6 +4,7 @@ namespace apex;
 
 use apex\core\admin;
 
+
 // Create administrator
 if (registry::$action == 'create') { 
 

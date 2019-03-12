@@ -5,6 +5,7 @@ namespace apex;
 use apex\core\components;
 use apex\core\notification;
 
+
 // Create notification
 if (registry::$action == 'create') {
 
@@ -13,10 +14,10 @@ if (registry::$action == 'create') {
     $client->create(registry::getall_post());
 
     // Add message
-    template::add_message("Successfully added new e-mail notification, %s", 'success', registry::post('subject'));
+    template::add_message(tr("Successfully added new e-mail notification, %s", registry::post('subject')));
 
 // Edit notification
-} elseif (registry::$action == 'edit') { 
+} elseif (registry::$action == 'update') { 
 
     // Update notification
     $client = new notification();
@@ -46,4 +47,3 @@ template::assign('controller_options', $controller_options);
 
 ?>
 
-?>

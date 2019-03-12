@@ -57,7 +57,7 @@ public function create(string $theme_alias, int $repo_id, string $area = 'public
     io::create_dir(SITE_PATH . '/public/themes/' . $theme_alias);
 
     // Save theme.php file
-    $conf = base64_decode('PD9waHAKZGVjbGFyZShzdHJpY3RfdHlwZXMgPSAxKTsKCi8qKgoqIFVzZWQgdG8gZGVmaW5lIHZhcmlvdXMgcHJvcGVydGllcyBhYm91dCB0aGUgdGhlbWUsIHBsdXMgd2lsbCAKKiBvdmVycmlkZSBhbnkgbWV0aG9kcyB3aXRoaW4gdGhlIC9saWIvaHRtbF90YWdzLnBocCBjbGFzcy4gIElmIHRoZSBzYW1lIAoqIG1ldGhvZCBleGlzdHMgd2l0aGluIHRoaXMgY2xhc3MsIHRoaXMgbWV0aG9kIHdpbGwgYmUgZXhlY3V0ZWQgaW5zdGVhZCBvZiB0aGUgb25lIAoqIHdpdGhpbiAvbGliL2h0bWxfbGlicy5waHAKKi8KY2xhc3MgdGhlbWVffmFsaWFzfiAKewoKICAgIC8vIFByb3BlcnRpZXMKICAgIHB1YmxpYyAkYXJlYSA9ICd+YXJlYX4nOwogICAgcHVibGljICRhY2Nlc3MgPSAncHVibGljJzsKICAgIHB1YmxpYyAkbmFtZSA9ICd+YWxpYXN+JzsKCgp9Cgo=');
+    $conf = base64_decode('PD9waHAKZGVjbGFyZShzdHJpY3RfdHlwZXMgPSAxKTsKCi8qKgoqIFVzZWQgdG8gZGVmaW5lIHZhcmlvdXMgcHJvcGVydGllcyBhYm91dCB0aGUgdGhlbWUsIHBsdXMgd2lsbCAKKiBvdmVycmlkZSBhbnkgbWV0aG9kcyB3aXRoaW4gdGhlIC9saWIvaHRtbF90YWdzLnBocCBjbGFzcy4gIElmIHRoZSBzYW1lIAoqIG1ldGhvZCBleGlzdHMgd2l0aGluIHRoaXMgY2xhc3MsIHRoaXMgbWV0aG9kIHdpbGwgYmUgZXhlY3V0ZWQgaW5zdGVhZCBvZiB0aGUgb25lIAoqIHdpdGhpbiAvbGliL2h0bWxfbGlicy5waHAKKi8KY2xhc3MgdGhlbWVffmFsaWFzfiAKewoKICAgIC8vIFByb3BlcnRpZXMKICAgIHB1YmxpYyAkYXJlYSA9ICd+YXJlYX4nOwogICAgcHVibGljICRhY2Nlc3MgPSAncHVibGljJzsKICAgIHB1YmxpYyAkbmFtZSA9ICd+YWxpYXN+JzsKICAgIHB1YmxpYyAkZGVzY3JpcHRpb24gPSAnJzsKCiAgICAvLyBBdXRob3IgZGV0YWlscwogICAgcHVibGljICRhdXRob3JfbmFtZSA9ICcnOwogICAgcHVibGljICRhdXRob3JfZW1haWwgPSAnJzsKICAgIHB1YmxpYyAkYXV0aG9yX3VybCA9ICcnOwoKICAgIC8qKgogICAgKiBFbnZhdG8gaXRlbSBJRC4gIGlmIHRoaXMgaXMgZGVmaW5lZCwgdXNlcnMgd2lsbCBuZWVkIHRvIHB1cmNoYXNlIHRoZSB0aGVtZSBmcm9tIFRoZW1lRm9yZXN0IGZpcnN0LCAKICAgICogYW5kIGVudGVyIHRoZWlyIGxpY2Vuc2Uga2V5IGJlZm9yZSBkb3dubG9hZGluZyB0aGUgdGhlbWUgdG8gQXBleC4gIFRoZSBsaWNlbnNlIGtleSAKICAgICogd2lsbCBiZSB2ZXJpZmllZCB2aWEgRW52YXRvJ3MgQVBJLCB0byBlbnN1cmUgdGhlIHVzZXIgcHVyY2hhc2VkIHRoZSB0aGVtZS4KICAgICogCiAgICAqIFlvdSBtdXN0IGFsc28gc3BlY2lmeSB5b3VyIEVudmF0byB1c2VybmFtZSwgYW5kIHRoZSBmdWxsIAogICAgKiBVUkwgdG8gdGhlIHRoZW1lIG9uIHRoZSBUaGVtZUZvcmVzdCBtYXJrZXRwbGFjZS4gIFBsZWFzZSBhbHNvIAogICAgKiBlbnN1cmUgeW91IGFscmVhZHkgaGF2ZSBhIGRlc2lnbmVyIGFjY291bnQgd2l0aCB1cywgYXMgd2UgZG8gbmVlZCB0byAKICAgICogc3RvcmUgeW91ciBFbnZhdG8gQVBJIGtleSBpbiBvdXIgc3lzdGVtIGluIG9yZGVyIHRvIHZlcmlmeSBwdXJjaGFzZXMuICBDb250YWN0IHVzIHRvIG9wZW4gYSBmcmVlIGFjY291bnQuCiAgICAqLwogICAgcHVibGljICRlbnZhdG9faXRlbV9pZCA9ICcnOwogICAgcHVibGljICRlbnZhdG9fdXNlcm5hbWUgPSAnJzsKICAgIHB1YmxpYyAkZW52YXRvX3VybCA9ICcnOwoKfQoK');
     $conf = str_replace("~alias~", $theme_alias, $conf);
     $conf = str_replace("~area~", $area, $conf);
     file_put_contents("$theme_dir/theme.php", $conf);
@@ -127,7 +127,15 @@ public function publish(string $theme_alias)
         'theme_alias' => $theme_alias, 
         'access' => $access, 
         'area' => $area, 
-        'name' => $name, 
+        'name' => $name,
+        'description' => ($theme->description ?? ''), 
+        'author_name' => ($theme->author_name ?? ''), 
+        'author_email' => ($theme->author_email ?? ''), 
+        'author_url' => ($theme->author_url ?? ''), 
+        'envato_item_id' => ($theme->envato_item_id ?? ''), 
+        'envato_username' => ($theme->envato_username ?? ''), 
+        'envato_url' => ($theme->envato_url ?? ''), 
+        'description' => ($theme->description ?? ''), 
         'contents' => new CurlFile($zip_file, 'application/gzip', $theme_alias . '.zip')
     );
 

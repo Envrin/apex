@@ -40,13 +40,12 @@ foreach ($rows as $row) {
     $log_line = '[' . date('Y-m-d H:i:s') . '] Starting (' . $row['package'] . ':' . $row['alias'] . ")\n";
     file_put_contents(SITE_PATH . '/log/services/cron.log', $log_line, FILE_APPEND);
 
-
     // Execute cron job
     $cron->process();
 
     // Set variables
     $name = isset($cron->name) ? $cron->name : $row['alias'];
-    $next_date = date::add_interval($cron->time_interval);
+    $next_date = date::add_interval($cron->time_interval, time(), false);
 
     // Update crontab job times
     DB::update('internal_crontab', array(
@@ -73,22 +72,27 @@ registry::update_config_var('core:cron_pid', '0');
 function cron_check_pids()
 {
 
+    // Get current pids
+    $pids = array();
+    foreach (array('worker.pid', 'rpc.pid', 'websocket.pid') as $file) { 
+        if (!file_exists(SITE_PATH . "/tmp/$file")) { continue; }
+        $pids[] = trim(file_get_contents(SITE_PATH . "/tmp/$file"));
+    }
+
     // Get list of processes
     $lines = array();
     exec('ps auxw | grep .php', $lines);
 
     // Check processes
-    list($found_cron, $found_worker, $found_rpc, $found_ws) = array(false, false, false, false);
+    list($found_cron, $found_worker) = array(false, false);
     foreach ($lines as $line) { 
         $vars = preg_split("/(\s+)/", $line);
         if ($vars[1] > 0 && $vars[1] == registry::config('core:cron_pid')) { $found_cron = true; }
-        if ($vars[1] > 0 && $vars[1] == registry::config('core:worker_pid')) { $found_worker = true; }
-        if ($vars[1] > 0 && $vars[1] == registry::config('core:rpc_pid')) { $found_rpc = true; }
-        if ($vars[1] > 0 && $vars[1] == registry::config('core:websocket_pid')) { $found_ws = true; }
+        if ($vars[1] > 0 && in_array($vars[1], $pids)) { $found_worker = true; }
     }
 
     // Restart Apex daemons, if needed
-    if ($found_worker === false || $found_rpc === false || $found_ws === false) { 
+    if ($found_worker === true) { 
         exec(SITE_PATH . "/src/apex restart");
     }
 

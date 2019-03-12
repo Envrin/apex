@@ -58,12 +58,12 @@ public function process(string $html, array $data = array()):string
 
 // Recipient options
     $recipient_options = '';
-    foreach ($client->recipients as $key => $recipientr_name) { 
+    foreach ($client->recipients as $key => $recipient_name) { 
         if ($key == 'admin' && preg_match("/admin:(\d+)/", $key, $match)) { $recipient_options .= $admin->create_select_options((int) $match[1], true); }
         elseif ($key == 'admin') { $recipient_options .= $admin_options; }
         else {
             $chk = $key == $recipient ? 'selected="selected"' : '';
-            $recipient_options .= "<option value=\"$key\" $chk>$sender_name</option>";
+            $recipient_options .= "<option value=\"$key\" $chk>$recipient_name</option>";
         }
     }
 

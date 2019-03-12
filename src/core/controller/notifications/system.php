@@ -27,7 +27,8 @@ class system
 
     // Recipients
     public $recipients = array(
-        'user' => 'User'		
+        'user' => 'User', 
+        'admin' => 'Administrator'		
     );
 
 /**
@@ -37,38 +38,34 @@ public function get_merge_fields():array
 {
 
     // Set fields
-    $fields = array(
-        'Profile' => array(
-            'username' => 'Username', 
-            'full_name' => 'Full Name', 
-            'email' => 'E-Mail'
-        ), 
-        '2FA Variablies' => array(
-            '2fa-url' => 'URL', 
-            '2fa-ip_address' => 'IP Address', 
-            '2fa-user_agent' => 'User Agent'
-        )
+    $fields = array();
+    $fields['2FA Variablies'] = array(
+        '2fa-url' => 'Authentication URL'
     );
 
     // Return
     return $fields;
 }
 
-/** Get merge variables
+/** 
+* Get merge variables
 */
 public function get_merge_vars(int $userid, array $data):array
 {
 
-    // Load user
-    $user = new user($userid);
-    $profile = $user->load(true, true);
+    // Initialize
+    $vars = array();
+
+    // Get 2FA hash, if needed
+    if (isset($data['2fa_hash'])) { 
+        $vars['2fa-url'] = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
+        $vars['2fa-url'] .= registry::config('core:domain_name') . '/auth2fa/' . $data['2fa_hash'];
+    }
 
     // Return
-    return $profile;
+    return $vars;
 
 }
 
-
 }
-
 

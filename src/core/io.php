@@ -10,6 +10,11 @@ use apex\debug;
 use apex\IOException;
 use ZipArchive;
 
+/**
+( Handles various input / output operations on files and 
+* directories, plus allows sending of remote HTTP requests, and handling 
+* zip archives.  Please refer to developer documentation for full details.
+*/
 class io
 {
 
@@ -24,6 +29,9 @@ class io
 public static function parse_dir(string $rootdir, bool $return_dirs = false) 
 {
 
+    // Debug
+    debug::add(5, fmsg("Parsing the directory, {1}", $rootdir), __FILE__, __LINE__);
+
     // Set variables
     $search_dirs = array('');
     $results = array();
@@ -36,7 +44,9 @@ public static function parse_dir(string $rootdir, bool $return_dirs = false)
         if ($return_dirs === true && !empty($dir)) { $results[] = $dir; }
 
         // Open, and search directory
-        if (!$handle = opendir("$rootdir/$dir")) { trigger_error("Unable to open directory, '" . $rootdir/$dir . "'", E_USER_ERROR); }
+        if (!$handle = opendir("$rootdir/$dir")) {  
+        throw new IOException('no_open_dir', "$rootdir/$dir");
+    }
         while (false !== ($file = readdir($handle))) {
             if ($file == '.' || $file == '..') { continue; }
 
@@ -65,6 +75,11 @@ public static function parse_dir(string $rootdir, bool $return_dirs = false)
 */
 public static function create_dir(string $dirname) 
 {
+
+    // Debug
+    debug::add(4, fmsg("Creating new directory at {1}", $dirname), __FILE__, __LINE__);
+
+
     if (is_dir($dirname)) { return; }
 
     // Format dirname
@@ -81,7 +96,7 @@ public static function create_dir(string $dirname)
         try { 
             @mkdir(SITE_PATH . '/' . $tmp_dir);
         } catch (Exception $e) { 
-            trigger_error("Unable to create directory at /$tmp_dir within the software.  Please check your server permissions, and try again.  Server Message: " . $e->getMessage(), E_USER_ERROR);
+            throw new IOException('no_mkdir', $tmp_dir);
         }
     }
 
@@ -100,6 +115,9 @@ public static function create_dir(string $dirname)
 public static function remove_dir(string $dirname) 
 {
 
+    // Debug
+    debug::add(4, fmsg("Remoing the directory at {1}", $dirname), __FILE__, __LINE__);
+
     if (!is_dir($dirname)) { return true; }
 
     // Parse dir
@@ -113,7 +131,7 @@ public static function remove_dir(string $dirname)
         try { 
             unlink(SITE_PATH . "/$dirname/$file");
         } catch (Exception $e) { 
-            trigger_error("Unable to delete file, $dirname/file.  Please check your server permissions, and try again.  Server Message:  " . $e->getMessage(), E_USER_ERROR);
+            throw new IOException('no_unlink', "$dirname/$file");
         
     }}
 
@@ -125,7 +143,7 @@ public static function remove_dir(string $dirname)
         try {
             rmdir(SITE_PATH . "/$dirname/$subdir");
         } catch (Exception $e) { 
-            trigger_error("Unable to remove directory at, $dirname/$subdir.  Please check your server permissions and try again.  Server Message:  " . $e->getMessage(), E_USER_ERROR);
+            throw new IOException('normdir', "$dirname/$subdir");
         }
     }
 
@@ -133,7 +151,7 @@ public static function remove_dir(string $dirname)
     try {
     rmdir(SITE_PATH . '/' . $dirname);
     } catch (Exception $e) { 
-        trigger_error("Unable to delete directory at, $dirname.  Please check your server permissions and try again.  Server Message:  " . $e->getMessage(), E_USER_ERROR);
+        throw new IOException('no_rmdir', $dirname);
     }
 
     // Return
@@ -153,6 +171,9 @@ public static function remove_dir(string $dirname)
 */
 public static function send_http_request(string $url, string $method = 'GET', $request = array(), string $content_type = 'application/x-www-form-urlencoded', int $return_headers = 0) 
 {
+
+    // Debug
+    debug::add(2, fmsg("Sending HTTP request to the URL: {1}", $url), __FILE__, __LINE__);
 
     // Send via cURL
     $ch = curl_init();
@@ -196,6 +217,9 @@ public static function send_http_request(string $url, string $method = 'GET', $r
 public static function send_tor_request(string $url, string $method = 'GET', array $request = array(), string $content_type = 'application/x-www-form-urlencoded', int $return_headers = 0) 
 {
 
+    // Debug
+    debug::add(3, fmsg("Sending HTTP request ia Tor to the URL: {1}"< $url), __FILE__, __LINE__);
+
     // Send via cURL
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -238,6 +262,9 @@ public static function send_tor_request(string $url, string $method = 'GET', arr
 public static function generate_random_string(int $length = 6, bool $include_chars = false):string 
 {
 
+    // Debug
+    debug::add(5, fmsg("Generating random string of length {1}", $length), __FILE__, __LINE__);
+
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     if ($include_chars === true) { $characters = '!@#$%^&*()_-+=' . $characters . '!@#$%^&*()_-+='; }
     
@@ -263,6 +290,9 @@ public static function generate_random_string(int $length = 6, bool $include_cha
 public static function create_zip_archive(string $tmp_dir, string $archive_file)
 {
 
+    // Debug
+    debug::add(2, fmsg("Creating a new zip archive from directory {1} and aving at {2}", $tmp_dir, $archive_file), __FILE__, __LINE__);
+ 
     if (file_exists(SITE_PATH . '/tmp/' . $archive_file)) { @unlink(SITE_PATH . '/tmp/' . $archive_file); }
     $zip = new ZipArchive();
     $zip->open(SITE_PATH . "/tmp/$archive_file", ZIPARCHIVE::CREATE);
@@ -292,6 +322,9 @@ public static function create_zip_archive(string $tmp_dir, string $archive_file)
 public static function unpack_zip_archive(string $zip_file, string $dirname)
 {
 
+    // Debug
+    debug::add(2, fmsg("Unpacking zip archive {1} into the directory {2}", $zip_file, $dirname), __FILE__, __LINE__);
+ 
     // Debug
     debug::add(3, fmsg("Unpacking zip archive {1} to directory {2}", $zip_file, $dirname), __FILE__, __LINE__);
 

@@ -608,7 +608,7 @@ public function textarea(array $attr, string $text = ''):string
     $html = "<textarea  name=\"$name\" class=\"$class\" id=\"$id\"";
     if ($placeholder != '') { $html .= " placeholder=\"$placeholder\""; }
     if ($width != '' && $height != '') { $html .= " style=\"width: $width; height: $height;;\""; }
-    $html .= ">$value</textarea>";
+    $html .= ">$text</textarea>";
 
     // Return
     return $html;

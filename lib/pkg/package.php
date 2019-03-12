@@ -487,8 +487,8 @@ public function remove(string $pkg_alias)
     }
 
     // Load package
-    $client = new package_config($pkg_alias);
-    $pkg = $client->load();
+    $pkg_client = new package_config($pkg_alias);
+    $pkg = $pkg_client->load();
     $pkg_dir = SITE_PATH . '/etc/' . $pkg_alias;
 
     // Run remove_after SQL, if needed
@@ -507,6 +507,16 @@ public function remove(string $pkg_alias)
         pkg_component::remove($crow['type'], $comp_alias);
     }
 
+    // Delete all ext files
+    foreach ($pkg->ext_files as $file) { 
+        if (preg_match("/^(.+)\*$/", $file, $match)) { 
+            io::remove_dir(SITE_PATH . '/' . $match[1]);
+        } elseif (file_exists(SITE_PATH . '/' . $file)) { 
+            @unlink(SITE_PATH . '/' . $file);
+        }
+    }
+    if (s_dir(SITE_PATH . '/docs/' . $pkg_alias)) { io::remove_dir(SITE_PATH . '/docs/' . $pkg_alias); }
+
     // Debug
     debug::add(4, fmsg("Removing package, successfully deleted all components from package, {1}", $pkg_alias), __FILE__, __LINE__);
 
@@ -515,12 +525,12 @@ public function remove(string $pkg_alias)
     io::remove_dir(SITE_PATH . '/src/' . $pkg_alias);
 
     // Remove from database
-    DB::query("DELETE FROM internal_components WHERE owner = %s OR package = %s", $pkg_alias, $pkg_alias);
-    DB::query("DELETE FROM internal_boxlists WHERE package = %s", $pkg_alias);
-    DB::query("DELETE FROM internal_crontab WHERE package = %s", $pkg_alias);
-    DB::query("DELETE FROM internal_upgrades WHERE package = %s", $pkg_alias);
-    DB::query("DELETE FROM cms_placeholders WHERE package = %s", $pkg_alias);
     DB::query("DELETE FROM internal_packages WHERE alias = %s", $pkg_alias);
+    DB::query("DELETE FROM cms_menus WHERE package = %s", $pkg_alias);
+
+    // Update redis menus
+    $pkg_client->update_redis_menus();
+
 
     // Execute PHP, if needed
     if (method_exists($pkg, 'remove')) { 

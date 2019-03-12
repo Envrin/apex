@@ -9,8 +9,7 @@ use apex\log;
 use apex\debug;
 use apex\message;
 use apex\core\io;
-use
- apex\core\admin;
+use apex\core\admin;
 use apex\core\hashes;
 use apex\user\user;
 
@@ -93,12 +92,8 @@ public static function check_login(bool $require_login = false)
 
         // Check for 2FA
         if ($row['2fa_status'] == 0 && registry::$panel != 'public') {
-
-            // Debug
             debug::add(3, "Auth session still requires 2FA authorization", __FILE__, __LINE__);
-
-            $template = new template('2fa');
-            echo $template->parse(); exit(0);
+            registry::echo_template('2fa');
         }
 
         // Check IP address
@@ -332,13 +327,13 @@ public static function login(bool $auto_login = false)
             throw new ApexException('alert', "Unable to set login cookie.  Customer support has been notified, and will resolve the issue shortly.  Please try again later.");
         }
     }
+
+    // Set auth ash and user ID
     registry::$auth_hash = $session_id;
+    registry::set_userid((int) $user_row['id']);
 
     // Initiate 2FA, if needed
-    if ($require_2fa == 1) { $this->initiate_2fa(); }
-
-    // Set userid
-    registry::set_userid((int) $user_row['id']);
+    if ($require_2fa == 1) { self::authenticate_2fa_email(1); }
 
     // Debug
     debug::add(1, fmsg("Completed successful login, auth_type: {1}, username: {2}", self::$auth_type, registry::post('username')), __FILE__, __LINE__, 'info');
@@ -554,16 +549,19 @@ public function authenticate_2fa()
 /**
 * Conduct 2FA authentication via e-mail.
 */
-public static function authenticate_2fa_email()
+public static function authenticate_2fa_email(int $is_login = 0)
 {
 
-            $hash_2fa = io::generate_random_string(36);
+    // Generate hash
+    $hash_2fa = io::generate_random_string(32);
             $hash_2fa_enc = hash('sha512', $hash_2fa);
 
     // Set vars
     $vars = array(
+        'is_login' => $is_login, 
         'userid' => registry::$userid, 
         'http_controller' => registry::$http_controller, 
+        'panel' => registry::$panel, 
         'route' => registry::$route, 
         'request_method' => registry::$request_method, 
         'get' => registry::getall_get(), 
@@ -575,9 +573,13 @@ public static function authenticate_2fa_email()
     registry::$redis->set($key, json_encode($vars));
     registry::$redis->expire($key, 1200);
 
+    debug::add(1, fmsg("2FA authentication required.  Exiting, and forcing display of 2fa.tpl template"), __FILE__, __LINE__);
+
+    // Send e-mails
+    message::process_emails('system', 0, array('action' => '2fa'), array('2fa_hash' => $hash_2fa));
+
     // Parse template
-    registry::set_route('2fa');
-    registry::set_response(template::parse());
+    registry::echo_template('2fa');
 
     // Return
     return false;

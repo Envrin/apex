@@ -18,7 +18,7 @@ class test_admin_panel extends \apex\test
 /**
 * setUp
 */
-public                      function setUp()
+public                      function setUp():void
 {
     $this->admin_username = 'envrin';
     $this->admin_password = 'white4882';
@@ -42,7 +42,7 @@ public                      function setUp()
 /*
 * tearDown
 */
-public function tearDown()
+public function tearDown():void
 {
 
     // Reset db slave servers
@@ -653,9 +653,100 @@ public function test_page_admin_maintenance_package_manager()
 /**
 * Maintenance->Theme Manager menu
 */
+public function test_page_admin_maintenance_theme_manager()
+{
+
+    // Ensure page loads
+    $html = registry::test_request('admin/maintenance/theme_manager', 'GET', array(), array(), $this->cookie);
+    $this->assertpagetitle('Theme Manager');
+    $this->asserthasheading(3, 'Public Site');
 
 
+}
 
+/**
+* Maintenance->Backup Manager menu
+*/
+public function test_page_admin_maintenance_backup_manager()
+{
+
+    // Set vars
+    $vars = array(
+        'backups_enable' => 1, 
+        'backups_save_locally' => 0, 
+        'backups_remote_service' => 'dropbox', 
+        'backups_aws_access_key' => 'unit_test', 
+        'backups_aws_access_secret' => 'unit_test', 
+        'backups_dropbox_client_id' => 'unit_test', 
+        'backups_dropbox_client_secret' => 'unit_test', 
+        'backups_dropbox_access_token' => 'unit_test', 
+        'backups_gdrive_client_id' => 'unit_test', 
+        'backups_gdrive_client_secret' => 'unit_test', 
+        'backups_gdrive_refresh_token' => 'unit_test' 
+    );
+
+    // Set request
+    $request = array(
+        'submit' => 'update', 
+        'backups_db_interval_period' => 'H', 
+        'backups_db_interval_num' => 2, 
+        'backups_full_interval_period' => 'D', 
+        'backups_full_interval_num' => 5, 
+        'backups_retain_length_period' => 'W', 
+        'backups_retain_length_num' => 3
+    );
+    $request = array_merge($request, $vars);
+
+    // Set extra vars to check
+    $vars['backups_db_interval'] = 'H2';
+    $vars['backups_full_interval'] = 'D5';
+    $vars['backups_retain_length'] = 'W3';
+
+    // Ensure page loads
+    $html = registry::test_request('admin/maintenance/backup_manager', 'GET', array(), array(), $this->cookie);
+    $this->assertpagetitle('Backup Manager');
+    $this->asserthasheading(3, 'Backup Details');
+    $this->asserthassubmit('update', 'Update Backup Settings');
+
+    // Get current config vars
+    $current_vars = registry::getall_config();
+
+    // Update vars
+    $html = registry::test_request('admin/maintenance/backup_manager', 'POST', $request, array(), $this->cookie);
+    $this->assertpagetitle('Backup Manager');
+    $this->asserthasusermessage('success', "Successfully updated backup settings");
+
+    // Check config vars
+    foreach ($vars as $key => $value) {
+        $chk = registry::$redis->hget('config', 'core:' . $key); 
+        $this->assertequals($value, $chk, "Did not properly update the config var $key to $value");
+        registry::update_config_var('core:' . $key, $current_vars['core:' . $key]);
+    }
+
+}
+
+/**
+* Maintenance->Cron Manager page
+*/
+public function test_page_admin_maintenance_cron_manager()
+{
+
+    // Ensure page loads
+    $html = registry::test_request('admin/maintenance/cron_manager', 'GET', array(), array(), $this->cookie);
+    $this->assertpagetitle('Cron Manager');
+    $this->asserthastable('core:crontab');
+
+}
+
+/**
+* CMS->Menus page
+*/
+public function test_page_admin_cms_menus()
+{
+
+    // Ensure page loads
+    $html = registry::test_request('admin/cms/menus', 'GET', array(), array(), $this->cookie);
+    $this->assertpagetitle('Menus');
 
 
 }

@@ -230,6 +230,7 @@ public function compile($upgrade_id)
         $this->compile_single_file($file);
     }
 
+
     // Save components.json file
     file_put_contents("$this->upgrade_dir/toc.json", json_encode($this->toc));
     file_put_contents("$this->upgrade_dir/components.json", json_encode($this->components));

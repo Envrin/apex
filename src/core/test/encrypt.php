@@ -20,7 +20,7 @@ class test_encrypt extends \apex\test
 /**
 * setUp
 */
-public function setUp()
+public function setUp():void
 {
     $this->username = 'demo';
     $this->password = 'demo';

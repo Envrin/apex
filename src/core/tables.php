@@ -8,6 +8,12 @@ use apex\registry;
 use apex\log;
 use apex\debug;
 
+/**
+* Some misceallensous functions that are required for the 
+* data table component to function properly, mainly just 
+* obtaining full details on the table being displayed 
+* such a total rows, current page, etc.
+*/
 class tables
 {
 
@@ -21,6 +27,9 @@ class tables
 */
 public static function get_details($table, string $table_id = ''):array
 {
+
+    // Debug
+    debug::add(4, fmsg("Getting details of data table, {1}", $table), __FILE__, __LINE__);
 
     // Set variables
     $page = registry::post('page') ?? 1;

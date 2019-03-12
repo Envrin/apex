@@ -5,9 +5,15 @@ namespace apex\core;
 
 use apex\DB;
 use apex\registry;
+use apex\debug;
 use apex\template;
+use apex\MiscException;
 use apex\core\forms;
 
+/**
+* Handles all functions relating to administrator accounts, 
+* including create, delete, load, update security questions, etc.
+*/
 class admin 
 {
 
@@ -26,6 +32,9 @@ public function __construct(int $admin_id = 0)
 */
 public function create()
 {
+
+    // Debug
+    debug::add(3, fmsg("Starting to create new administrator and validate form fields"), __FILE__, __FILE__, 'info');
 
     // Validate form
     forms::validate_form('core:admin');
@@ -59,6 +68,9 @@ public function create()
         );
     }
 
+    // Debug
+    debug::add(1, fmsg("Successfully created new administrator account, {1}", registry::post('username')), __FILE__, __LINE__, 'info');
+
     // Return
     return $admin_id;
 
@@ -73,8 +85,11 @@ public function load()
 
     // Get row
     if (!$row = DB::get_idrow('admin', $this->admin_id)) { 
-        trigger_error(tr("Administrator does not exist within the database, ID# %s", $this->admin_id), E_USER_ERROR); 
+        throw new MiscException('no_admin', $this->admin_id);
     }
+
+    // Debug
+    debug::add(3, fmsg("Loaded the administrator, ID# {1}", $this->admin_id), __FILE__, __LINE__);
 
     // Return
     return $row;
@@ -86,6 +101,9 @@ public function load()
 */
 public function update() 
 {
+
+    // Debug
+    debug::add(3, fmsg("Starting to update the administrator profile, ID# {1}", $this->admin_id), __FILE__, __LINE__);
 
     // Set updates array
     $updates = array();
@@ -101,6 +119,9 @@ public function update()
     // Update database
     DB::update('admin', $updates, "id = %i", $this->admin_id);
 
+    // Debug
+    debug::add(2, fmsg("Successfully updated administrator profile, ID# {1}", $this->admin_id), __FILE__, __LINE__);
+
     // Return
     return true;
 
@@ -113,15 +134,11 @@ public function update()
 public function update_status(string $status, string $note = '')
 {
 
-    // Set vars
-    $vars = array(
-        'admin_id' => $this->admin_id, 
-        'status' => $status, 
-        'note' => $note
-    );
+    // Update database
+    DB::update('admin', array('status' => $status), "id = %i", $this->admin_id);
 
-    // Send RabbitMQ message
-    message::send('core.admin.update_status', json_encode($vars));
+    // Debug
+    debug::add(1, fmsg("Updated administrator status, ID: {1}, status: {2}", $this->admin_id, $status), __FILE__, __LINE__);
 
 }
 
@@ -132,14 +149,13 @@ public function update_status(string $status, string $note = '')
 public function update_sec_auth_hash(string $sec_hash)
 {
 
-    // Set vars
-    $vars = array(
-        'admin_id' => $this->admin_id, 
-        'sec_hash' => $sec_hash
-    );
+    // Update database
+    DB::update('admin', array(
+        'sec_hash' => $sec_hash), 
+    "id = %i", $this->admin_id);
 
-    // Send RabbitMQ message
-    message:send('core.admin.update_sec_auth_hash', json_encode($vars));
+    // Debug
+    debug::add(2, fmsg("Updated the secondary auth hash of administrator, ID: {1}", $this->admin_id), __FILE__, __LINE__);
 
     // Return
     return true;
@@ -155,6 +171,9 @@ public function delete()
     // Delete admin from DB
     DB::query("DELETE FROM admin WHERE id = %i", $this->admin_id);
 
+    // Debug
+    debug::add(1, fmsg("Deleted administrator from database, ID: {1}", $this->admin_id), __FILE__, __LINE__, 'info');
+
 }
 
 /**
@@ -166,6 +185,9 @@ public function delete()
 */
 public function create_select_options(int $selected = 0, bool $add_prefix = false):string 
 {
+
+    // Debug
+    debug::add(5, fmsg("Creating administrator select options"), __FILE__, __LINE__);
 
     // Create admin options
     $options = '';

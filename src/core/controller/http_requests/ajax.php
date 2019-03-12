@@ -47,7 +47,6 @@ public function process()
     auth::set_auth_type($auth_type);
     auth::check_login(false);
 
-
     // Process the AJAX function
     $client->process();
 
@@ -56,8 +55,10 @@ public function process()
         'status' => 'ok', 
         'actions' => $client->results
     );
+
+    // Set the response
     //echo json_encode($response); exit;
-    //registry::set_response(json_encode($response));
+    registry::set_response(json_encode($response));
 
 }
 

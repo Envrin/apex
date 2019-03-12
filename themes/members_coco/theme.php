@@ -1,21 +1,39 @@
 <?php
+declare(strict_types = 1);
 
-class theme_members_coco { 
+/**
+* Used to define various properties about the theme, plus will 
+* override any methods within the /lib/html_tags.php class.  If the same 
+* method exists within this class, this method will be executed instead of the one 
+* within /lib/html_libs.php
+*/
+class theme_members_coco 
+{
 
-////////////////////////////////////////////////////////////
-// Construct
-////////////////////////////////////////////////////////////
+    // Properties
+    public $area = 'members';
+    public $access = 'public';
+    public $name = 'Coco -- Member Area';
+    public $description = '';
 
-public function __construct() { 
+    // Author details
+    public $author_name = '';
+    public $author_email = '';
+    public $author_url = '';
 
-    // Set variables
-    $this->theme_name = 'Admin Panel - Limitless';
-    $this->version = '1.0.0';
-    $this->author_name = 'Envrin Group';
-    $this->author_email = 'support@envrin.com';
-    $this->author_url = 'https://envrin.com/';
-
-}
+    /**
+    * Envato item ID.  if this is defined, users will need to purchase the theme from ThemeForest first, 
+    * and enter their license key before downloading the theme to Apex.  The license key 
+    * will be verified via Envato's API, to ensure the user purchased the theme.
+    * 
+    * You must also specify your Envato username, and the full 
+    * URL to the theme on the ThemeForest marketplace.  Please also 
+    * ensure you already have a designer account with us, as we do need to 
+    * store your Envato API key in our system in order to verify purchases.  Contact us to open a free account.
+    */
+    public $envato_item_id = '';
+    public $envato_username = '';
+    public $envato_url = '';
 
 }
 

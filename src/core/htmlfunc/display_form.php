@@ -64,13 +64,15 @@ public function process(string $html, array $data = array()):string
         else { $value = ''; }
 
         // Get TPL code
-$field_tpl = "<e:ft_" . $vars['field'] . ' name="' . $name . '" value="' . $value . '"';
+        $field_tpl = "<e:ft_" . $vars['field'] . ' name="' . $name . '"';
+        if ($vars['field'] != 'textarea') { $field_tpl .= ' value="' . $value . '"'; }
         foreach ($vars as $fkey => $fvalue) { 
-            if ($fkey == 'field' || $fkey == 'value') { continue; }
+            if ($fkey == 'field' || $fkey == 'value' || ($vars['field'] == 'custom' && $fkey == 'contents')) { continue; }
             $field_tpl .= ' ' . $fkey . '="' . $fvalue . '"';
         }
-        $field_tpl .= " />";
-
+        $field_tpl .= ">";
+        if ($vars['field'] == 'custom') { $field_tpl .= $vars['contents'] . "</e:ft_custom>"; }
+        if ($vars['field'] == 'textarea') { $field_tpl .= $value . "</e:ft_textarea>"; }
         // Add to TPL code
         $tpl_code .= "\t$field_tpl\n";
     }

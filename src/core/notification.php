@@ -5,9 +5,18 @@ namespace apex\core;
 
 use apex\DB;
 use apex\registry;
+use apex\debug;
+use apex\ApexException;
+use apex\CommException;
+use apex\ComponentException;
 use apex\core\components;
 use apex\core\forms;
 
+/**
+* Handles creating and managing the e-mail notifications 
+* within the system, including obtaining the lists of senders / recipients / 
+* available merge fields, and so on.
+*/
 class Notification 
 {
 
@@ -20,8 +29,22 @@ class Notification
 public function get_merge_fields(string $controller):string
 {
 
+    // Debug
+    debug::add(5, fmsg("Obtaining merge fields for notification controller, {1}", $controller), __FILE__, __LINE__);
+
+    // Set systems fields
+    $fields = array();
+    $fields['System'] = array(
+        'site_name' => 'Site Name', 
+        'domain_name' => 'Domain Name', 
+        'current_date' => 'Current Date', 
+        'current_time' => 'Current Time', 
+        'ip_address' => 'IP Address', 
+        'user_agent' => 'User Agent'
+    );
+
     // Set profile fields
-    $profile_fields = array(
+    $fields['User Profile'] = array(
         'id' => 'ID', 
         'username' => '$username', 
         'first_name' => 'First Name', 
@@ -38,21 +61,19 @@ public function get_merge_fields(string $controller):string
         'date_created' => 'Date Created'
     );
 
-    // Start HTML
-    $html = "<option value=\"\" style=\"font-weight: bold;\">User Profile</option>\n";
-    foreach ($profile_fields as $key => $value) { 
-        $html .= "\t      <option value=\"$key\">     $value</option>\n";
-    }
-
     // Load controller
     if (!$client = components::load('controller', $controller, 'core', 'notifications')) { 
-        trigger_error("Unable to load the notification controller, $controller", E_USER_ERROR);
+        throw new ComponentException('no_load', 'controlelr', '', $controller, 'core', 'notifications');
     }
 
     // Get fields
-    $fields = $client->get_merge_fields();
+    if (method_exists($client, 'get_merge_fields')) { 
+        $tmp_fields = $client->get_merge_fields();
+        $fields = array_merge($fields, $tmp_fields);
+    }
 
     // GO through fields
+    $html = '';
     foreach ($fields as $name => $vars) { 
         $html .= "<option value=\"\" style=\"font-weight: bold;\">$name</option>\n";
 
@@ -67,6 +88,55 @@ public function get_merge_fields(string $controller):string
 
 }
 
+/**
+* Get mrege variables for an e-mail notification
+*     @param string $controller The e-mail notification controller
+*     @param int $userid The ID# of the user, if appropriate
+*      @param array $data Any additional data passed when processing the e-mail notifications
+*      @return array Returns a key-value pair of all merge variables
+*/
+public function get_merge_vars(string $controller, int $userid = 0, array $data = array()):array
+{
+
+    // Debug
+    debug::add(5, fmsg("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid), __FILE__, __LINE__);
+
+    // Set system variables
+    $date = date('Y-m-d H:i:s');
+    $vars = array(
+        'site_name' => registry::config('core:site_name'), 
+        'domain_name' => registry::config('core:domain_name'), 
+        'current_date' => fdate($date), 
+        'current_time' => fdate($date, true), 
+        'ip_address' => registry::$ip_address, 
+        'user_agent' => registry::$user_agent
+    );
+
+    // Get user profile, fi needed
+    if ($userid > 0) { 
+        $user = new user($userid);
+        $profile = $user->load(false, true);
+
+        foreach ($profile as $key => $value) { 
+            $vars[$key] = $value;
+        }
+    }
+
+    // Load controller
+    if (!$client = components::load('controller', $controller, 'core', 'notifications')) { 
+        throw new ComponentException('no_load', 'controller', '', $controller, 'core', 'notifications');
+    }
+
+    // Get vars from controller, if available
+    if (method_exists($client, 'get_merge_vars')) { 
+        $tmp_vars = $client->get_merge_vars($userid, $data);
+        $vars = array_merge($vars, $tmp_vars);
+    }
+
+    // Return
+    return $vars;
+
+}
 
 /**
 * Get a sender / recipient name and e-mail address.
@@ -75,11 +145,14 @@ public function get_merge_fields(string $controller):string
 public function get_recipient(string $recipient, int $userid = 0)
 {
 
+    // Debug
+    debug::add(5, fmsg("Getting e-mail recipient / sender, {1}, userid: {2}", $recipient, $userid), __FILE__, __LINE__);
+
     // Initialize
     $name = ''; $email = '';
 
     // Check for admin
-    if (preg_match("/^admin:(\d+)$/", $recipient, $match) && $row = registry::$redis->hgetall($recipient)) { 
+    if (preg_match("/^admin:(\d+)$/", $recipient, $match) && $row = DB::get_idrow('admin', $match[1])) { 
         $name = $row['full_name'];
         $email = $row['email'];
 
@@ -108,19 +181,18 @@ public function create(array $data = array())
 { 
 
     // Perform checks
-    if (!isset($data['controller'])) { trigger_error("No 'controller' variable defined when creating e-mail notification.", E_USER_ERROR); } 
-    elseif (!isset($data['sender'])) { trigger_error("No 'sender' variable defined while trying to create e-mail notification.", E_USER_ERROR); }
-    elseif (!isset($data['recipient'])) { trigger_error("No 'recipient' variable defined while creating e-mail notification.", E_USER_ERROR); }
+    if (!isset($data['controller'])) { 
+        throw new ApexException('error', "No notification controller was defined upon creating e-mail notification");
+    } elseif (!isset($data['sender'])) { 
+        throw new ApexException('error', "No sender variable defined when trying to create e-mail notification");
+    } elseif (!isset($data['recipient'])) { 
+        throw new ApexException('error', "No recipient variable defined when creating e-mail notification");
+    }
 
     // Load controller
     if (!$client = components::load('controller', $data['controller'], 'core', 'notifications')) {
-        trigger_error("Notification controller '$data[controller]' does not exist.", E_USER_ERROR);
+        throw new ComponentException('no_load', 'controller', '', $data['controller'], 'core', 'notifications');
     }
-
-    // Set variables
-    $sender = $data['sender'];
-    $recipient = $data['recipient'];
-    $content_type = isset($data['content_type']) ? $data['content_type'] : 'text/plain';
 
     // Get condition
     $condition = array();
@@ -131,14 +203,20 @@ public function create(array $data = array())
     // Add to DB
     DB::insert('notifications', array(
         'controller' => $data['controller'], 
-        'sender' => $sender, 
-        'recipient' => $recipient, 
-        'content_type' => $content_type, 
+        'sender' => $data['sender'], 
+        'recipient' => $data['recipient'],
+        'reply_to' => ($data['reply_to'] ?? ''),  
+        'cc' => ($data['cc'] ?? ''), 
+        'bcc' => ($data['bcc'] ?? ''), 
+        'content_type' => $data['content_type'], 
         'subject' => $data['subject'], 
         'contents' => base64_encode($data['contents']), 
         'condition_vars' => base64_encode(json_encode($condition)))
     );
     $notification_id = DB::insert_id();
+
+    // Debug
+    debug::add(1, fmsg("Created new e-mail notification within settings, subject: {1}", $data['subject']), __FILE__, __LINE__, 'info');
 
     // Add attachments as needed
     $x=1;
@@ -155,6 +233,9 @@ public function create(array $data = array())
 
     $x++; }
 
+    // Debug
+    debug::add(1, fmsg("Created new e-mail notification with subject, {1}", $data['subject']), __FILE__, __LINE__);
+
     // Return
     return $notification_id;
 
@@ -169,12 +250,12 @@ public function edit($notification_id)
 
     // Get row
     if (!$row = DB::get_idrow('notifications', $notification_id)) { 
-        trigger_error("Notification does not exist in database, ID# $notification_id", E_USER_ERROR);
+        throw new CommException('not_exists', '', '', $notification_id);
     }
 
     // Load controller
     if (!$client = components::load('controller', $row['controller'], 'core', 'notifications')) {
-        trigger_error("Unable to load the notification controller, $row[controller]", E_USER_ERROR);
+        throw new ComponentException('no_load', 'controller', '', $row['controller'], 'core', 'notifications');
     }
 
     // Get condition
@@ -186,12 +267,18 @@ public function edit($notification_id)
     // Updatte database
     DB::update('notifications', array(
         'sender' => registry::post('sender'), 
-        'recipient' => registry::post('recipient'), 
+        'recipient' => registry::post('recipient'),
+        'reply_to' => registry::post('reply_to'), 
+        'cc' => registry::post('cc'), 
+        'bcc' => registry::post('bcc'), 
         'content_type' => registry::post('content_type'), 
         'subject' => registry::post('subject'), 
         'contents' => base64_encode(registry::post('contents')), 
         'condition_vars' => base64_encode(json_encode($condition))), 
     "id = %i", $notification_id);
+
+    // Debug
+    debug::add(1, fmsg("Updated e-mail notification with subject, {1}", registry::post('subject')), __FILE__, __LINE__);
 
 }
 
@@ -202,6 +289,7 @@ public function delete($notification_id)
 {
 
     DB::query("DELETE FROM notifications WHERE id = %i", $notification_id);
+    debug::add(1, fmsg("Deleted e-mail notification, ID: {1}", $notification_id), __FILE__, __LINE__);
     return true;
 
 }

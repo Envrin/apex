@@ -11,7 +11,7 @@ if (registry::$action == 'update') {
     // Set vars
     $vars = array(
         'backups_enable', 
-        'backups_ave_locally', 
+        'backups_save_locally', 
         'backups_remote_service', 
         'backups_aws_access_key', 
         'backups_aws_access_secret', 

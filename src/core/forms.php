@@ -8,8 +8,15 @@ use apex\registry;
 use apex\log;
 use apex\debug;
 use apex\template;
+use apex\ApexException;
+use apex\ComponentException;
+use apex\FormException;
 use apex\core\components;
-
+/**
+* Handles various form functionality such as 
+* easy server-side validation of form components, 
+* obtaining an uploaded file, the value of a checkbox, date interval, etc.
+*/
 class forms
 {
 
@@ -36,6 +43,9 @@ public static function validate_fields(
     array $labels = array())
 {
 
+    // Debug
+    debug::add(4, fmsg("Starting to validate various form fields"), __FILE__, __LINE__);
+
     // Check required fields
     foreach ($required as $var) { 
         $value = registry::post($var) ?? '';
@@ -43,7 +53,7 @@ public static function validate_fields(
             $label = $labels[$var] ?? ucwords(str_replace("_", " ", $var));
 
             if ($error_type == 'template') { template::add_message(tr("The form field %s was left blank, and is required", $label), 'error'); }
-            else { trigger_error(tr("The form field %s was left blank, and is required.", $label), E_USER_ERROR); }
+            else { throw new FormException('field_required', $label); }
         }
     }
 
@@ -75,7 +85,7 @@ public static function validate_fields(
         // Give error if needed
         if ($errmsg != '') { 
             if ($error_type == 'template') { template::add_message(tr($errmsg, $label), 'error'); }
-            else { trigger_error(tr($errmsg, $label), E_USER_ERROR); }
+            else { throw new ApexException('error', $errmsg, $label); }
         }
     }
 
@@ -88,7 +98,7 @@ public static function validate_fields(
             $errmsg = tr("The form field %s must be a minimum of %i characters in length.", $label, $length);
 
             if ($error_type == 'template') { template::add_message($errmsg, 'error'); }
-            else { trigger_error($err,sg. E_USER_ERROR); }
+            else {throw new ApexException('error', $errmsg); }
         }
     }
 
@@ -102,9 +112,13 @@ public static function validate_fields(
             $errmsg = tr("The form field %s can not exceed a maximum of %i characters.", $label, $length);
 
             if ($error_type == 'template') { template::add_message($errmsg, 'error'); }
-            else { trigger_error($errmsg, E_USER_ERROR); }
+            else { throw new ApexException('error', $errmsg); }
         }
     }
+
+    // Debug
+    debug::add(4, "Completed validating all various form fields", __FILE__, __LINE__);
+
 
 }
 
@@ -119,14 +133,17 @@ public static function validate_fields(
 public static function validate_form(string $form_alias, string $error_type = 'template', array $data = array()):bool 
 {
 
+    // Debug
+    debug::add(4, fmsg("Starting to validate form component with alias {1}", $form_alias), __FILE__, __LINE__);
+
     // Check form alias
     if (!list($package, $parent, $alias) = components::check('form', $form_alias)) { 
-        trigger_error("The 'form' component does not exist with alias '$alias' within the package '$package'", E_USER_ERROR);
+        throw new ComponentException('not_exists_alias', 'form', $form_alias);
     }
 
     // Load component
     if (!$form = components::load('form', $alias, $package)) { 
-        trigger_error("Unable to load the form component with alias '$alias' within package '$package'", E_USER_ERROR);
+        throw new ComponentException('no_load', 'form', '', $alias, $package);
     }
 
     // Get fields
@@ -163,6 +180,9 @@ public static function validate_form(string $form_alias, string $error_type = 't
     // Perform any additional form validation
     $form->validate($data);
 
+    // Debug
+    debug::add(2, fmsg("Completed validating form component with alias {1}", $form_alias), __FILE__, __LINE__);
+
     // Return
     $result = template::$has_errors === true ? false : true;
     return $result;
@@ -177,6 +197,9 @@ public static function validate_form(string $form_alias, string $error_type = 't
 public static function get_uploaded_file(string $var) 
 {
 
+    // Debug
+    debug::add(3, fmsg("Trying to get contents of uploaded file: {1}", $var), __FILE__, __LINE__);
+
     // Checks
     if (!isset($_FILES[$var])) { return false; }
     if (!isset($_FILES[$var]['tmp_name'])) { return false; }
@@ -189,6 +212,9 @@ public static function get_uploaded_file(string $var)
 
     // Delete tmp file
     @unlink($_FILES[$var]['tmp_name']);
+
+    // Debug
+    debug::add(3, fmsg("Returning contents of uploaded file: $var", $var), __FILE__, __LINE__);
 
     // Return
     return array($filename, $mime_type, $contents);
@@ -228,7 +254,7 @@ public static function get_date_interval(string $name):string
     if (!registry::has_post($name . '_period')) { return ''; }
     if (!registry::has_post($name . '_num')) { return ''; }
     if (registry::post($name . '_num') == '') { return ''; }
-    if (preg_match("/\D/", registry::post($name . '_num'))) { return ''; }
+    if (preg_match("/\D/", (string) registry::post($name . '_num'))) { return ''; }
     if (registry::post($name . '_period') == '') { return ''; }
 
     // Return

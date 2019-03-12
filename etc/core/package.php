@@ -8,7 +8,7 @@ class pkg_core
 {
 
 // Set package variables
-public $version = '1.0.5';
+public $version = '1.0.6';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
@@ -42,7 +42,7 @@ $this->config = array(
     'site_instagram' => '', 
     'domain_name' => '', 
     'session_expire_mins' => 60,  
-    'session_retain_logs' => '', 
+    'session_retain_logs' => 'W2', 
     'password_retries_allowed' => 5, 
     'require_2fa' => 0, 
     'num_security_questions' => 3, 
@@ -70,7 +70,9 @@ $this->config = array(
     'backups_dropbox_access_token' => '', 
     'backups_gdrive_client_id' => '', 
     'backups_gdrive_client_secret' => '', 
-    'backups_gdrive_refresh_token' => ''
+    'backups_gdrive_refresh_token' => '', 
+    'backups_next_db' => 0, 
+    'backups_next_full' => 0
 );
 
 // Hashes
@@ -126,8 +128,7 @@ $this->menus[] = array(
         'package_manager' => 'Package Manager', 
         'theme_manager' => 'Theme Manager', 
         'backup_manager' => 'Backup Manager', 
-        'cron_manager' => 'Cron Manager', 
-        'log_manager' => 'Log Manager'
+        'cron_manager' => 'Cron Manager' 
     )
 );
 
@@ -169,7 +170,6 @@ $this->menus[] = array(
 
 
 
-
     // External files
 $this->ext_files = array(		
     'apex.php',
@@ -178,12 +178,10 @@ $this->ext_files = array(
     'Readme.md', 
     'data/index.html', 
     'data/backups/index.html', 
-    'lib/2fa.php', 
     'lib/ajax.php',
     'lib/apex_cli.php',  
     'lib/auth.php', 
     'lib/debug.php', 
-    'lib/email.php', 
     'lib/encrypt.php', 
     'lib/functions.php', 
     'lib/html_tags.php', 
@@ -192,7 +190,6 @@ $this->ext_files = array(
     'lib/log_channel.php', 
     'lib/message.php', 
     'lib/network.php', 
-    'lib/nexmo.php', 
     'lib/registry.php', 
     'lib/rpc.php', 
     'lib/template.php', 
@@ -208,10 +205,13 @@ $this->ext_files = array(
     'lib/abstracts/tabpage.php', 
     'lib/db/mysql.php',
     'lib/exceptions/ApexException.php',
+    'lib/exceptions/CommException.php', 
     'lib/exceptions/ComponentException.php', 
     'lib/exceptions/DBException.php', 
     'lib/exceptions/EncryptException.php', 
+    'lib/exceptions/FormException.php', 
     'lib/exceptions/IOException.php', 
+    'lib/exceptions/MiscException.php', 
     'lib/exceptions/PackageException.php', 
     'lib/exceptions/RepoException.php', 
     'lib/exceptions/ThemeException.php', 
@@ -361,8 +361,7 @@ public function define_hashes() {
 
     // System notification actions
     $vars['notify_system_actions'] = array(
-        '2fa_admin' => '2FA - Administrator', 
-        '2fa_user' => '2FA - Member'
+        '2fa' => 'Two Factor Authentication (2FA)'
     );
 
     // Notification content type

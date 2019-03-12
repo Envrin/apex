@@ -7,7 +7,8 @@ use apex\DB;
 use apex\registry;
 use apex\log;
 use apex\debug;
-use apex\email;
+use apex\core\email;
+
 
 class notify
 {
@@ -27,8 +28,7 @@ public function send_email($data)
     $email->to_name($vars['to_name']);
     $email->from_email($vars['from_email']);
     $email->from_name($vars['from_name']);
-    //$email->subject($vars['subject']);
-    $email->subject("Testing 123");
+    $email->subject($vars['subject']);
     $email->message($vars['message']);
 
     // Set reply-to

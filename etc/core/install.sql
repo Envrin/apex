@@ -49,7 +49,6 @@ CREATE TABLE internal_repos (
 ) engine=InnoDB;	
 
 INSERT INTO internal_repos (url,display_name,description) VALUES ('http://apex.envrin.com', 'Apex Public Repository', 'The main, public repository for the Apex Framework.');
-INSERT INTO internal_repos (is_local,is_active,url,display_name,description) VALUES (1, 0, '', '', '');
 
 CREATE TABLE internal_packages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
@@ -75,7 +74,8 @@ CREATE TABLE internal_components (
     parent VARCHAR(255) NOT NULL DEFAULT '', 
     alias VARCHAR(255) NOT NULL, 
     value TEXT NOT NULL, 
-    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE
+    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE, 
+    FOREIGN KEY (owner) REFERENCES internal_packages (alias) ON DELETE CASCADE
 ) engine=InnoDB;
 
 CREATE TABLE internal_crontab (
@@ -87,7 +87,8 @@ CREATE TABLE internal_crontab (
     lastrun_time INT NOT NULL DEFAULT 0, 
     package VARCHAR(100) NOT NULL, 
     alias VARCHAR(100) NOT NULL, 
-    display_name VARCHAR(100) NOT NULL DEFAULT ''
+    display_name VARCHAR(100) NOT NULL DEFAULT '', 
+    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE
 ) engine=InnoDB;
 
 CREATE TABLE internal_themes (
@@ -98,6 +99,10 @@ CREATE TABLE internal_themes (
     alias VARCHAR(100) NOT NULL UNIQUE, 
     name VARCHAR(255) NOT NULL
 ) engine=InnoDB;
+
+INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'members', 'limitless', 'Limitless');
+INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'members', 'members_coco', 'Coco - Member Area');
+INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'public', 'public_coco', 'Coco - Public Site');
 
 CREATE TABLE internal_boxlists (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
@@ -175,8 +180,7 @@ CREATE TABLE cms_menus (
     parent VARCHAR(100) NOT NULL DEFAULT '', 
     alias VARCHAR (100) NOT NULL, 
     display_name VARCHAR(100) NOT NULL, 
-    url VARCHAR(255) NOT NULL DEFAULT '', 
-    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE
+    url VARCHAR(255) NOT NULL DEFAULT '' 
 ) engine=InnoDB;
 
 CREATE TABLE cms_placeholders (
@@ -301,7 +305,10 @@ CREATE TABLE notifications (
     controller VARCHAR(100) NOT NULL, 
     sender VARCHAR(30) NOT NULL, 
     recipient VARCHAR(30) NOT NULL, 
-    content_type ENUM('text/plain', 'text/html') NOT NULL DEFAULT 'text/plain', 
+    reply_to VARCHAR(100) NOT NULL DEFAULT '',  
+    cc VARCHAR(100) NOT NULL DEFAULT '', 
+    bcc VARCHAR(100) NOT NULL DEFAULT '',  
+    content_type VARCHAR(30) NOT NULL DEFAULT 'text/plain', 
     subject VARCHAR(255) NOT NULL,
     contents LONGTEXT NOT NULL, 
     condition_vars TEXT NOT NULL

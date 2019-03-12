@@ -28,6 +28,9 @@ class images
 public static function add(string $filename, string $contents, string $type, string $record_id = '', string $size = 'full', int $is_default = 0):int
 {
 
+    // Debug
+    debug::add(4, fmsg("Starting to add image with type: {1}, record_id: {2}, size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
+
     // Save image to filesystem
     $tmpfile = tempnam(sys_get_temp_dir(), 'apex');
     if (file_exists($tmpfile)) { @unlink($tmpfile); }
@@ -37,6 +40,9 @@ public static function add(string $filename, string $contents, string $type, str
     if (!@list($width, $height, $mime_type, $attr) = getimagesize($tmpfile)) {
         return false;
     }
+
+    // Delete existing image, if exists
+    DB::query("DELETE FROM images WHERE type = %s AND record_id = %s", $type, $record_id);
 
     // Add to DB
     DB::insert('images', array(
@@ -57,6 +63,9 @@ public static function add(string $filename, string $contents, string $type, str
         'contents' => $contents)
     );
 
+    // Debug
+    debug::add(3, fmsg("Added new image to database, type: {1}, record_id: {2}", $type, $record_id), __FILE__, __LINE__);
+
     // Return
     return $image_id;
 
@@ -72,6 +81,9 @@ public static function add(string $filename, string $contents, string $type, str
 */
 public static function upload(string $form_field, string $type, string $record_id = '', int $is_default = 0) 
 {
+
+    // Debug
+    debug::add(4, fmsg("Starting to upload / add new image of type: {1}, record_id: {2},from form field: {3}", $type, $record_id, $form_field), __FILE__, __LINE__);
 
     // Get the uploaded file
     if (!list($filename, $mime_type, $contents) = forms::get_uploaded_file($form_field)) { 
@@ -185,6 +197,9 @@ public static function add_thumbnail(string $image_type, string $record_id, stri
 
     // Insert thumbnail to db
     $thumb_id = self::add($filename, $thumb_contents, $image_type, $record_id, $size);
+
+    // Debug
+    debug::add(4, fmsg("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
 
     // Return
     return $thumb_id;

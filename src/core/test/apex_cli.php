@@ -23,7 +23,7 @@ class test_apex_cli extends \apex\test
 /**
 * setUp
 */
-public function setUp()
+public function setUp():void
 {
 
     $this->repo_id = 2;

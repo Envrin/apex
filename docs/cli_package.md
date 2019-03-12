@@ -59,9 +59,11 @@ Various CLS commands are available allowing you to easily create, publish, and d
 **Example:** `php apex.php publish_theme mydesign`
 
 
-### `install_theme THEME_ALIAS`
+### `install_theme THEME_ALIAS [PURCHASE_CODE]`
 
-**Description:** Will download the specified them from the repository, and install it on the system.
+**Description:** Will download the specified them from the repository, and install it on the system.  Apex integrates with the Envato (ThemeForest) marketplace, 
+and many of the themes integrated into Apex will be listed on ThemeForest.  You can get the full URL to the theme on ThemeForest via the Maintenance->Theme Manager menu.  If your desired theme is listed on ThemeForest, you must first purchase it, at 
+which time you will receive a license key text file, and inside that is your purchase code.  You must specify your purchase code when installing the theme, as it will be checked via Envato's API to verify the purchase.
 
 **Example:** `php apex.php install_theme mydesign`
 

@@ -22,7 +22,7 @@ class test_network extends \apex\test
 /**
 * setUp
 */
-public function setUp()
+public function setUp():void
 {
 
 }
@@ -30,7 +30,7 @@ public function setUp()
 /**
 * tearDown
 */
-public function tearDown()
+public function tearDown():void
 {
 
 }

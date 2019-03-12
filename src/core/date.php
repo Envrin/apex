@@ -21,29 +21,72 @@ class date
         'M' => 2592000 , 
         'Y' => 31536000 
     );
+
+
 /**
 ** Add interval to date.
 *      @param string $interval The time interval to add formateed in standard Apex format (eg. M1 = 1 month, I30 = 30 minutes, 6H = 6 hours)
-*     @param string $from_date The date to add the interval to.  Defaults to now()
+*     @param string $from_date The date to add the interval to, defaults to now().  Can be either time in seconds since epoch, or standard timestamp format (YYYY-MM-DD HH:II:SS)
+*     @param bool $return_datestamp If set to false, returns the seconds from epoch, and otherwise returns timestamp (YYYY-MM-DD HH:II:SS)
 *     @return string The new date.
 */
-public static function add_interval(string $interval, $from_date = 0)
+public static function add_interval(string $interval, $from_date = 0, $return_datestamp = true)
 {
 
     // Parse interval
     if (!preg_match("/^(\w)(\d+)$/", $interval, $match)) { 
-        trigger_error(tr("Invalid time interval, %s", $interval), E_USER_ERROR);
+        throw new ApexException('error', "Invalid date interval specified, {1}", $interval);
     }
 
-    // Set variables
-    $interval = (self::$secs_hash[$match[1]] * $match[2]);
-    if ($from_date == 0) { $from_date = time(); }
-    $from_date += $interval;
+    // Get start date / time
+    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", $from_date, $d)) { 
+        $from_date = mktime((int) $d[4], (int) $d[5], (int) $d[6], (int) $d[2], (int) $d[3], (int) $d[1]);
+    } elseif ($from_date == 0) { 
+        $from_date = time();
+    }
+
+    // Modify date as needed
+    $secs = (self::$secs_hash[$match[1]] * $match[2]);
+    $from_date += $secs;
 
     // Return
+    if ($return_datestamp === true) { $from_date = date('Y-m-d H:i:s', $from_date); }
     return $from_date;
 
 }
+
+/**
+* Subtract interval from date.
+*      @param string $interval The time interval to add formateed in standard Apex format (eg. M1 = 1 month, I30 = 30 minutes, 6H = 6 hours)
+*     @param string $from_date The date to add the interval to, defaults to now().  Can be either time in seconds since epoch, or standard timestamp format (YYYY-MM-DD HH:II:SS)
+*     @param bool $return_datestamp If set to false, returns the seconds from epoch, and otherwise returns timestamp (YYYY-MM-DD HH:II:SS)
+*     @return string The new date.
+*/
+public static function subtract_interval(string $interval, $from_date = 0, $return_datestamp = true)
+{
+
+    // Parse interval
+    if (!preg_match("/^(\w)(\d+)$/", $interval, $match)) { 
+        throw new ApexException('error', "Invalid date interval specified, {1}", $interval);
+    }
+
+    // Get start date / time
+    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", $from_date, $d)) { 
+        $from_date = mktime((int) $d[4], (int) $d[5], (int) $d[6], (int) $d[2], (int) $d[3], (int) $d[1]);
+    } elseif ($from_date == 0) { 
+        $from_date = time();
+    }
+
+    // Modify date as needed
+    $secs = (self::$secs_hash[$match[1]] * $match[2]);
+    $from_date -= $secs;
+
+    // Return
+    if ($return_datestamp === true) { $from_date = date('Y-m-d H:i:s', $from_date); }
+    return $from_date;
+
+}
+
 
 /**
 * Get last seen display time.

@@ -638,15 +638,31 @@ protected function list_themes($vars)
     $client = new network();
     $themes = $client->list_themes();
 
-    // CHeck for no themes
+    // Check for no themes
     if (count($themes) == 0) { 
-        $response = "No themes are avilable from any repositories.\n";
-    } else { 
+        return "No themes are avilable from any repositories.\n";
+    }
 
-        $response = '';
-        foreach ($themes as $alias => $name) { 
-            $response .= "$alias -- $name\n";
+    // Go through themes
+    $public_themes = ''; $members_themes = '';
+    foreach ($themes as $alias => $vars) { 
+        $line = $alias . ' -- ' . $vars['name'] . ' (' . $vars['author_name'] . ' <' . $vars['author_email'] . ">\n";
+        if ($vars['area'] == 'members') { 
+            $members_themes .= $line;
+        } else { 
+            $public_themes .= $line;
         }
+    }
+
+    // Get response
+    $response = '';
+    if ($public_themes != '') { 
+        $response .= "--- Public Site Themes ---\n";
+        $response .= "$public_themes\n";
+    }
+    if ($members_themes != '') { 
+        $response .= "--- Member Area Themes ---\n";
+        $response .= "$members_themes\n";
     }
 
     // Debug

@@ -241,7 +241,8 @@ public function list_themes()
 
         // Go through themes
         foreach ($vars['themes'] as $alias => $theme) { 
-            $themes[$alias] = $theme['name'];
+            $theme['repo_url'] = $row['url'];
+            $themes[$alias] = $theme;
         }
     }
 

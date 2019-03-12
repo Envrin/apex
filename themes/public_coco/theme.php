@@ -7,13 +7,13 @@ declare(strict_types = 1);
 * method exists within this class, this method will be executed instead of the one 
 * within /lib/html_libs.php
 */
-class theme_limitless 
+class theme_public_coco 
 {
 
     // Properties
-    public $area = 'members';
+    public $area = 'public';
     public $access = 'public';
-    public $name = 'Limitless';
+    public $name = 'Coco - Public Site';
     public $description = '';
 
     // Author details

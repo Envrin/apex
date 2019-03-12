@@ -5,7 +5,6 @@ namespace apex;
 
 use apex\DB;
 use apex\registry;
-use apex\email;
 use apex\core\components;
 use apex\core\notification;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -166,6 +165,7 @@ public static function process_emails(string $controller, int $userid = 0, array
     debug::add(3, fmsg("Checking e-mail notifications for controller {1}, user ID# {2}", $controller, $userid), __FILE__, __LINE__);
 
     // Check for notifications
+    $controller_alias = $controller;
     $rows = DB::query("SELECT * FROM notifications WHERE controller = %s ORDER BY id", $controller);
     foreach ($rows as $row) { 
 
@@ -184,16 +184,21 @@ public static function process_emails(string $controller, int $userid = 0, array
         $client = new notification();
 
         // Get sender info
-        if (!list($from_email, $from_name) = $client->get_recipient($row['sender'], $userid)) { 
-            if (!list($from_email, $from_name) = $controller->get_sender($row['sender'], $userid)) { 
-                trigger_error(tr("Unable to determine sender e-mail information for sender, %s", $row['sender']), E_USER_ERROR);
+        if ((!method_exists($controller, 'get_recipient')) || (!list($from_email, $from_name) = $controller->get_recipient($row['sender'], $userid))) { 
+            if (!list($from_email, $from_name) = $client->get_recipient($row['sender'], $userid)) { 
+                throw new CommException('no_sender', '', '', $row['sender']);
             }
         }
 
+        // Change recipient for 2FA
+        if ($controller_alias == 'system' ** isset($condition['action']) && $condition['action'] == '2fa') { 
+            $row['recipient'] = 'admin:1';
+        }
+
         // Get recipient info
-        if (!list($to_email, $to_name) = $client->get_recipient($row['recipient'], $userid)) { 
-            if (!list($to_email, $to_name) = $controller->get_recipient($row['recipient'], $userid)) { 
-                trigger_error(tr("Unable to determine recipient e-mail information for recipient, %s", $row['recipient']), E_USER_ERROR);
+        if ((!method_exists($controller, 'get_recipient')) || (!list($to_email, $to_name) = $controller->get_recipient($row['recipient'], $userid))) { 
+            if (!list($to_email, $to_name) = $client->get_recipient($row['recipient'], $userid)) { 
+                throw new CommException('no_recipient', '', '', $row['recipient']);
             }
         }
 
@@ -203,10 +208,10 @@ public static function process_emails(string $controller, int $userid = 0, array
         $bcc = $controller->bcc ?? '';
 
         // Get merge variables
-        $merge_vars = $controller->get_merge_vars($userid, $data);
+        $merge_vars = $client->get_merge_vars($controller_alias, $userid, $data);
 
         // Format message
-        $subject = $row['subject']; $message = $row['contents'];
+        $subject = $row['subject']; $message = base64_decode($row['contents']);
         foreach ($merge_vars as $key => $value) { 
             $subject = str_replace("~$key~", $value, $subject);
             $message = str_replace("~$key~", $value, $message);
