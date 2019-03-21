@@ -76,4 +76,7 @@ if (!io::remove_dir($some_dir)) {
 **Description:** Unpacks the zip archive located at `$zip_file` into the directory at `$dirname`.  Will delete the directory if it currently exists, and will create it.
 
 
+### `execute_sqlfile(string $sqlfile)`
+
+**Description:** Executes the specified SQL file against the mySQL database.
 

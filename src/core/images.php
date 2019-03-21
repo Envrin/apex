@@ -25,7 +25,7 @@ class images
 *     @param int $is_default Boolean (1/0) that defines whether or not the image is default for this type (eg. default user avatar)
 *     @return int The ID# of the new image
 */
-public static function add(string $filename, string $contents, string $type, string $record_id = '', string $size = 'full', int $is_default = 0):int
+public static function add(string $filename, string $contents, string $type, $record_id = '', string $size = 'full', int $is_default = 0):int
 {
 
     // Debug
@@ -79,7 +79,7 @@ public static function add(string $filename, string $contents, string $type, str
 *     @param int $is_default Whether or not this is the default image for this type.
 *     @return int The ID# of the image
 */
-public static function upload(string $form_field, string $type, string $record_id = '', int $is_default = 0) 
+public static function upload(string $form_field, string $type, $record_id = '', int $is_default = 0) 
 {
 
     // Debug
@@ -104,7 +104,7 @@ public static function upload(string $form_field, string $type, string $record_i
 *     @param string $record_id The record ID# of the image.
 *     @param string $size The size of the image
 */
-public static function get(string $type, string $record_id = '', string $size = 'full')
+public static function get(string $type, $record_id = '', string $size = 'full')
 {
 
     // Check database
@@ -123,7 +123,7 @@ public static function get(string $type, string $record_id = '', string $size = 
 /**
 * Add a thumbnail
 */
-public static function add_thumbnail(string $image_type, string $record_id, string $size, int $thumb_width, int $thumb_height) 
+public static function add_thumbnail(string $image_type, $record_id, string $size, int $thumb_width, int $thumb_height) 
 {
 
     // Get contents of existing image
@@ -209,7 +209,7 @@ public static function add_thumbnail(string $image_type, string $record_id, stri
 /**
 * Display image
 */
-public static function display(string $type, string $record_id = '', string $size = 'full')
+public static function display(string $type, $record_id = '', string $size = 'full')
 {
 
     // Get image

@@ -39,7 +39,7 @@ public static function add_interval(string $interval, $from_date = 0, $return_da
     }
 
     // Get start date / time
-    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", $from_date, $d)) { 
+    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", (string) $from_date, $d)) { 
         $from_date = mktime((int) $d[4], (int) $d[5], (int) $d[6], (int) $d[2], (int) $d[3], (int) $d[1]);
     } elseif ($from_date == 0) { 
         $from_date = time();
@@ -71,7 +71,7 @@ public static function subtract_interval(string $interval, $from_date = 0, $retu
     }
 
     // Get start date / time
-    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", $from_date, $d)) { 
+    if (preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$/", (string) $from_date, $d)) { 
         $from_date = mktime((int) $d[4], (int) $d[5], (int) $d[6], (int) $d[2], (int) $d[3], (int) $d[1]);
     } elseif ($from_date == 0) { 
         $from_date = time();

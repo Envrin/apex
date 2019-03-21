@@ -51,7 +51,7 @@ if (preg_match("/<h1>(.+?)<\/h1>/i", $tpl_code, $match)) {
     // Parse HTML
     template::initialize();
     $html = template::parse_html($tpl_code);
-file_put_contents(SITE_PATH . '/t.txt', $html);
+
     // Set results array
     $results = array(
         'title' => $title, 

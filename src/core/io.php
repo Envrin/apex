@@ -9,6 +9,7 @@ use apex\log;
 use apex\debug;
 use apex\IOException;
 use ZipArchive;
+use SqlParser;
 
 /**
 ( Handles various input / output operations on files and 
@@ -218,7 +219,7 @@ public static function send_tor_request(string $url, string $method = 'GET', arr
 {
 
     // Debug
-    debug::add(3, fmsg("Sending HTTP request ia Tor to the URL: {1}"< $url), __FILE__, __LINE__);
+    //debug::add(3, fmsg("Sending HTTP request ia Tor to the URL: {1}"< $url), __FILE__, __LINE__);
 
     // Send via cURL
     $ch = curl_init();
@@ -372,8 +373,30 @@ public static function unpack_zip_archive(string $zip_file, string $dirname)
 
 }
 
+/**
+* Execute SQL file
+*      @param string $sqlfile The path to the SQL file to execute against the database
+*/
+public static function execute_sqlfile(string $sqlfile)
+{
 
+    // Check if SQL file exists
+    if (!file_exists($sqlfile)) { 
+        return;
+    }
 
+    // Debug
+    debug::add(4, fmsg("Starting to execute SQL file, {1}", $sqlfile), __FILE__, __LINE__);
 
+    // Execute SQL
+    $sql_lines = SqlParser::parse(file_get_contents($sqlfile));
+    foreach ($sql_lines as $sql) { 
+        DB::query($sql); 
+    }
+
+    // Debug
+    debug::add(2, fmsg("Successfully executed SQL file against database, {1}", $sqlfile), __FILE__, __LINE__, 'info');
+
+}
 }
 

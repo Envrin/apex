@@ -256,7 +256,7 @@ public static function encrypt_basic(string $data, string $password = ''):string
     debug::add(4, "Basic encrypt of data", __FILE__, __LINE__);
 
     if ($password == '') { $password = ENCRYPT_PASS; } 
-    $encrypted = openssl_encrypt($data, ENCRYPT_CIPHER, $password, 0, ENCRYPT_IV);
+    $encrypted = openssl_encrypt($data, ENCRYPT_CIPHER, md5($password), 0, ENCRYPT_IV);
     return $encrypted;
 }
 
@@ -271,7 +271,7 @@ public static function decrypt_basic(string $data, string $password = '')
 
     // Decrypt
     if ($password == '') { $password = ENCRYPT_PASS; } 
-    $text = openssl_decrypt($data, ENCRYPT_CIPHER, $password, 0, ENCRYPT_IV);
+    $text = openssl_decrypt($data, ENCRYPT_CIPHER, md5($password), 0, ENCRYPT_IV);
     return $text;
 }
 

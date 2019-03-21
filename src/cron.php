@@ -28,7 +28,7 @@ foreach ($rows as $row) {
     DB::query("UPDATE internal_crontab SET failed = failed + 1 WHERE id = %i", $row['id']);
     if ($row['failed'] >= 5) { 
         DB::query("UPDATE internal_crontab SET nextrun_time = %i WHERE id = %i", (time() + 10800), $row['id']);
-        log::critical("Crontab job failed five or more times, package: {1}, alias: {2}", $row['package'], $row['alias']);
+        log::critical(fmsg("Crontab job failed five or more times, package: {1}, alias: {2}", $row['package'], $row['alias']));
     }
 
     // Load crontab job
