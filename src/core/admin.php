@@ -34,7 +34,7 @@ public function create()
 {
 
     // Debug
-    debug::add(3, fmsg("Starting to create new administrator and validate form fields"), __FILE__, __FILE__, 'info');
+    debug::add(3, fmsg("Starting to create new administrator and validate form fields"), __FILE__, __LINE__, 'info');
 
     // Validate form
     forms::validate_form('core:admin');
