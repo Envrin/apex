@@ -21,7 +21,7 @@ public function process()
 
     // Set response content-type to text/json, 
     // so in case of error, a JSON error will be returned.
-    registry::set_content_type('text/json');
+    registry::set_content_type('application/json');
 
     // Ensure a proper alias and/or package is defined
     if (!isset(registry::$uri[0])) { trigger_error("Invalid request 123445", E_USER_ERROR); }
@@ -57,7 +57,6 @@ public function process()
     );
 
     // Set the response
-    //echo json_encode($response); exit;
     registry::set_response(json_encode($response));
 
 }

@@ -7,6 +7,9 @@ use apex\DB;
 use apex\registry;
 use apex\debug;
 use apex\log;
+use apex\core\components;
+use apex\core\tables;
+
 
 class ajax 
 {
@@ -88,12 +91,14 @@ final public function add_data_rows(string $divid, string $table_alias, array $r
     }
 
     // Load table
-    $table = load_component('table', $alias, $package, '', $data);
+    if (!$table = components::load('table', $alias, $package)) { 
+        throw new ComponentException('no_load', 'table', '', $alias, $package);
+    }
 
     // Check form field
-    $form_field = $table::form_field ?? 'none';
-    if ($form_field == 'checkbox' && !preg_match("/\[\]$/", $table::form_name)) { 
-        //$table::form_name .= '[]';
+    $form_field = $table->form_field ?? 'none';
+    if ($form_field == 'checkbox' && !preg_match("/\[\]$/", $table->form_name)) { 
+        $table->form_name .= '[]';
     }
 
     // Go through rows
@@ -102,11 +107,11 @@ final public function add_data_rows(string $divid, string $table_alias, array $r
         // Add radio / checkbox, if needed
         $frow = array();
         if ($form_field == 'radio' || $form_field == 'checkbox') { 
-            $frow[] = "<center><input type=\"$form_field\" name=\"" . $table::form_name . "\" value=\"" . $row[$table::form_value] . "\"></center>";
+            $frow[] = "<center><input type=\"$form_field\" name=\"" . $table->form_name . "\" value=\"" . $row[$table->form_value] . "\"></center>";
         }
 
         // Go through table columns
-        foreach ($table::columns as $alias => $name) { 
+        foreach ($table->columns as $alias => $name) { 
             $value = $row[$alias] ?? '';
             $frow[] = $value;
         }
@@ -128,7 +133,7 @@ final public function set_pagination(string $divid, array $details)
 {
 
     // Get nav function 
-    $vars = registry::$post;
+    $vars = registry::getall_post();
     unset($vars['page']);
     $nav_func = "<a href=\"javascript:ajax_send('core/navigate_table', '" . http_build_query($vars) . "&page=~page~', 'none');\">";
 

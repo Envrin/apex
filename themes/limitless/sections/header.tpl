@@ -198,7 +198,7 @@
 
 						<div class="dropdown-content-body dropdown-scrollable">
 							<ul class="media-list" id="dropdown_messages">
-                                <e:dropdown_messages
+                                <e:dropdown_messages>
 							</ul>
 						</div>
 

@@ -100,11 +100,49 @@ public function send_sms($data)
 /**
 * Send Web Socket message
 */
-public function send_ws($message)
+public function send_ws($data)
 {
 
-    $client = new \WebSocket\Client('ws://' . RABBITMQ_HOST . ':8194');
-    $client->send($message);
+    // Start header
+    $header = '1000' . sprintf('%04b', 1) . '1';
+    $length = strlen($data);
+
+    // Add length to header
+    if ($length > 65535) { 
+        $header .= decbin(127) . sprintf('%064b', $length);
+    } elseif ($length > 125) { 
+        $header .= decbin(126) . sprintf('%016b', $length);
+    } else { 
+        $header .= sprintf('%07b', $length);
+    }
+
+    // Start body of message
+    $frame = '';
+    foreach (str_split($header, 8) as $binstr) {
+        $frame .= chr(bindec($binstr));
+    }
+
+    // Add mask
+    $mask = chr(rand(0, 255)) . chr(rand(0, 255)) . chr(rand(0, 255)) . chr(rand(0, 255));
+    $frame .= $mask;
+
+    // Add data to message
+    for ($i = 0; $i < $length; $i++) {
+        $frame .= $data[$i] ^ $mask[$i % 4];
+    }
+
+    // Send message
+    try { 
+        if (!$sock = @fsockopen(RABBITMQ_HOST, 8194, $errno, $errstr, 3)) { 
+            return true;
+            }
+    } catch (Exception $e) { 
+        return true;
+    }
+
+    // Write data
+    fwrite($sock, $frame);
+    fclose($sock);
 
 }
 

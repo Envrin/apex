@@ -10,6 +10,7 @@ use apex\debug;
 use apex\ComponentException;
 use apex\PackageException;
 use apex\pkg\pkg_component;
+use apex\core\notification;
 
 
 /**
@@ -72,7 +73,8 @@ public function load()
         'menus', 
         'ext_files', 
         'boxlists', 
-        'placeholders'
+        'placeholders', 
+        'notifications'
     );
 
     foreach ($vars as $var) { 
@@ -605,6 +607,23 @@ protected function reorder_tabcontrol(string $package, string $alias)
     debug::add(3, fmsg("Completed re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
 
 }
+
+/**
+* Install notificationsl.  Only executed during initial package install, and never again.
+*/
+public function install_notifications($pkg)
+{
+
+    // Go through notifications
+    foreach ($pkg->notifications as $data) { 
+        $data['contents'] = base64_decode($data['contents']);
+
+        $client = new notification();
+        $client->create($data);
+    }
+
+}
+
 
 }
 

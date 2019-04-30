@@ -52,7 +52,6 @@ public function __construct(string $log_level, string $message, ...$vars)
 public function process()
 {
 
-
     // Get trace
     $trace = $this->getTrace();
 
@@ -110,7 +109,7 @@ protected function render()
         $this->render_cli();
 
     // JSON error
-    } elseif (registry::get_content_type() == 'text/json') { 
+    } elseif (preg_match("/\/json$/", registry::get_content_type())) { 
         $this->render_json();
 
     }

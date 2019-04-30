@@ -10,7 +10,7 @@ use apex\template;
 class admin 
 { 
 
-    public static $allow_post_values = 1;
+    public $allow_post_values = 1;
 
 /**
 * Defines the form fields included within the HTML form.
@@ -33,7 +33,8 @@ public function get_fields(array $data = array()):array
         'email' => array('field' => 'textbox', 'label' => 'E-Mail Address', 'required' => 1, 'datatype' => 'email'),  
         'phone' => array('field' => 'phone'), 
         'sep2' => array('field' => 'seperator', 'label' => 'Additional'), 
-        'require_2fa' => array('field' => 'boolean', 'label' => 'Require 2FA Authentication?', 'value' => 0), 
+        'require_2fa' => array('field' => 'select', 'label' => 'Require E-Mail 2FA?', 'value' => 0, 'data_source' => 'hash:core:2fa_options'), 
+        'require_2fa_phone' => array('field' => 'select', 'label' => 'Require Phone 2FA?', 'value' => 0, 'data_source' => 'hash:core:2fa_options'), 
         'language' => array('field' => 'select', 'selected' => 'en', 'required' => 1, 'data_source' => 'stdlist:language:1'), 
         'timezone' => array('field' => 'select', 'selected' => 'PST', 'required' => 1, 'data_source' => 'stdlist:timezone')
     );

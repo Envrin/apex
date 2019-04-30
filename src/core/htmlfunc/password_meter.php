@@ -21,6 +21,10 @@ class password_meter extends \apex\abstracts\htmlfunc
 public function process(string $html, array $data = array()):string 
 {
 
+	// Return
+	return $html;
+
+
     return $html;
 
 }

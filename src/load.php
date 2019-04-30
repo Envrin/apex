@@ -49,7 +49,7 @@ require_once(SITE_PATH . '/lib/db/' . $db_driver .'.php');
 // Set error reporting
 error_reporting(E_ALL);
 set_exception_handler('handle_exception');
-//set_error_handler('\error');
+set_error_handler('\error');
 
 // Start session
 session_start();

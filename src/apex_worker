@@ -9,7 +9,7 @@
 
 
 
-SITE_PATH="~site_path~";
+SITE_PATH="/home/boxer/devel/apex";
 DAEMON="/usr/bin/php"
 DAEMON_OPTS="$SITE_PATH/src/worker.php"
 RPC_OPTS="$SITE_PATH/src/rpc_server.php"

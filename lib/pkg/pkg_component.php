@@ -301,7 +301,7 @@ protected static function add_crontab(string $package, string $alias)
     }
 
     // Get date
-    $next_date = date::add_interval($cron->time_interval);
+    $next_date = date::add_interval($cron->time_interval, time(), false);
     $name = isset($cron->name) ? $cron->name : $alias;
 
     // Add to database

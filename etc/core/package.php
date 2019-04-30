@@ -223,6 +223,7 @@ $this->ext_files = array(
     'lib/third_party/maxmind/*', 
     'lib/third_party/SqlParser.php', 
     'public/plugins/flags/*', 
+    'public/plugins/apex.js', 
     'public/plugins/parsley.js/*', 
     'public/plugins/sounds/notify.wav', 
     'public/index.php', 
@@ -237,6 +238,18 @@ $this->ext_files = array(
 );
 
 
+// Notifications
+$this->notifications = array();
+$this->notifications[] = array(
+    'controller' => 'system', 
+    'sender' => 'admin:1', 
+    'recipient' => 'user', 
+    'content_type' => 'text/plain', 
+    'subject' => '2FA Required - ~site_name~', 
+    'contents' => 'CkEgcmVjZW50IGFjdGlvbiBpbml0aWF0ZWQgYnkgeW91ciB1c2VyIGFjY291bnQgb24gfnNpdGVfbmFtZX4gcmVxdWlyZXMgdHdvIGZhY3RvciBhdXRoZW50aWNhdGlvbi4gIFRvIGNvbnRpbnVlIHdpdGggdGhpcyBhY3Rpb24sIHBsZWFzZSBjbGljayBvbiB0aGUgYmVsb3cgbGluay4KCiAgICB+MmZhLXVybH4KClRoYW5rIHlvdSwKfnNpdGVfbmFtZX4KCgoK', 
+    'cond_action' => '2fa'
+);
+
 
 }
 
@@ -248,6 +261,13 @@ $this->ext_files = array(
 public function define_hashes() { 
 
     $vars = array();
+
+    // Require 2FA options
+    $vars['2fa_options'] = array(
+        0 => 'Disabled', 
+        1 => 'Every Login Session', 
+        2 => 'Only when New Device Recognized'
+    );
 
     // Backup remote services
     $vars['backups_remote_services'] = array(

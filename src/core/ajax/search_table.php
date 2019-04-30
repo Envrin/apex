@@ -5,8 +5,12 @@ namespace apex\core\ajax;
 
 use apex\DB;
 use apex\registry;
+use apex\core\components;
+use apex\core\tables;
+use apex\ComponentException;
 
-class search_table Extends \apex\jax 
+
+class search_table Extends \apex\ajax
 {
 
 /**
@@ -14,27 +18,40 @@ class search_table Extends \apex\jax
 * rows, and replaces them with table rows that match the 
 * search.  This is the 'quick search' functionality of the data tables.
 */
-public function process() extends ajax 
+public function process()
 {
 
     // Set variables
-    $package = $_POST['package'] ?? '';
-    $search_text = $_POST['search_' . $_POST['id']] ?? '';
+    $id = registry::post('id') ?? '';
+    $search_text = registry::post('search_' . $id) ?? '';
     if ($search_text == '') { 
         $this->alert(tr('You did not specify any text to search for.'));
         return;
     }
 
+    // Ensure table exists
+    if (!list($package, $parent, $alias) = components::check('table', registry::post('table'))) {
+        throw new ComponentException('no_exists', 'table', registry::post('table'));
+    } 
+
     // Load table
-    $table = load_component('table', $_POST['table'], $package, '', $_POST);
+    if (!$table = components::load('table', $alias, $package, '', registry::getall_post())) { 
+        throw new ComponentException('no_load', 'table', '', $alias, $package);
+    }
+
+    // Get attributes
+    if (method_exists($table, 'get_attributes')) { 
+        $table->get_attributes(registry::getall_post());
+    }
+
     // Get table details
-    $details = get_table_details($table, $_POST['id']);
+    $details = tables::get_details($table, $id);
 
     // Clear table rows
     $this->clear_table($_POST['id']);
 
     // Add new rows
-    $this->add_data_rows($_POST['id'], $_POST['table'], $package, $details['rows'], $_POST);
+    $this->add_data_rows($id, registry::post('table'), $details['rows'], registry::getall_post());
 
     // Set pagination
     $this->set_pagination($_POST['id'], $details);

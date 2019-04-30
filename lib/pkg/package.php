@@ -217,12 +217,16 @@ public function compile(string $pkg_alias):string
         }
     }
 
-    // Documentation
-    $docs_dir = SITE_PATH . '/docs/' . $pkg_alias;
-    if (is_dir($docs_dir)) { 
-        $docs_files = io::parse_dir($docs_dir);
-        foreach ($docs_files as $doc_file) { 
-            $this->add_file("docs/$pkg_alias/" . $doc_file);
+    // docs and /src/tpl/ directories
+    $addl_dirs = array(
+        'docs/' . $pkg_alias, 
+        'src/' . $pkg_alias . '/tpl'
+    );
+    foreach ($addl_dirs as $dir) { 
+        if (!is_dir(SITE_PATH . '/' . $dir)) { continue; }
+        $addl_files = io::parse_dir(SITE_PATH . '/' . $dir);
+        foreach ($addl_files as $file) { 
+            $this->add_file($dir . '/' . $file);
         }
     }
 
@@ -408,10 +412,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     debug::add(4, fmsg("Installing package, copied over all files to correct location, package {1}", $pkg_alias), __FILE__, __LINE__);
 
     // Run install SQL, if needed
-    if (file_exists("$pkg_dir/install.sql")) { 
-        $sql_lines = SqlParser::parse(file_get_contents("$pkg_dir/install.sql"));
-        foreach ($sql_lines as $sql) { DB::query($sql); }
-    }
+    io::execute_sqlfile("$pkg_dir/install.sql");
 
     // Debug
     debug::add(4, fmsg("Installing package, ran install.sql file for package {1}", $pkg_alias), __FILE__, __LINE__);
@@ -430,6 +431,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
 
     // Install configuration
     $client->install_configuration();
+    $client->install_notifications();
 
     // Debug
     debug::add(4, fmsg("Installing package, successfully installed configuration for package, {1}", $pkg_alias), __FILE__, __LINE__);
@@ -444,10 +446,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     }
 
     // Run install_after SQL, if needed
-    if (file_exists("$pkg_dir/install_after.sql")) { 
-        $sql_lines = SqlParser::parse(file_get_contents("$pkg_dir/install_after.sql"));
-        foreach ($sql_lines as $sql) { DB::query($sql); }
-    }
+    io::execute_sqlfile("$pkg_dir/install_after.sql");
 
     // Debug
     debug::add(4, fmsg("Installing package, successfully installed all components for package, {1}", $pkg_alias), __FILE__, __LINE__);
@@ -455,6 +454,24 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     // Execute PHP, if needed
     if (method_exists($pkg, 'install_after')) { 
         $pkg->install_after();
+    }
+
+    // Copy over addl .tpl files, if needed
+    $tpl_dir = SITE_PATH . '/src/' . $pkg_alias . '/tpl';
+    if (is_dir($tpl_dir)) { 
+        $tpl_files = io::parse_dir($tpl_dir);
+        foreach ($tpl_files as $file) { 
+            $dest_file = SITE_PATH . '/views/tpl/' . $file;
+
+            // Copy over backup, if needed
+            if (file_exists($dest_file)) { 
+                $bak_file = SITE_PATH . '/views/tpl_bak/' . $file;
+                io::create_dir(dirname($bak_file));
+                copy($dest_file, $bak_file);
+                @unlink($dest_file);
+            }
+            copy("$tpl_dir/$file", $dest_file);
+        }
     }
 
     // Clean up

@@ -214,6 +214,41 @@ That's it.  Now within any template, you can display the box list with the two a
 by placing the HTML tag:
 
 `<e:boxlist alias="myblog:settings">`
- 
+
+
+### `$this->notifications`
+
+An array of associatve arrays, and allows you to define default e-mail notifications that are created upon installation of the package.  For example, 
+upon installing the "users" package, default e-mail notifications are created that are sent upon registration, reset password request, e-mail verification, and so on.  Each element of this array is an 
+associative array with the following key-value pairs:
+
+Variable | Description
+------------- |------------- 
+controller | The controller alias of the e-mail notification (ie. filename within /src/core/controller/notifications/ directory without the .php extension).
+sender | The sender of the e-mail (eg. admin:1, user, etc.)
+recipient | The recipient of the e-mail (eg. admin:1, user, etc.)
+content_type | Either "text/plain" or "text/html"
+subject | the subject of the e-mail notification
+contents | A BASE64 encoded string of the contents of the e-mail message.
+cond_XXX | Any condition values needed for the e-mail controller.  Check the `$fields` array properly within the PHP class of the email notification for available fields.  For example, if a field is named"action", you would add a key with the name "cond_action", and the value being whatever necessary.
+
+
+For example, the below code will add a e-mail notification that is sent to the user upon registration.
+
+~~~php
+$this->notifications = array();
+$this->notifications[] = array(
+    'controller' => 'users', 
+    'sender' => 'admin:1', 
+    'recipient' => 'user', 
+    'content_type' => 'text/plain', 
+    'subject' => "Thank you for registering, ~username~', 
+    'contents' => 'BASE64 STRING', 
+    'cond_action' => 'create', 
+    'cond_status' => '', 
+    'cond_group_id' => ''
+);
+~~~
+
 
 

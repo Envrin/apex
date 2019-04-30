@@ -89,7 +89,8 @@ public static function parse():string
         $rpc = new rpc();
         $response = $rpc->send('core.template.parse', json_encode($vars));
 
-        foreach ($response as $package => $vars) { 
+        foreach ($response as $package => $vars) {
+            if (!is_array($vars)) { continue; } 
             foreach ($vars as $key => $value) { 
                 self::assign($key, $value);
             }
@@ -522,6 +523,7 @@ protected static function process_sections(string $html):string
 
             // Replace
             foreach ($vars as $key => $value) { 
+        if (is_array($value)) { continue; }
                 $key = $attr['name'] . '.' . $key;
                 $temp_html = str_ireplace("~$key~", $value, $temp_html);
             }
@@ -581,7 +583,7 @@ protected static function process_theme_components()
 * Assigns the base variables that are available to all templates, such as the URI 
 * to the theme directrory, the ID# of the auhenticated user, and so on.
 */
-protected static function load_base_variables() 
+public static function load_base_variables() 
 {
 
 // Set base variables
@@ -597,7 +599,7 @@ protected static function load_base_variables()
 
     // Get unread alerts / messages
     if (registry::$userid > 0) { 
-        $recipient = 'admin:1';
+        $recipient = registry::$panel == 'admin' ? 'admin:' . registry::$userid : 'users:' . registry::$userid;
         list($display_unread_alerts, $display_unread_messages) = array('block', 'block');
 
         // Alerts
@@ -614,7 +616,7 @@ protected static function load_base_variables()
 
         // Template variables
         self::assign('unread_alerts', $unread_alerts);
-        template::assign('unread_messages', $unread_messages);
+        self::assign('unread_messages', $unread_messages);
         self::assign('display_badge_unread_alerts', $display_unread_alerts);
         self::assign('display_badge_unread_messages', $display_unread_messages);
 
@@ -794,7 +796,7 @@ protected static function add_system_javascript($html)
 
     // Add to HTML
     $html = str_replace("</head>", $js, $html);
-    $html = str_replace("</body>", base64_decode('CjxkaXYgaWQ9ImFwZXhfbW9kYWwiIGNsYXNzPSJtb2RhbCBmYWRlIiByb2xlPSJkaWFsb2ciPjxkaXYgY2xhc3M9Im1vZGFsLWRpYWxvZyI+Cgk8ZGl2IGNsYXNzPSJtb2RhbC1jb250ZW50Ij4KCgkJPGRpdiBjbGFzcz0ibW9kYWwtaGVhZGVyIj4KCQkJPGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbG9zZSIgZGF0YS1kaXNtaXNzPSJtb2RhbCI+JnRpbWVzOzwvYnV0dG9uPgoJCQk8aDQgY2xhc3M9Im1vZGFsLXRpdGxlIiBpZD0iYXBleF9tb2RhbC10aXRsZSI+PC9oND4KCQk8L2Rpdj4KCQk8ZGl2IGNsYXNzPSJtb2RhbC1ib2R5IiBpZD0iYXBleF9tb2RhbC1ib2R5Ij48L2Rpdj4KCQk8ZGl2IGNsYXNzPSJtb2RhbC1mb290ZXIiPgoJCQk8YnV0dG9uIHR5cGU9ImJ1dHRvbiIgY2xhc3M9ImJ0biBidG4tZGVmYXVsdCIgZGF0YS1kaXNtaXNzPSJtb2RhbCI+Q2xvc2U8L2J1dHRvbj4KCQk8L2Rpdj4KCTwvZGl2Pgo8L2Rpdj48L2Rpdj4KCgo=') . "</body>", $html);
+    $html = str_replace("</body>", base64_decode('CjxkaXYgaWQ9ImFwZXhfbW9kYWwiIGNsYXNzPSJtb2RhbCBmYWRlIiByb2xlPSJkaWFsb2ciPjxkaXYgY2xhc3M9Im1vZGFsLWRpYWxvZyI+CiAgICA8ZGl2IGNsYXNzPSJtb2RhbC1jb250ZW50Ij4KCiAgICAgICAgPGRpdiBjbGFzcz0ibW9kYWwtaGVhZGVyIj4KICAgICAgICAgICAgPGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJjbG9zZSIgb25jbGljaz0iY2xvc2VfbW9kYWwoKTsiPiZ0aW1lczs8L2J1dHRvbj4KICAgICAgICAgICAgPGg0IGNsYXNzPSJtb2RhbC10aXRsZSIgaWQ9ImFwZXhfbW9kYWwtdGl0bGUiPjwvaDQ+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBDbGFzcz0ibW9kYWwtYm9keSIgaWQ9ImFwZXhfbW9kYWwtYm9keSI+PC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0ibW9kYWwtZm9vdGVyIj4KICAgICAgICAgICAgPGJ1dHRvbiB0eXBlPSJidXR0b24iIGNsYXNzPSJidG4gYnRuLWRlZmF1bHQiIG9uY2xpY2s9ImNsb3NlX21vZGFsKCk7Ij5DbG9zZTwvYnV0dG9uPgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CjwvZGl2PjwvZGl2PgoKCg==') . "</body>", $html);
 
     // Return
     return $html;

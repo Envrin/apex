@@ -13,7 +13,7 @@ use apex\template;
 */
 function handle_exception($e)
 {
-//header("Content-type: text/plain"); print_r($e); exit;
+
     // ApexException
     if ($e instanceof apex\ApexException) { 
         $e->process();
@@ -45,7 +45,7 @@ function handle_exception($e)
 */
 function error(int $errno, string $message, string $file, int $line) 
 {
-
+    if (preg_match("/fsockopen/", $message) && preg_match("/8194/", $message)) { return; }
     // Format file
     $file = trim(str_replace(SITE_PATH, '', $file), '/');
 
@@ -70,7 +70,7 @@ function error(int $errno, string $message, string $file, int $line)
         exit(0);
 
     // JSON error
-    } elseif (registry::get_content_type() == 'text/json') { 
+    } elseif (preg_match("/\/json$/", registry::get_content_type())) { 
         $response = array(
             'status' => 'error', 
             'errmsg' => $message, 
@@ -170,6 +170,8 @@ function fnames(string $message, array $vars):string
 
     // Go through placeholders
     foreach ($vars as $key => $value) { 
+        if (is_array($value)) { continue; }
+
         $key = '{' . $key . '}';
         $message = str_replace($key, $value, $message);
     }
@@ -232,9 +234,26 @@ function fmoney(float $amount, string $currency = '', bool $include_abbr = true)
     // Get currency
     $format = registry::get_currency($currency);
 
-    // Format, as needed
-    $name = $format['symbol'] . number_format((float) $amount, (int) $format['decimals']);
-    if ($include_abbr === true) { $name .= ' ' . $currency; }
+    // Format crypto currency
+    if ($format['is_crypto'] == 1) {
+ 
+        // Format decimal points
+        $amount = preg_replace("/0+$/", "", sprintf("%.8f", $amount));
+        $length = strlen(substr(strrchr($amount, "."), 1));
+        if ($length < 4) { 
+            $amount = sprintf("%.4f", $amount);
+            $length = 4;
+        }
+
+        // Format amount
+        $name = number_format((float) $amount, (int) $length);
+        if ($include_abbr === true) { $name .= ' ' . $currency; }
+
+    // Format standard currency
+    } else { 
+        $name = $format['symbol'] . number_format((float) $amount, (int) $format['decimals']);
+        if ($include_abbr === true) { $name .= ' ' . $currency; }
+    }
 
     // Return
     return $name;
@@ -244,13 +263,36 @@ function fmoney(float $amount, string $currency = '', bool $include_abbr = true)
 }
 
 /**
+* Exchange funds into another currency.
+*     @param float $amount The amount to exchange
+*     @param string $currency_from The currency the amount is currently in
+*     @param string $currency_to The currency to exchange the funds into
+*     @return float The resulting amount after exchange
+*/
+function exchange_money(float $amount, string $from_currency, string $to_currency)
+{
+
+    // Echange to base currency, if needed
+    if ($from_currency != registry::config('transaction:base_currency')) { 
+        $rate = DB::get_field("SELECT current_rate FROM transaction_currencies WHERE abbr = %s", $from_currency);
+        $amount *= $rate;
+    }
+
+    // Convert to currency
+    $rate = DB::get_field("SELECT current_rate FROM transaction_currencies WHERE abbr = %s", $to_currency);
+    return($amount / $rate);
+
+}
+
+
+/**
 * Checks whether or not a package is installed.
 * 
 *     @param string $alias The alias of the package to check.
 *     @return bool WHether or not the package is installed.
 */
 function check_package($alias) { 
-    $pkg_file = SITE_PATHc . '/etc/' . $alias . '/package.php';
+    $pkg_file = SITE_PATH . '/etc/' . $alias . '/package.php';
     return file_exists($pkg_file) ? true : false;
 }
 

@@ -22,6 +22,7 @@ class registry
     public static $http_controller = 'http';
     public static $uri = array();
     public static $auth_hash = '';
+    public static $verified_2fa = false;
 
     // Request variables
     public static $service = 'http';
@@ -39,12 +40,13 @@ class registry
     // Front-end variables
     public static $userid = 0;
     public static $panel = 'public';
-    public static $theme = 'public_default';
+    public static $theme = 'public_coco';
     public static $action;
 
     // Localization
     public static $timezone = 'PST';
     public static $language = 'en';
+    public static $currency = 'USD';
     private static $smtp_connections = array();
 
     // Response variables
@@ -252,6 +254,30 @@ public static function test_request(string $route, string $method = 'GET', array
 }
 
 /**
+* Verify a 2FA request*/
+public static function verify_2fa(array $vars)
+{
+
+    // Set variables
+    self::$userid = (int) $vars['userid'];
+    self::$http_controller = $vars['http_controller'];
+    self::$panel = $vars['panel'];
+    self::$theme = $vars['theme'];
+    self::$route = $vars['route'];
+    self::$request_method = $vars['request_method'];
+    self::$get = $vars['get'];
+    self::$post = $vars['post'];
+    self::$verified_2fa = true;
+
+    // Handle request
+    self::handle_request();
+
+    // Echo results
+    self::echo_response();
+
+}
+
+/**
 ( Below functions are the equivalents of the get / has methods within the PSR-11 standards, 
 * and allow you to easily check if a variable exists, and 
 * also retrieve said variable
@@ -361,15 +387,28 @@ public static function get_currency(string $currency):array
 {
 
     // Get currency data
-    if ($data = self::$redis->hget('std:currency', $currency)) { 
-        throw new ApexException('critical', "Currency does not exist in database, {1}", $currency);
+    if (!$data = self::$redis->hget('std:currency', $currency)) { 
+
+        // Check for crypto
+        if (!registry::$redis->sismember('config:crypto_currency', $currency)) { 
+            throw new ApexException('critical', "Currency does not exist in database, {1}", $currency);
+        }
+
+        // Return
+        $vars = array(
+            'symbol' => '', 
+            'decimals' => 8, 
+            'is_crypto' => 1
+        );
+        return $vars;
     }
     $line = explode("::", $data);
 
     // Set vars
     $vars = array(
         'symbol' => $line[1], 
-        'decimals' => $line[2]
+        'decimals' => $line[2], 
+        'is_crypto' => 0
     );
 
     // Return
@@ -458,7 +497,7 @@ public static function echo_response()
     http_response_code(self::$res_status);
 
     // Content type
-    //header("Content-type: " . self::$res_content_type);
+    header("Content-type: " . self::$res_content_type);
 
     // Echo response
     echo (string) self::$response;
@@ -478,6 +517,10 @@ public static function echo_template(string $uri)
  
     // Set route
     self::set_route($uri);
+    if (self::$theme == '') { 
+        self::$panel = 'public';
+        self::$theme = self::config('core:theme_public');
+    }
 
     // Echo template
     self::set_response(template::parse());

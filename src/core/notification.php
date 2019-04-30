@@ -6,11 +6,13 @@ namespace apex\core;
 use apex\DB;
 use apex\registry;
 use apex\debug;
+use apex\message;
 use apex\ApexException;
 use apex\CommException;
 use apex\ComponentException;
 use apex\core\components;
 use apex\core\forms;
+use apex\users\user;
 
 /**
 * Handles creating and managing the e-mail notifications 
@@ -37,6 +39,7 @@ public function get_merge_fields(string $controller):string
     $fields['System'] = array(
         'site_name' => 'Site Name', 
         'domain_name' => 'Domain Name', 
+        'install_url' => 'Install URL', 
         'current_date' => 'Current Date', 
         'current_time' => 'Current Time', 
         'ip_address' => 'IP Address', 
@@ -101,11 +104,16 @@ public function get_merge_vars(string $controller, int $userid = 0, array $data 
     // Debug
     debug::add(5, fmsg("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid), __FILE__, __LINE__);
 
+    // Get install URL
+    $url = isset($_SERVER['_HTTPS']) ? 'https://' : 'http://';
+    $url .= registry::config('core:domain_name');
+
     // Set system variables
     $date = date('Y-m-d H:i:s');
     $vars = array(
         'site_name' => registry::config('core:site_name'), 
         'domain_name' => registry::config('core:domain_name'), 
+        'install_url' => $url, 
         'current_date' => fdate($date), 
         'current_time' => fdate($date, true), 
         'ip_address' => registry::$ip_address, 
@@ -174,6 +182,68 @@ public function get_recipient(string $recipient, int $userid = 0)
     return array($email, $name);
 
 }
+
+/**
+* Send a single notification
+*     @param int $userid The ID# of the user the e-mail is being sent against
+*     @param int $notification The ID# of the notification to send
+*     @param array $data The $data array passed to the message::process_emails() function
+*/
+public function send($userid, $notification_id, $data)
+{
+
+    // Get notification
+    if (!$row = DB::get_idrow('notifications', $notification_id)) { 
+        throw new CommException('not_exists', '', '', '', $notification_id);
+    }
+    $condition = json_decode(base64_decode($row['condition_vars']), true);
+
+    // Load controller
+    $controller = components::load('controller', $row['controller'], 'core', 'notifications');
+
+    // Get sender info
+    if ((!method_exists($controller, 'get_recipient')) || (!list($from_email, $from_name) = $controller->get_recipient($row['sender'], $userid, $data))) { 
+        if (!list($from_email, $from_name) = $this->get_recipient($row['sender'], $userid)) { 
+            throw new CommException('no_sender', '', '', $row['sender']);
+        }
+    }
+
+    // Change recipient for 2FA
+    if ($row['controller'] == 'system' && isset($condition['action']) && $condition['action'] == '2fa') { 
+        $row['recipient'] = 'admin:1';
+    }
+
+    // Get recipient info
+    if ((!method_exists($controller, 'get_recipient')) || (!list($to_email, $to_name) = $controller->get_recipient($row['recipient'], $userid, $data))) { 
+        if (!list($to_email, $to_name) = $this->get_recipient($row['recipient'], $userid)) { 
+            throw new CommException('no_recipient', '', '', $row['recipient']);
+        }
+    }
+
+    // Set variables
+    $reply_to = $controller->reply_to ?? $row['reply_to'];
+    $cc = $controller->cc ?? $row['cc'];
+        $bcc = $controller->bcc ?? $row['bcc'];
+
+    // Get merge variables
+    $merge_vars = $this->get_merge_vars($row['controller'], $userid, $data);
+
+    // Format message
+    $subject = $row['subject']; $message = base64_decode($row['contents']);
+    foreach ($merge_vars as $key => $value) { 
+        if (is_array($value)) { continue; }
+        $subject = str_replace("~$key~", $value, $subject);
+        $message = str_replace("~$key~", $value, $message);
+    }
+
+    // Send e-mail
+    message::send_email($to_email, $to_name, $from_email, $from_name, $subject, $message, $row['content_type'], $reply_to, $cc, $bcc);
+
+    // Return
+    return true;
+
+}
+
 /**
 * is executed when creating a notification within the admin panel.
 */
@@ -197,7 +267,7 @@ public function create(array $data = array())
     // Get condition
     $condition = array();
     foreach ($client ->fields as $field_name => $vars) { 
-        $condition[$field_name] = registry::post('cond_' . $field_name);
+        $condition[$field_name] = $data['cond_' . $field_name];
     }
 
     // Add to DB
@@ -307,7 +377,7 @@ public function create_options($selected = ''):string
 
     // Go through notifications
     $last_controller = '';
-    $rows = DB::query("SELECT id,controller,subject FROM notifications GROUP BY controller ORDER BY subject");
+    $rows = DB::query("SELECT id,controller,subject FROM notifications ORDER BY controller,subject");
     foreach ($rows as $row) {
 
         // Load controller, if needed

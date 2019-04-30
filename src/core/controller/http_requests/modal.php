@@ -19,14 +19,14 @@ public function process()
 
     // Set response content-type to text/json, so 
     // in case of error, a JSON response is returned.
-    registry::set_content_type('text/json');
+    registry::set_content_type('application/json');
 
     // Ensure a proper modal was defined in URI
     if (!isset(registry::$uri[0])) { trigger_error("Invalid request", E_USER_ERROR); }
 
     // Get package / alias
     if (!list($package, $parent, $alias) = components::check('modal', registry::$uri[0])) { 
-        trigger_error("The modal '$parts[0]' does not exist, or no package was defined and exists within more than one package.", E_USER_ERROR);
+        throw new ComponentException('not_exists', 'modal', registry::$uri[0]);
     }
 
     // Get TPL code
@@ -50,6 +50,7 @@ if (preg_match("/<h1>(.+?)<\/h1>/i", $tpl_code, $match)) {
 
     // Parse HTML
     template::initialize();
+    template::load_base_variables();
     $html = template::parse_html($tpl_code);
 
     // Set results array
@@ -58,12 +59,8 @@ if (preg_match("/<h1>(.+?)<\/h1>/i", $tpl_code, $match)) {
         'body' => $html
     );
 
-    echo json_encode($results);
-    exit(0);
-
     // Set response
     registry::set_response(json_encode($results));
-
 }
 }
 

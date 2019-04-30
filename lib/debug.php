@@ -4,7 +4,10 @@ declare(strict_types = 1);
 namespace apex;
 
 
-
+/**
+* Handles logging all debugger line items, and displaying the 
+( debug results within the browser when necessary.
+*/
 class debug 
 {
 

@@ -71,6 +71,11 @@ public static function check_login(bool $require_login = false)
     // Debug
     debug::add(3, fmsg("Starting authentication, auth_type: {1}, require_login: {2}.", self::$auth_type, ($require_login === true ? 'true' : 'false')), __FILE__, __LINE__);
 
+    // Logout, if needed
+    if (preg_match("/logout$/", registry::$route)) { 
+        self::logout();
+    }
+
     // Set variables
     self::initialize();
     if (registry::has_cookie(self::$cookie_name)) { 
@@ -79,6 +84,11 @@ public static function check_login(bool $require_login = false)
     } else { 
         $chk_auth_hash = '';
         registry::$auth_hash = '';
+    }
+
+    // Login, if needed
+    if (registry::$action == 'login') { 
+        return self::login();
     }
 
     // Check for session
@@ -121,7 +131,10 @@ public static function check_login(bool $require_login = false)
         // Update session
         $redis_user_key = self::$auth_type . ':' . $row['userid'];
         registry::$redis->hset('auth:last_seen', $redis_user_key, time());
-        registry::$redis->expire($chk_auth_hash, self::$expire_mins);
+
+        // Update expiration
+        $expire_secs = isset($row['remember_me']) && $row['remember_me'] == 1 ? 2592000 : self::$expire_mins;
+        registry::$redis->expire($chk_auth_hash, $expire_secs);
         if (self::$auth_type == 'user') { 
             registry::$redis->expire($redis_user_key, 259200);
         }
@@ -141,6 +154,7 @@ public static function check_login(bool $require_login = false)
 
         registry::$timezone = $urow['timezone'];
         registry::$language = $urow['language'];
+        registry::$currency = $urow['currency'] ?? registry::config('transaction:base_currency');
 
         // Set userid
         registry::set_userid((int) $row['userid']);
@@ -154,10 +168,6 @@ public static function check_login(bool $require_login = false)
         // Return
         return true;
 
-    // Login
-    } elseif (registry::$action == 'login') { 
-        return self::login();
-    
     // Require login, if needed
     } elseif ($require_login === true) { 
 
@@ -277,10 +287,27 @@ public static function login(bool $auto_login = false)
             return false;
         }	
 
+        // Check if new device
+        $cookie = COOKIE_NAME . '_' . self::$auth_type . '_auth_sechash';
+        if (registry::has_cookie($cookie) && hash('sha512', registry::cookie($cookie)) == $user_row['sec_hash']) {
+            $new_device = false;
+        } else { $new_device = true; }
+
         // Check if 2FA required
-        if (self::$require_2fa == 2) { $require_2fa = $user_row['require_2fa']; }
-        else { $require_2fa = self::$require_2fa; }
-        $status_2fa = $require_2fa == 1 ? 0 : 1;
+        list($require_2fa, $require_2fa_phone) = array(0, 0);
+        if (self::$auth_type == 'admin' || registry::config('users:require_2fa') == 'optional') { 
+            $require_2fa = $user_row['require_2fa'];
+            $require_2fa_phone = $user_row['require_2fa_phone'];
+        } elseif (registry::config('users:require_2fa') == 'session') { 
+            list($require_2fa, $require_2fa_phone) = array(1, 1);
+        } elseif (registry::config('users:require_2fa') == 'new_device' && $new_device === true) { 
+            list($require_2fa, $require_2fa_phone) = array(1, 1);
+        }
+
+        // Check if phone or e-mail 2FA required
+        if ($require_2fa_phone == 1 && $user_row['phone'] != '') { 
+            $require_2fa = 0;
+        } else { $require_2fa_phone = 0; }
 
         // Check security question
         self::check_security_question(intval($user_row['id']), $user_row['sec_hash']);
@@ -289,7 +316,7 @@ public static function login(bool $auto_login = false)
         self::check_ip_restrictions(intval($user_row['id']));
 
     } else {
-        list($require_2fa, $status_2fa) = array(0, 1);
+        list($require_2fa, $require_2fa_phone) = array(0, 0);
     }
 
     // Generate session ID
@@ -302,11 +329,14 @@ public static function login(bool $auto_login = false)
     debug::add(1, fmsg("Authentication successful, session ID generated, auth_type: {1}, username: {2}, session_id: {3}", self::$auth_type, registry::post('username'), $session_id), __FILE__, __LINE__);
 
     // Add session to DB
+    $remember_me = registry::post('remember_me') ?? 0;
     $vars = array(
         'type' => self::$auth_type, 
         'userid' => $user_row['id'], 
         'enc_pass' => md5(registry::post('password')), 
-        '2fa_status' => $status_2fa, 
+        '2fa_status' => ($require_2fa == 1 ? 0 : 1),
+        '2fa_phone_status' => ($require_2fa_phone == 1 ? 0 : 1), 
+        'remember_me' => $remember_me, 
         'ip_address' => registry::$ip_address, 
         'user_agent' => registry::$user_agent
     );
@@ -316,14 +346,17 @@ public static function login(bool $auto_login = false)
     $vars['history_id'] = $rpc->send('core.logs.add_auth_login', json_encode($vars))['core'];
 
     // Add session to redis
+    $expire_secs = $remember_me == 1 ? 2592000  : self::$expire_mins;
     $redis_key = 'auth:' . hash('sha512', $session_id);
     registry::$redis->hmset($redis_key, $vars);
-    registry::$redis->expire($redis_key, self::$expire_mins);
+    registry::$redis->expire($redis_key, $expire_secs);
     registry::$redis->hset('auth:last_seen', self::$users_table . ':' . $user_row['id'], time());
 
     // Set cookie
-    if (php_sapi_name() != "cli") { 
-        if (!setcookie(self::$cookie_name, $session_id, 0, '/')) { 
+    if (php_sapi_name() != "cli") {
+        $expire = $remember_me == 1 ? (time() + $expire_secs) : 0;
+        unset($_COOKIE[self::$cookie_name]);
+        if (!setcookie(self::$cookie_name, $session_id, $expire, '/')) { 
             throw new ApexException('alert', "Unable to set login cookie.  Customer support has been notified, and will resolve the issue shortly.  Please try again later.");
         }
     }
@@ -333,7 +366,8 @@ public static function login(bool $auto_login = false)
     registry::set_userid((int) $user_row['id']);
 
     // Initiate 2FA, if needed
-    if ($require_2fa == 1) { self::authenticate_2fa_email(1); }
+    if ($require_2fa_phone == 1) { self::authenticate_2fa_sms(1); }
+    elseif ($require_2fa == 1) { self::authenticate_2fa_email(1); }
 
     // Debug
     debug::add(1, fmsg("Completed successful login, auth_type: {1}, username: {2}", self::$auth_type, registry::post('username')), __FILE__, __LINE__, 'info');
@@ -359,12 +393,11 @@ public static function login(bool $auto_login = false)
 * the user has previously logged in from this browser / computer, 
 * will prompt the user to answer a pre-defined security question.
 */
-protected static function check_security_question(int $userid, string $chk_sec_hash):bool {
-
-    // Initialize
-    $cookie = COOKIE_NAME . '_' . self::$auth_type . '_auth_sechash';
+protected static function check_security_question(int $userid, string $chk_sec_hash):bool 
+{
 
     // Check for cookie
+    $cookie = COOKIE_NAME . '_' . self::$auth_type . '_auth_sechash';
     if (registry::has_cookie($cookie) && hash('sha512', registry::cookie($cookie)) == $chk_sec_hash) {
         debug::add(4, fmsg("Authentication, user is already validated via security question from previous session, auth_type: {1}, username: {2}", self::$auth_type, registry::post('username')), __FILE__, __LINE__); 
         return true; 
@@ -496,7 +529,7 @@ public static function logout():bool
     if (!registry::has_cookie(self::$cookie_name)) { return true; }
 
     // Delete session
-    registry::$redis->hdel('auth', hash('sha512', registry::cookie(self::$cookie_name)));
+    registry::$redis->del('auth:' . hash('sha512', registry::cookie(self::$cookie_name)));
     unset($_COOKIE[self::$cookie_name]);
     registry::set_userid(0);
 
@@ -552,16 +585,21 @@ public function authenticate_2fa()
 public static function authenticate_2fa_email(int $is_login = 0)
 {
 
+    // Check if authenticated
+    if (registry::$verified_2fa === true) { return true; }
+
     // Generate hash
-    $hash_2fa = io::generate_random_string(32);
+    $hash_2fa = strtolower(io::generate_random_string(32));
             $hash_2fa_enc = hash('sha512', $hash_2fa);
 
     // Set vars
     $vars = array(
         'is_login' => $is_login, 
+        'auth_hash' => hash('sha512', registry::$auth_hash), 
         'userid' => registry::$userid, 
         'http_controller' => registry::$http_controller, 
         'panel' => registry::$panel, 
+        'theme' => registry::$theme, 
         'route' => registry::$route, 
         'request_method' => registry::$request_method, 
         'get' => registry::getall_get(), 

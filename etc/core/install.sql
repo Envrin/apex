@@ -203,6 +203,7 @@ CREATE TABLE admin (
     language VARCHAR(5) NOT NULL DEFAULT 'en', 
     timezone VARCHAR(5) NOT NULL DEFAULT 'EST',  
     require_2fa TINYINT(1) NOT NULL DEFAULT 0, 
+    require_2fa_phone TINYINT(1) NOT NULL DEFAULT 0, 
     invalid_logins INT NOT NULL DEFAULT 0, 
     last_seen INT NOT NULL DEFAULT 0, 
     sec_hash VARCHAR(130) NOT NULL DEFAULT '', 

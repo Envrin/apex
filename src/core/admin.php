@@ -44,7 +44,8 @@ public function create()
 
     // Insert to DB
     DB::insert('admin', array(
-        'require_2fa' => registry::post('require_2fa'), 
+        'require_2fa' => registry::post('require_2fa'),
+        'require_2fa_phone' => registry::post('require_2fa_phone'),  
         'username' => strtolower(registry::post('username')), 
         'password' => base64_encode(password_hash(registry::post('password'), PASSWORD_BCRYPT, array('COST' => 25))), 
         'full_name' => registry::post('full_name'), 
@@ -107,7 +108,7 @@ public function update()
 
     // Set updates array
     $updates = array();
-    foreach (array('status','require_2fa','full_name','email', 'phone_country', 'phone', 'language', 'timezone') as $var) { 
+    foreach (array('status','require_2fa','require_2fa_phone', 'full_name','email', 'phone_country', 'phone', 'language', 'timezone') as $var) { 
         if (registry::has_post($var)) { $updates[$var] = registry::post($var); }
     }
 

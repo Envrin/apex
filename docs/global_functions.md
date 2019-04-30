@@ -74,6 +74,10 @@ Variable | Type | Description
 use this function when displaying an amount.
 
 
+### `float exchange_money(float $amount, string $from_currency, string $to_currency)`
+
+**Description:** Exchanges the amount specified from the one currency, to the specified currency using the latest exchange rates in the database.
+
 ### `bool check_package(string $alias)`
 
 **Description:** Checks whether or not a package alias is installed on the system, and returns a boolean.  Useful 

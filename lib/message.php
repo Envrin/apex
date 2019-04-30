@@ -5,6 +5,7 @@ namespace apex;
 
 use apex\DB;
 use apex\registry;
+use apex\rpc;
 use apex\core\components;
 use apex\core\notification;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -171,54 +172,17 @@ public static function process_emails(string $controller, int $userid = 0, array
 
         // Get conditions
         $ok = true;
-        $chk_condition = unserialize(base64_decode($row['condition_vars'])); 
+        $chk_condition = json_decode(base64_decode($row['condition_vars']), true); 
         foreach ($chk_condition as $key => $value) { 
             if (!isset($condition[$key])) { continue; }
-            if ($condition[$key] == '') { continue; }
+            if ($condition[$key] == '' || $value == '') { continue; }
             if ($value != $condition[$key]) { $ok = false; break; }
         }
         if ($ok === false) { continue; }
 
-        // Load controller
-        $controller = components::load('controller', $controller, 'core', 'notifications');
+        // Send notification
         $client = new notification();
-
-        // Get sender info
-        if ((!method_exists($controller, 'get_recipient')) || (!list($from_email, $from_name) = $controller->get_recipient($row['sender'], $userid))) { 
-            if (!list($from_email, $from_name) = $client->get_recipient($row['sender'], $userid)) { 
-                throw new CommException('no_sender', '', '', $row['sender']);
-            }
-        }
-
-        // Change recipient for 2FA
-        if ($controller_alias == 'system' ** isset($condition['action']) && $condition['action'] == '2fa') { 
-            $row['recipient'] = 'admin:1';
-        }
-
-        // Get recipient info
-        if ((!method_exists($controller, 'get_recipient')) || (!list($to_email, $to_name) = $controller->get_recipient($row['recipient'], $userid))) { 
-            if (!list($to_email, $to_name) = $client->get_recipient($row['recipient'], $userid)) { 
-                throw new CommException('no_recipient', '', '', $row['recipient']);
-            }
-        }
-
-        // Set variables
-        $reply_to = $controller->reply_to ?? '';
-        $cc = $controller->cc ?? '';
-        $bcc = $controller->bcc ?? '';
-
-        // Get merge variables
-        $merge_vars = $client->get_merge_vars($controller_alias, $userid, $data);
-
-        // Format message
-        $subject = $row['subject']; $message = base64_decode($row['contents']);
-        foreach ($merge_vars as $key => $value) { 
-            $subject = str_replace("~$key~", $value, $subject);
-            $message = str_replace("~$key~", $value, $message);
-        }
-
-    // Send e-mail
-    self::send_email($to_email, $to_name, $from_email, $from_name, $subject, $message, $row['content_type'], $reply_to, $cc, $bcc);
+        $client->send($userid, $row['id'], $data);
 
     }
 
@@ -463,6 +427,30 @@ public static function call_worker(string $routing_key, $data)
 
     // Return
     return $response;
+
+}
+
+/**
+* Send RPC call
+*     @param string $routing_key The routing key to send the call to
+*     @param string $data The data to send
+*     @param string $package Optional package of which results to return
+*/
+public static function rpc(string $routing_key, $data, string $package = '')
+{
+
+    $rpc = new rpc();
+    $response = $rpc->send($routing_key, $data);
+
+    // Return
+    if ($package == '') { 
+        $results = $response;
+    } else { 
+        $results = $response[$package] ?? '';
+    }
+
+    // Return
+    return $results;
 
 }
 
