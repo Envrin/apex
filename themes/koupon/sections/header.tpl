@@ -97,7 +97,7 @@
 
     <e:page_title>
 
-    <e:user_message<
+    <e:user_message>
 
 
 
