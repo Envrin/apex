@@ -175,6 +175,8 @@ $this->ext_files = array(
     'Readme.md', 
     'data/index.html', 
     'data/backups/index.html', 
+    'log/index.html', 
+    'tmp/index.html', 
     'lib/ajax.php',
     'lib/apex_cli.php',  
     'lib/auth.php', 
