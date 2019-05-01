@@ -107,6 +107,12 @@ public function load()
 public function update() 
 {
 
+    // Demo check
+    if (check_package('demo') && $this->admin_id == 1) { 
+        template::add_message("Unable to modify this account, as it is required for the online demo", 'error');
+        return false;
+    }
+
     // Debug
     debug::add(3, fmsg("Starting to update the administrator profile, ID# {1}", $this->admin_id), __FILE__, __LINE__);
 
@@ -138,6 +144,12 @@ public function update()
 */
 public function update_status(string $status, string $note = '')
 {
+
+    // Demo check
+    if (check_package('demo') && $this->admin_id == 1) { 
+        template::add_message("Unable to modify this account, as it is required for the online demo", 'error');
+        return false;
+    }
 
     // Update database
     DB::update('admin', array('status' => $status), "id = %i", $this->admin_id);
@@ -172,6 +184,12 @@ public function update_sec_auth_hash(string $sec_hash)
 */
 public function delete() 
 {
+
+    // Demo check
+    if (check_package('demo') && $this->admin_id == 1) { 
+        template::add_message("Unable to modify this account, as it is required for the online demo", 'error');
+        return false;
+    }
 
     // Delete admin from DB
     DB::query("DELETE FROM admin WHERE id = %i", $this->admin_id);
