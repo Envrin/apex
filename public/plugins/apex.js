@@ -1,5 +1,9 @@
 
 
+function tbl_check_all(box, table_id) {
+    $('#' + table_id + '_tbody td input:checkbox').attr('checked', box.checked);
+}
+
 function ajax_send(function_alias, data, field_names) {
 
     // Check if form exists

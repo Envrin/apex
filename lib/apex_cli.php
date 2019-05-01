@@ -1033,7 +1033,7 @@ protected function add_repo($vars)
     );
 
     // Debug
-    debug(4, fmsg("CLI: Added new repository, {1}", $url), __FILE__, __LINE__, 'info');
+    debug::add(4, fmsg("CLI: Added new repository, {1}", $url), __FILE__, __LINE__, 'info');
 
     // Return
     return "Successfully added new repository, $url\n";

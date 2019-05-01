@@ -1,0 +1,15 @@
+icon:member_area/delete_account:icon16 icomoon-icon-user-cancel
+icon:member_area/change_password:icon16 icomoon-icon-lock-3
+icon:member_area/update_profile:icon16 icomoon-icon-user
+icon:member_area/index:icon16 icomoon-icon-home-2
+icon:member_area/upgrade_account:icon16 icomoon-icon-user-plus
+icon:member_area/withdrawals:icon16 icomoon-icon-upload-3
+icon:member_area/send_p2p:icon16 icomoon-icon-tree
+icon:member_area/product_purchase:icon16 icomoon-icon-wave
+icon:member_area/transaction_history:icon16 icomoon-icon-bars
+icon:member_area/payments:icon16 icomoon-icon-globe
+icon:member_area/message_center:icon16 icomoon-icon-mail-2
+icon:member_area/submit_support_request:icon16 icomoon-icon-bubble-2
+icon:member_area/support_contacts:icon16 icomoon-icon-phone-2
+icon:member_area/logout:icon16 icomoon-icon-exit-2
+

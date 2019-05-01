@@ -7,6 +7,7 @@ use apex\DB;
 use apex\registry;
 use apex\debug;
 use apex\template;
+use apex\encrypt;
 use apex\MiscException;
 use apex\core\forms;
 
@@ -68,6 +69,9 @@ public function create()
             'answer' => base64_encode(password_hash(registry::post('answer' . $x), PASSWORD_BCRYPT, array('COST' => 25))))
         );
     }
+
+    // Generate RSA keypair
+    encrypt::generate_rsa_keypair((int) $admin_id, 'admin', registry::post('password'));
 
     // Debug
     debug::add(1, fmsg("Successfully created new administrator account, {1}", registry::post('username')), __FILE__, __LINE__, 'info');

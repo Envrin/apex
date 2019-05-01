@@ -7,6 +7,7 @@ use apex\DB;
 use apex\registry;
 use apex\log;
 use apex\debug;
+use apex\template;
 use michelf\markdown;
 use Michelf\MarkdownExtra;
 
@@ -34,10 +35,21 @@ public function process()
 
     // Get MD template
     $md_code = file_get_contents(SITE_PATH . '/docs/' . $md_file);
-    $html = MarkdownExtra::defaultTransform($md_code);
+    $page_contents = MarkdownExtra::defaultTransform($md_code);
+
+    // Get HTML
+    $theme_dir = SITE_PATH . '/themes/' . registry::config('core:theme_public') . '/sections';
+    $html = file_get_contents("$theme_dir/header.tpl");
+    $html .= "<<PAGE_CONTENTS>>";
+    $html .= file_get_contents("$theme_dir/footer.tpl");
+
+    // Parse HTML
+    template::initialize();
+    template::load_base_variables();
+    $html = template::parse_html($html);
 
     // Display
-    echo $html;
+    echo str_replace("<<PAGE_CONTENTS>>", $page_contents, $html);
     exit(0);
 
 }

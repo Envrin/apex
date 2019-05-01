@@ -6,7 +6,7 @@ namespace apex;
 /**
 * Handles all encryption errors
 */
-class Encryptxception extends ApexException
+class EncryptException extends ApexException
 {
     // Properties
     private $error_codes = array(
