@@ -46,12 +46,12 @@ public function test_list_packages()
     $packages = $client->list_packages();
 
     // Check type
-    $this->assertinternaltype('array', $packages, "Response from network::list_packages is not an array");
+    $this->assertisarray($packages, "Response from network::list_packages is not an array");
 
     // Go through packages
     $aliases = array();
     foreach ($packages as $vars) { 
-        $this->assertinternaltype('array', $vars, "An element from network::list_packages response is not an array");
+        $this->assertisarray($vars, "An element from network::list_packages response is not an array");
         $this->assertarrayhaskey('alias', $vars, "An element from network::list_packages response does not have an 'alias' key");
         $aliases[] = $vars['alias'];
     }

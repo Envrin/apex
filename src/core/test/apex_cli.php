@@ -26,7 +26,7 @@ class test_apex_cli extends \apex\test
 public function setUp():void
 {
 
-    $this->repo_id = 2;
+    $this->repo_id = 4;
     $this->pkg_alias = 'unit_test';
 
 }

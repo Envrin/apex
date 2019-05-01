@@ -528,11 +528,11 @@ public function test_page_admin_settings_notifications()
     $this->asserthasformfield('subject');
     $this->asserthasformfield('cond_action');
     $this->asserthasformfield('recipient');
-    $this->asserthassubmit('edit', 'Edit E-Mail Notification');
+    $this->asserthassubmit('update', 'Update E-Mail Notification');
 
     // Set update vars
     $vars['subject'] = 'Update Test';
-    $vars['submit'] = 'edit';
+    $vars['submit'] = 'update';
     $vars['notification_id'] = $notification_id;
 
     // Edit notification
@@ -598,7 +598,7 @@ public function test_page_admin_maintenance_package_manager()
     $this->asserthastable('core_repos');
     $this->asserthastablefield('core:packages', 0, '<b>Core Framework v1.0.0</b>');
     $this->asserthastablefield('core:packages', 1, $new_version);
-    $this->asserthastablefield('core:available_packages', 0, 'bitcoin_block_explorer');
+    //$this->asserthastablefield('core:available_packages', 0, 'bitcoin_block_explorer');
 
 // Add an invalid repo
     $request = array(
@@ -607,7 +607,7 @@ public function test_page_admin_maintenance_package_manager()
         'repo_password' => '', 
         'submit' => 'add_repo'
     );
-    $html = registry::test_request('admin/maintenance/package_manager', 'POST', $request, array(), $this->cookie);
+    $html = registry::test_request('admin/maintenance/package_manager', 'POST', $request, array(), $this->cookie); 
     $this->asserthasusermessage('error', 'Test connection to repository failed');
 
     // Update repo name
@@ -750,4 +750,7 @@ public function test_page_admin_cms_menus()
 
 
 }
+
+}
+
 

@@ -1,37 +1,90 @@
 
-<div class="row">
-    <div class="col-md-3">
-        <h3>Popular</h3>
 
-        <ul>
-        <e:section name="popular">
-            <li><a href="/tag/~popular.tag~">~popular.tag~ (~popular.count~)</li>
-        </e:section>
-        </ul>
+<div class="twelve columns">
+    <div class="headline"><h3>Welcome to Apex Platform!</h3></div>
+
+    <p>The Apex Platform has been successfully installed on your server, and is ready for use.  To continue, please click on one of the below 
+    links.  Thank you for choosing Apex for your software needs, and please be sure to send us any feedback or suggestions you may have.</p>
+
+    <div style="margin-left: 40px;"><ul class="arrow_list">
+        <li><a href="/admin/" target="_blank">Administration Panel</a></li>
+        <li><a href="/register">User Registration</a></li>
+        <li><a href="/login">User Login</a></li>
+    </ul></div>
+</div>
+
+<div class="twelve columns">
+
+<div class="headline"><h3>Resources</h3></div>
+
+    <div class="icon-box-container">
+        <div class="one-third column">
+            <div class="icon-box">
+                <i class="ico-display" style="margin-left: -10px;"></i>
+                <a href="/docs/"><h3>Documentation</h3></a>
+                <p>Read through all Apex documentation via the below links.</p>
+
+                <ul class="arrow_list">
+                    <li><a href="/docs/index">Developer Reference</a></li>
+                    <li><a href="/docs/training/index">Developer Training Guide</a></li>
+                    <li><a href="/docs/user_manual/index">User Manual</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="one-third column">
+            <div class="icon-box">
+                <i class="ico-web-browser"></i>
+                <a href="https://www.reddit.com/r/Apex_Platform/" target="_blank"><h3>Community</h3></a>
+                <p>Engage, ask questions, provide feedback and suggestions, request features, get support.  Join the community!</p>
+
+                <ul class="arrow_list">
+                    <li><a href="https://www.reddit.com/r/Apex_Platform/" target="_blank">Reddit (/r/Apex_Platform)</a></li>
+                    <li><a href="https://twitter.com/DizakMatt" target="_blank">Twitter (@DizakMatt)</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="one-third column">
+            <div class="icon-box">
+                <i class="ico-vcard"></i>
+                <a href="http://envrin.com/"><h3>Custom Development</h3></a>
+                <p>Need quality, dependable custom development done by skilled professionals?  Contact us for a free consultation.</p>
+
+                <ul class="arrow_list">
+                    <li><a href="http://envrin.com/" target="_blank">Envrin Group Home Page</a></li>
+                    <li><a href="http://envrin.com/contact" target="_blank">Contact Us!</a></li>
+                </ul>
+            </div>
+        </div>
 
     </div>
+</div>
 
-    <div class="col-md-9">
-        <h3>Photos</h3>
 
-        <!-- Tried to find Bootstrap gallery examples, but screen reader kept freezing right now, so just modify as needed -->
-        <ul>
-        <e:section name="photos">
-        <li>
-            <a href="~photos.url~" title="~photos.title~">
-                <img src="~photos.thumb_src~" alt="~photos.title~" width="~photos.width~" height="~photos.height~" border="0"><br />
-                <span>~photos.title~</span><br />
-                ~photos.tags~
-            </a>
-        </li>
-        </e:section>
+<div class="twelve columns">
+    <div class="headline"><h3>Subscribe to our Mailing List</h3></div>
+    <p>Enter your e-mail address below to subscribe to the Apex mailing list, and receive updates regarding new features, packages, and services as they become available.</p>
 
-    </ul>
 
-        <e:pagination href="route" rows_per_page="~scraper_photos_per_page~" total="~total_photos~" page="~page~">~total_photos~" 
+        <div class="input-group">
+            <form action="//envrin.us3.list-manage.com/subscribe/post?u=da0e00c6ed92b403d721660c5&amp;id=1945cd6183" method="POST" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <input type="text" class="form-control" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Your email"/>
+            <div class="input-group-btn">
+                <button type="submit" class="btn btn-primary"><span class="fa fa-paper-plane"></span></button>
+            </div>
+            </form>
+
+            <div id="mce-responses" class="clear">
+                <div class="response" id="mce-error-response" style="display:none"></div>
+                <div class="response" id="mce-success-response" style="display:none"></div>
+            </div>
+            <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_da0e00c6ed92b403d721660c5_1945cd6183" tabindex="-1" value=""></div>
+
+            <script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+        </div>
 
     </div>
-
 </div>
 
 

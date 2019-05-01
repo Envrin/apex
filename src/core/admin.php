@@ -73,7 +73,7 @@ public function create()
     // Generate RSA keypair
     encrypt::generate_rsa_keypair((int) $admin_id, 'admin', registry::post('password'));
 
-    // Debug
+    /// Debug
     debug::add(1, fmsg("Successfully created new administrator account, {1}", registry::post('username')), __FILE__, __LINE__, 'info');
 
     // Return
