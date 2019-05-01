@@ -631,8 +631,8 @@ public function compile_core()
     // Copy default themes
     $themes = array(
         'limitless', 
-        'members_coco', 
-        'public_coco' 
+        'supradmin', 
+        'koupon' 
     );
     foreach ($themes as $theme) { 
         system("cp -R " . SITE_PATH . "/themes/$theme $destdir/themes/");
