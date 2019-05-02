@@ -68,7 +68,7 @@ $tab_dir = SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias;
 
             // Process HTML
             if (method_exists($page_client, 'process')) { 
-                $page_client->process($data);
+                if ($page_client->process($data) === false) { continue; }
             }
         }
 

@@ -593,6 +593,8 @@ public static function load_base_variables()
     self::assign('current_year', date('Y'));
     self::assign('config', registry::getall_config());
     self::assign('userid', registry::$userid);
+    self::assign('route', registry::$route);
+
 
     // Get page title
     self::$page_title = self::get_page_title();

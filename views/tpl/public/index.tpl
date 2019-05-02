@@ -1,4 +1,5 @@
 
+<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
 
 <div class="twelve columns">
     <div class="headline"><h3>Welcome to Apex Platform!</h3></div>
