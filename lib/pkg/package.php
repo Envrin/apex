@@ -237,7 +237,8 @@ public function compile(string $pkg_alias):string
     debug::add(4, fmsg("Compiling, gatheered all files and saved toc.json for package, {1}", $pkg_alias), __FILE__, __LINE__);
 
     // Create archive
-    $archive_file = $pkg_alias . '-' . str_replace(".", "_", $pkg->version) . '.zip';
+    $version = DB::get_field("SELECT version FROM internal_packages WHERE alias = %s", $pkg_alias);
+    $archive_file = $pkg_alias . '-' . str_replace(".", "_", $version) . '.zip';
     io::create_zip_archive($tmp_dir, $archive_file);
 
     // Debug
@@ -431,7 +432,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
 
     // Install configuration
     $client->install_configuration();
-    $client->install_notifications();
+    $client->install_notifications($pkg);
 
     // Debug
     debug::add(4, fmsg("Installing package, successfully installed configuration for package, {1}", $pkg_alias), __FILE__, __LINE__);

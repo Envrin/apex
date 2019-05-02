@@ -456,6 +456,7 @@ private function complete_install()
 
     // Load configuration
     $client->install_configuration();
+    $client->install_notifications($pkg);
 
     // Create needed directories
     io::create_dir(SITE_PATH . '/log');
