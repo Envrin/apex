@@ -18,8 +18,10 @@ CREATE TABLE loans (
     status VARCHAR(20) NOT NULL DEFAULT 'pending',  
     amount DECIMAL(10,2) NOT NULL,
     amount_paid DECIMAL(10,2) NOT NULL DEFAULT 0, 
-    fee DECIMAL(10,2) NOT NULL, 
+    amount_monthly DECIMAL(10,2) NOT NULL DEFAULT 0, 
+    fee DECIMAL(10,2) NOT NULL DEFAULT 0,  
     date_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+    date_next_payment DATETIME, 
     title VARCHAR(255) NOT NULL, 
     description TEXT NOT NULL, 
     FOREIGN KEY (userid) REFERENCES users (id) ON DELETE CASCADE
@@ -35,7 +37,7 @@ CREATE TABLE loans_payments (
 ~~~
 
 Now simply connect to mySQL via terminal, and copy and paste the above SQL into the mySQL prompt to create the necessary tables.  Now that we have a 
-small database structure, let's move on to [Member Area Features](member_area.md).
+small database structure, let's move on to [Member Area - Request Loan](members_request_loan.md).
 
 
 

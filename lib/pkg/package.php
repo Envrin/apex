@@ -533,7 +533,7 @@ public function remove(string $pkg_alias)
             @unlink(SITE_PATH . '/' . $file);
         }
     }
-    if (s_dir(SITE_PATH . '/docs/' . $pkg_alias)) { io::remove_dir(SITE_PATH . '/docs/' . $pkg_alias); }
+    if (is_dir(SITE_PATH . '/docs/' . $pkg_alias)) { io::remove_dir(SITE_PATH . '/docs/' . $pkg_alias); }
 
     // Debug
     debug::add(4, fmsg("Removing package, successfully deleted all components from package, {1}", $pkg_alias), __FILE__, __LINE__);
@@ -805,6 +805,36 @@ private function update_github_repo()
     // Save git.sh file
     file_put_contents("$git_dir/git.sh", implode("\n", $git_cmds));
     chmod ("$git_dir/git.sh", 0755);
+
+}
+
+/**
+* Reset a package.  Executes any SQL file at /etc/PKG_ALIAS/reset.sql, and executes 
+* any reset() function within the package.php file.
+*     @param string $pkg_alias The alias of the package to reset.
+*/
+public function reset(string $pkg_alias)
+{
+
+    // Load package
+    $client = new package_config($pkg_alias);
+    $pkg = $client->load();
+
+    // Execute SQL, if available
+    io::execute_sqlfile(SITE_PATH . '/etc/' . $pkg_alias . '/reset.sql');
+
+    // Execute reset method, if available
+    if (method_exists($pkg, 'reset')) { 
+        $pkg->reset();
+    }
+
+    // Execute reset_redis method, if available
+    if (method_exists($pkg, 'reset_redis')) { 
+        $pkg->reset_redis();
+    }
+
+    // Return
+    return true;
 
 }
 

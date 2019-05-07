@@ -97,6 +97,13 @@ public static function parse():string
         }
     }
 
+    // Parse PHP code, if needed
+    $php_file = SITE_PATH . '/views/php/' . registry::$panel . '/' . registry::$route . '.php';
+    if (file_exists($php_file)) { 
+        require($php_file); 
+        debug::add(4, fmsg("Loaded template PHP file at, {1}", $php_file), __FILE__, __LINE__);
+    }
+
     // Get tpl file
     $tpl_file = SITE_PATH . '/views/tpl/' . registry::$panel . '/' . registry::$route . '.tpl';
     if (file_exists($tpl_file)) { 
@@ -121,13 +128,6 @@ public static function parse():string
     // Process theme components
     self::process_theme_components();
     debug::add(5, fmsg("Completed processing all theme components for template"), __FILE__, __LINE__);
-
-    // Parse PHP code, if needed
-    $php_file = SITE_PATH . '/views/php/' . registry::$panel . '/' . registry::$route . '.php';
-    if (file_exists($php_file)) { 
-        require($php_file); 
-        debug::add(4, fmsg("Loaded template PHP file at, {1}", $php_file), __FILE__, __LINE__);
-    }
 
     // Merge variables
     self::$tpl_code = self::merge_vars(self::$tpl_code);
