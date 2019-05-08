@@ -280,6 +280,7 @@ function exchange_money(float $amount, string $from_currency, string $to_currenc
 
     // Convert to currency
     $rate = DB::get_field("SELECT current_rate FROM transaction_currencies WHERE abbr = %s", $to_currency);
+    if ($rate == 0.00) { return 0; }
     return($amount / $rate);
 
 }

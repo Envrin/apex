@@ -216,6 +216,11 @@ public static function add(string $type, string $comp_alias, string $value = '',
     );
     $component_id = DB::insert_id();
 
+    // Add crontab job, if needed
+    if ($type == 'cron') { 
+        self::add_crontab($package, $alias);
+    }
+
     // Add to redis
     registry::$redis->sadd('config:components', implode(":", array($type, $package, $parent, $alias)));
 
@@ -294,6 +299,11 @@ protected static function add_checks(string $type, string $comp_alias, string $v
 */
 protected static function add_crontab(string $package, string $alias)
 {
+
+    // Check if crontab job already exists
+    if ($row = DB::get_row("SELECT * FROM internal_crontab WHERE package = %s AND alias = %s", $package, $alias)) { 
+        return true;
+    }
 
     // Load file
     if (!$cron = components::load('cron', $alias, $package)) { 
