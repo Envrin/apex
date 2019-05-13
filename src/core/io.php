@@ -190,6 +190,10 @@ public static function send_http_request(string $url, string $method = 'GET', $r
     curl_setopt($ch, CURLOPT_COOKIEFILE, SITE_PATH . '/data/tmp/cookies.txt');
     if (preg_match("/^https/", $url)) { curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); }
 
+    // Set headers
+    $headers = array('Content-type' => $content_type);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
     // Set POST fields, if needed
     if ($method == 'POST') { 
         curl_setopt($ch, CURLOPT_POST, true);

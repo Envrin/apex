@@ -15,6 +15,7 @@
         "cboden/ratchet": "*", 
         "textalk/websocket": "1.0.*", 
         "michelf/php-markdown": ">=1.8.0", 
+        "slicklabs/mailchimp": "dev-master",  
         "phpunit/phpunit": ">=7.3.0", 
         "phpDocumentor/phpDocumentor": "*", 
         "composer/xdebug-handler": "*",

@@ -26,7 +26,6 @@ public function process()
 
     // Server check
     if (registry::$uri[0] == 'server_check') { 
-
         registry::set_response(registry::config('core:server_status'));
 
     }

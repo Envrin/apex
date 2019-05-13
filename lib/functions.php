@@ -263,6 +263,24 @@ function fmoney(float $amount, string $currency = '', bool $include_abbr = true)
 }
 
 /**
+* Exchange funds into another currency, and return the formatted value of resulting amount.
+*     @param float $amount The amount to exchange
+*     @param string $currency_from The currency the amount is currently in
+*     @param string $currency_to The currency to exchange the funds into
+*     @return string The resulting amount after exchange
+*/
+function fexchange(float $amount, string $from_currency, string $to_currency)
+{
+
+    // Exchange money
+    $amount = exchange_money($amount, $from_currency, $to_currency);
+
+    // Format and return
+    return fmoney((float) $amount, $to_currency);
+
+}
+
+/**
 * Exchange funds into another currency.
 *     @param float $amount The amount to exchange
 *     @param string $currency_from The currency the amount is currently in

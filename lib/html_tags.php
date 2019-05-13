@@ -98,9 +98,12 @@ public function form($attr, $text = '')
 public function form_table(array $attr, string $text):string 
 {
 
+    // Set variables
+    $width = $data['width'] ?? '95%';
+    $cellpadding = $data['cellpadding'] ?? '8px';
+
     // Get HTML
-    $html = "<table class=\"form_table\"";
-    if (isset($attr['width'])) {$html .= " style=\"width: " . $attr['width'] . ";\""; }
+    $html = "<table class=\"form_table\" border=\"0\" width=\"$width\" cellpadding=\"$cellpadding\" style=\"margin-left: 20px;\"";
     if (isset($attr['align'])) { $html .= " align=\"$attr[align]\""; }
     $html .= ">" . $text . "</table>";
 

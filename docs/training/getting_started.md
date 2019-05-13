@@ -9,14 +9,14 @@ few base packages we will need with:
 
 ### Create Package
 
-Next, we need to create our new package which we will call "comms_portal".  You can do this with:
+Next, we need to create our new package which we will call "kycaml".  You can do this with:
 
-`php apex.php create_package lending`
+`php apex.php create_package kycaml`
 
-This will create our new package, including a directory at */src/lending*, which will later contain the bulk of all PHP code for our package.  There will also be 
-a new */etc/lending* directory, which contains the configuration for our new package.    
+This will create our new package, including a directory at */src/kycaml*, which will later contain the bulk of all PHP code for our package.  There will also be 
+a new */etc/kycaml* directory, which contains the configuration for our new package.    
 
-The file located at */etc/lending/package.php* is the main configuration file for our package.  Open this file, and you will 
+The file located at */etc/kycaml/package.php* is the main configuration file for our package.  Open this file, and you will 
 see a few variables at the top allowing you to define various properties of the package, but we can leave them for now. The `__construct()` method within this file 
 is the most important, which is explained in full on the [package.php __construct() Function](../packages_construct.md) page of the documentation.  This method contains a few arrays, as described below.
 
@@ -28,9 +28,9 @@ Array | Description
 `$this->ext_files` | Any external files included in this page, which are not components.
 `$this->placeholders` | Allows you to place `<e:placeholder>` tags within member area / public templates, which then are replaced with the contents defined by the administrator via the CMS->Placeholders menu of the admin panel.  This is where you define the placeholders that are available for the package.  Used so if / when a member area template is included in an upgrade, textual modifications the client has made do not get overwritten.
 `$this->boxlists` | Used to add entries / define lists of settings.  For example, Settings->Users and Financial menus of the admin panel are examples of boxlists.
+`$this->notifications` | Allows you to have default e-mail notifications created upon package installation, which are managed via the Settings->Notifiations menu of the administration panel.
 
-
-Now that we have the gist of this method, open up the */etc/lending/package.php* file, and change the `__construct()` method to:
+Now that we have the gist of this method, open up the */etc/kycaml/package.php* file, and change the `__construct()` method to:
 
 ~~~php
 public function __construct()
