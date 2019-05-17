@@ -101,8 +101,8 @@ CREATE TABLE internal_themes (
 ) engine=InnoDB;
 
 INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'members', 'limitless', 'Limitless');
-INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'members', 'members_coco', 'Coco - Member Area');
-INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'public', 'public_coco', 'Coco - Public Site');
+INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'members', 'supradmin', 'SuprAdmin - Member Area');
+INSERT INTO internal_themes (repo_id,area,alias,name) VALUES (1, 'public', 'koupon', 'Koupon');
 
 CREATE TABLE internal_boxlists (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
@@ -385,7 +385,7 @@ CREATE TABLE images (
 
 CREATE TABLE images_contents (
     id INT NOT NULL PRIMARY KEY, 
-    contents BLOB NOT NULL, 
+    contents LONGBLOB NOT NULL, 
     FOREIGN KEY (id) REFERENCES images (id) ON DELETE CASCADE
 ) engine=InnoDB;
 

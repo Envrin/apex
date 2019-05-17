@@ -20,8 +20,8 @@ public function process()
 {
 
     // Get size
-    $size = 'full';
-    //$size = strtolower(preg_replace("/\..+$/", "", $parts[3]));
+    $size = registry::$uri[2] ?? 'full';
+    $size = preg_replace("/\..+$/", "", strtolower($size));
 
     // Display image
     images::display(registry::$uri[0], registry::$uri[1], $size);

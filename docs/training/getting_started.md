@@ -9,14 +9,16 @@ few base packages we will need with:
 
 ### Create Package
 
-Next, we need to create our new package which we will call "kycaml".  You can do this with:
+Next, we need to create our new package which we will call "users_verification".  You can do this with:
 
-`php apex.php create_package kycaml`
+`php apex.php create_package users_verification`
 
-This will create our new package, including a directory at */src/kycaml*, which will later contain the bulk of all PHP code for our package.  There will also be 
-a new */etc/kycaml* directory, which contains the configuration for our new package.    
+This will create our new package including two directories at:
 
-The file located at */etc/kycaml/package.php* is the main configuration file for our package.  Open this file, and you will 
+- */src/users_verification* -- Will hold the bulk of PHP code for this package.
+- */etc/users_verification* -- The configuration of this package.
+
+The file located at */etc/users_verification/package.php* is the main configuration file for our package.  Open this file, and you will 
 see a few variables at the top allowing you to define various properties of the package, but we can leave them for now. The `__construct()` method within this file 
 is the most important, which is explained in full on the [package.php __construct() Function](../packages_construct.md) page of the documentation.  This method contains a few arrays, as described below.
 
@@ -30,7 +32,7 @@ Array | Description
 `$this->boxlists` | Used to add entries / define lists of settings.  For example, Settings->Users and Financial menus of the admin panel are examples of boxlists.
 `$this->notifications` | Allows you to have default e-mail notifications created upon package installation, which are managed via the Settings->Notifiations menu of the administration panel.
 
-Now that we have the gist of this method, open up the */etc/kycaml/package.php* file, and change the `__construct()` method to:
+Now that we have the basic gist of this method, open up the */etc/users_verification/package.php* file, and change the `__construct()` method to:
 
 ~~~php
 public function __construct()
@@ -38,78 +40,134 @@ public function __construct()
 
 // Configuration variables
 $this->config = array(
-    'min_amount' => 0, 
-    'max_amount' => 0, 
-    'site_fee' => 0
+    'netverify_apikey' => ''
 );
 
 // Hash
 $this->hash = array();
-$this->hash['status'] = array(
-        'pending' => 'Pending', 
-    'active' => 'Active', 
-    'complete' => 'Completed', 
-    'default' => 'Defauled'
+$this->hash['idtype'] = array(
+    'passport' => 'Passport', 
+    'idcard' => 'National ID Card', 
+    'license' => 'Driver License', 
+    'other' => 'Other Government Issued Photo ID'
 );
 
-// Menus -- admin panel
+$this->hash['status'] = array(
+        'pending' => 'Pending', 
+    'approved' => 'Approved', 
+    'rejected' => 'Rejected', 
+    'fruad' => 'Fraudulent'
+);
+
+// Menu -- admin panel - Users->Verify Users
 $this->menus = array();
 $this->menus[] = array(
     'area' => 'admin', 
+    'parent' => 'users', 
+    'position' => 'after pending', 
+    'alias' => 'verify', 
+    'name' => 'Verify Users'
+);
+
+// Menu -- member area -- Account->Verify Account
+$this->menus[] = array(
+    'area' => 'members', 
+    'parent' => 'account', 
+    'position' => 'bottom', 
+    'alias' => 'verify', 
+    'name' => 'Verify Account'
+);
+
+
+// Boxlist (user settings)
+$this->boxlists = array(
+    array(
+        'alias' => 'users:settings', 
+        'href' => 'admin/settings/users_verification', 
+        'title' => 'Verification Levels', 
+        'description' => 'Define the various verification levels supported, including requirements and different deposit / withdrawal fees and limits that are available to each.'
+    )
+);
+}
+
+~~~
+
+We will explain the code in detail just below, but every time you modify a package.php file, you must scan the package 
+to update the database as necessary.  In terminal, simply type:
+
+`php apex.php scan users_verification`
+
+Once done, if you login to either the administration panel or member's area, you will see the new menu we added into each.  Plus if you visit the Settings->Users menu of the 
+administration panel, you will see the one entry we added into the boxlist that is displayed on that page.  The rest of this page explains the above code in detail, but for full information on the `__construct()` function within 
+the package.php file, please visit [package.php __construct() Function](../packages_construct.md).  
+
+
+#### `$this->config` 
+
+We added a single configuration variable for the Netverify API key.  The value of this variable can be accessed anywhere within the software 
+with `registry::config('users_verification:netverify_apikey')`.  You may also update the configuration variable anywhere within the software with:
+
+~~~php
+$api_key = 'some_api_key';
+registry::update_config_var('users_verification:netverify_apikey', $api_key);
+~~~
+
+
+#### `$this->hash`
+
+We added two hashes, which are mostly used to easily generate select lists.  One for the type of ID being uploaded, and another for the 
+status of the verification request.  Don't worry if this does not make sense right now, but for quick reference, you can add these into 
+HTML forms with one of two ways:
+
+**Form PHP Class**
+
+~~~php
+$form_fields['type'] = array('field' => 'select', 'data_source' => 'hash:users_verification:idtype', 'required' => 1);
+~~~
+
+**TPL Code**
+
+~~~
+<e:ft_select name="type" data_source="hash:users_verification:idtype" required="1">
+~~~
+
+
+#### `$this->menus`
+
+As stated in the documentation, this is an array of associative arrays that defines the various menus to 
+add for this package, and should be quite straight forward.  Although not needed for this package, and since this is a training guide, here's how add a parent menu into the administration panel with sub-menus.
+
+~~~php
+
+$this->menus[] = array(
+    'area' => 'admin', 
+    'position' => 'after funds', 
     'type' => 'parent', 
-    'position' => 'after financial', 
     'icon' => 'fa fa-fw fa-group', 
     'alias' => 'loans', 
     'name' => 'Loans', 
     'menus' => array(
         'add' => 'Add New Loan', 
-        'manage' => 'Manage Loans', 
-        'summary' => 'Loans Summary'
+        'pending' => 'Pending Applications', 
+        'reconcile' => 'Reconcile Loans', 
+        'overdue' => 'Overdue Payments'
     )
 );
-
-// Menu - admin settings
-$this->menus[] = array(
-    'area' => 'admin', 
-    'parent' => 'settings', 
-    'position' => 'bottom', 
-    'alias' => 'lending', 
-    'name' => 'Lending'
-);
-
-// Menus - Member area
-$this->menus[] = array(
-    'area' => 'members', 
-    'type' => 'parent', 
-    'position' => 'after account', 
-    'icon' => 'fa fa-fw fa-group', 
-    'alias' => 'loans', 
-    'name' => 'Loans', 
-    'menus' => array(
-        'request' => 'Request New Loan', 
-        'manage' => 'Manage Loans'
-    )
-);
-
-}
 
 ~~~
 
-We've added a few configuration variables, one hash for the status of loans, and some menus into the administration panel and member's area.  Again, for full details on things such as 
-the `$this->menus` array, please visit the [package.php __construct() Function](../packages_construct.md) page of the documentation.
+By adding the above into the package.php file, a new parent menu titled "Loans" will be added into the administration panel with four sub-menus.
 
-### Scan Package
 
-Every time you modify the package.php file, you must scan the package to update the database accordingly.  Open terminal, move to the installation directory, and type:
+#### `$this->boxlists`
 
-`php apex.php scan lending`
-
-There we go.  Visit the administration panel in your web browser, and you will see the new menus that we added.
+Fairly straight forward, and is generally used for categories of settings pages such as the Settings->Users / Financial menus of the 
+administration panel, and allows other develoeprs to easily expand on your package by adding their own category of settings in.  Refer to the documentation for full details.
 
 
 ### Next 
 
-Now that our new package is created with some base configuration, let's move to the next step, [Create Database Tables](create_database.md).
+Now that our new package is created with some base configuration, let's move to the next step, [Admin Panel Settings](admin_settings.md).
 
 
 

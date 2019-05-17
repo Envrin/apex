@@ -42,7 +42,7 @@ public static function add(string $filename, string $contents, string $type, $re
     }
 
     // Delete existing image, if exists
-    DB::query("DELETE FROM images WHERE type = %s AND record_id = %s", $type, $record_id);
+    DB::query("DELETE FROM images WHERE type = %s AND record_id = %s AND size = %s", $type, $record_id, $size);
 
     // Add to DB
     DB::insert('images', array(
@@ -91,7 +91,7 @@ public static function upload(string $form_field, string $type, $record_id = '',
     }
 
     // Add the file
-    $image_id = self::add($filename, $contents, $type, $record_id, $is_default);
+    $image_id = self::add($filename, $contents, $type, $record_id, 'full', $is_default);
 
     // Return
     return $image_id;
@@ -103,14 +103,20 @@ public static function upload(string $form_field, string $type, $record_id = '',
 *     @param string $type The type of image (eg. user, product, etc.)
 *     @param string $record_id The record ID# of the image.
 *     @param string $size The size of the image
+*     @param bool $allow_default If yes and image does not exist, will check for default image
 */
-public static function get(string $type, $record_id = '', string $size = 'full')
+public static function get(string $type, $record_id = '', string $size = 'full', bool $allow_default = false)
 {
 
     // Check database
     if (!$row = DB::get_row("SELECT * FROM images WHERE type = %s AND record_id = %s AND size = %s", $type, $record_id, $size)) { 
-        return false;
+
+        // Check for default
+        if ($allow_default === true) { 
+            $row = DB::get_row("SELECT * FROM images WHERE type = %s AND size = %s AND is_default = 1", $type, $size);
+        }
     }
+    if (!$row) { return false; }
 
     // Get contents
     $contents = DB::get_field("SELECT contents FROM images_contents WHERE id = %i", $row['id']);
@@ -123,7 +129,7 @@ public static function get(string $type, $record_id = '', string $size = 'full')
 /**
 * Add a thumbnail
 */
-public static function add_thumbnail(string $image_type, $record_id, string $size, int $thumb_width, int $thumb_height) 
+public static function add_thumbnail(string $image_type, $record_id, string $size, int $thumb_width, int $thumb_height, $is_default = 0) 
 {
 
     // Get contents of existing image
@@ -196,7 +202,7 @@ public static function add_thumbnail(string $image_type, $record_id, string $siz
     imagedestroy($thumb_source);
 
     // Insert thumbnail to db
-    $thumb_id = self::add($filename, $thumb_contents, $image_type, $record_id, $size);
+    $thumb_id = self::add($filename, $thumb_contents, $image_type, $record_id, $size, $is_default);
 
     // Debug
     debug::add(4, fmsg("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
@@ -213,7 +219,7 @@ public static function display(string $type, $record_id = '', string $size = 'fu
 {
 
     // Get image
-    if (!list($filename, $mime_type, $width, $height, $contents) = self::get($type, $record_id, $size)) { 
+    if (!list($filename, $mime_type, $width, $height, $contents) = self::get($type, $record_id, $size, true)) { 
         registry::set_content_type('text/plain');
         registry::set_response('No image exists here');
         return;

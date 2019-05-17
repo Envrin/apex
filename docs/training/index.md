@@ -22,7 +22,7 @@ We will need our KYC/AML Verification package to support the following:
 - Extra tab page when managing user in admin panel, showing their verification documents / status
 - E-mail notifications when documents uploaded / processed, etc.
 - Integration with NetVerify API, if administrator decides to use them instead of manual photo ID verification
-
+- Must support horizontal scaling via RabbitMQ to ensure it can handle heavy volumes without issue
 
 Below shows the table of contents for this training guide, and natrually, start at 
 the [Getting Started](getting_started.md) page.

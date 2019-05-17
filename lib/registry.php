@@ -666,6 +666,7 @@ public static function get_smtp_server()
     $retries = 0;
     $vars = array();
     $total_servers = self::$redis->llen('config:email_servers');
+    if ($total_servers < 1) { return false; }
 
     // Get active SMTP server
     do {

@@ -767,6 +767,9 @@ public static function add_javascript(string $js)
 protected static function add_system_javascript($html)
 {
 
+    // Add custom CSS, as needed
+    $html = str_replace("<body>", base64_decode('CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+CgogICAgLmZvcm1fdGFibGUgeyBtYXJnaW4tbGVmdDogMjVweDsgfQogICAgLmZvcm1fdGFibGUgdGQgewogICAgICAgIHRleHQtYWxpZ246IGxlZnQ7CiAgICAgICAgdmVydGljYWwtYWxpZ246IHRvcDsKICAgICAgICBwYWRkaW5nOiA4cHg7CiAgICB9Cgo8L3N0eWxlPgoK') . "\n<body>", $html);
+
     // Check if Javascript disabled
     if (ENABLE_JAVASCRIPT == 0) { 
         return $html;
