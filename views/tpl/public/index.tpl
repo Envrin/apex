@@ -12,6 +12,8 @@
         <li><a href="/register">User Registration</a></li>
         <li><a href="/login">User Login</a></li>
     </ul></div>
+
+    <p>Donations gratefully accepted.  Bitcoin address:  3JnYmUHhz1CKz9vgxX55qmBnzVRPirA21D</p>
 </div>
 
 <div class="twelve columns">
