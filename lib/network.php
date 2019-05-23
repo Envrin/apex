@@ -312,10 +312,11 @@ if ($noerror === true) { return false; }
 
     // Send HTTP request
     $url = trim($repo['url'], '/') . '/repo/' . $pkg_alias;
-    $response = io::send_http_request($url, 'POST', $request);
+    if (!$response = io::send_http_request($url, 'POST', $request)) { 
+        return false;
 
     // Decode response
-    if (!$vars = json_decode($response, true)) { 
+    } elseif (!$vars = json_decode($response, true)) { 
         return false;
     }
 
