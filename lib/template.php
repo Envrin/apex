@@ -337,13 +337,9 @@ protected static function process_nav_menu(string $html):string
 
     // Go through menus
     $menu_html = '';
-    if (!$data = registry::$redis->hget('cms:menus', registry::$panel)) { 
-        $rows = array('__main' => array());
-    } else { 
-        $rows = json_decode($data, true);
-    }
-    foreach ($rows['__main'] as $row) { 
-
+    $rows = DB::query("SELECT * FROM cms_menus WHERE area = %s AND parent = '' ORDER BY order_num", registry::$panel);
+    foreach ($rows as $row) {
+ 
         // Skip, if needed
         if (registry::$panel == 'public') { 
             if ($row['require_login'] == 1 && registry::$userid == 0) { continue; }
@@ -357,7 +353,7 @@ protected static function process_nav_menu(string $html):string
 
         // Get child menus
         $submenus = '';
-        $crows = isset($rows[$row['alias']]) ? $rows[$row['alias']] : array(); 
+        $crows = DB::query("SELECT * FROM cms_menus WHERE area = %s AND parent = %s ORDER BY order_num", registry::$panel, $row['alias']);
         foreach ($crows as $crow) {
 
             // Skip, if needed
