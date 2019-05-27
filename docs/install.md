@@ -10,12 +10,12 @@ sudo apt-get install redis rabbitmq-server libfreetype6-dev php php-mbstring php
 
 Once done, install Apex by following the below steps:
 
-1. Grab the Apex code with:  `git clone https://github.com/envrin/apex.git`
-2. Rename the newly created /apex/ directory as necessary, and modify Niginx / Apache configuration so the /public/ sub-directory is the document root of the server.
-3. Change to the installation directory, and run: `composer update`
-4. Start the installation wizard with `php apex.php`.  The wizard should be quite straight forward, and if unsure, just leave the server type to the default of "all".
-5. Follow any instructions the installation wizard provides, such as moving the apex script to the /etc/init.d/ directory, etc.
-6. Done!  Enjoy Apex.
+1. Install Apex as your document root with: `composer create-project envrin/apex DIRNAME`
+2. Modify Niginx / Apache configuration so the /public/ sub-directory is the document root of the server.
+3. Change to the installation directory, and start the installation wizard with `php apex.php`.  The wizard should be quite straight forward, and if unsure, just leave the server type to the default of "all".
+4. Follow any instructions the installation wizard provides, such as creating the crontab job, etc.
+5. Done!  Enjoy Apex.
+
 
 ### Installing Packages
 
