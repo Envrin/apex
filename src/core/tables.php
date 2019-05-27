@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
 /**
 * Some misceallensous functions that are required for the 
@@ -18,7 +18,7 @@ class tables
 {
 
 /**
-( Get details of a data table component, such as 
+* Get details of a data table component, such as 
 * total pages, the rows to display, currnet page, etc.
 *
 *     @param object $table The 'apex\abstracts\table' object of the desired table component.

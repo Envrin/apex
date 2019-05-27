@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\DB;
-use apex\template;
-use apex\registry;
-use apex\auth;
+use apex\core\lib\template;
+use apex\core\lib\registry;
+use apex\core\lib\auth;
 
 class admin extends \apex\core\controller\http_requests
 {

@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace apex;
 
+use apex\core\lib\registry;
+
 
 // Load
 require_once('../src/load.php');

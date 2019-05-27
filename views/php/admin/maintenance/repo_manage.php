@@ -3,6 +3,12 @@ declare(strict_types = 1);
 
 namespace apex;
 
+use apex\DB;
+use apex\core\lib\registry;
+use apex\core\lib\debug;
+use apex\core\lib\encrypt;
+use apex\core\lib\template;
+
 
 // Get repo
 if (!$row = DB::get_idrow('internal_repos', registry::get('repo_id'))) { 

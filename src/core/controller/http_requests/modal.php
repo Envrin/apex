@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\DB;
-use apex\registry;
-use apex\template;
+use apex\core\lib\registry;
+use apex\core\lib\template;
 use apex\core\components;
 
 class modal extends \apex\core\controller\http_requests

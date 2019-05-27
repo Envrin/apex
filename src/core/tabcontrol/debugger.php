@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\tabcontrol;
 
 use apex\DB;
-use apex\template;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\template;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 use apex\core\hashes;
 
-class debugger extends \apex\abstracts\tabcontrol
+class debugger extends \apex\core\lib\abstracts\tabcontrol
 {
 
     // Define tab pages

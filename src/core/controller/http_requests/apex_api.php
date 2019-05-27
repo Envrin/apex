@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
 class apex_api extends \apex\core\controller\http_requests
 {

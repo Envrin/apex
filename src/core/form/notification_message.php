@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\form;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\template;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\template;
 use apex\core\notification;
 
-class notification_message extends \apex\abstracts\form
+class notification_message extends \apex\core\lib\abstracts\form
 {
 
     public $allow_post_values = 1;

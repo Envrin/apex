@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 use apex\core\io;
 
 
-class cms_pages extends \apex\abstracts\table
+class cms_pages extends \apex\core\lib\abstracts\table
 {
 
     // Columns

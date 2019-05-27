@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\htmlfunc;
 
 use apex\DB;
-use apex\template;
-use apex\registry;
-use apex\html_tags;
+use apex\core\lib\template;
+use apex\core\lib\registry;
+use apex\core\lib\html_tags;
 use apex\core\components;
 use apex\core\admin;
 
-class notification_condition extends \apex\abstracts\htmlfunc
+class notification_condition extends \apex\core\lib\abstracts\htmlfunc
 {
 
 /**

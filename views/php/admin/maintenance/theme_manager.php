@@ -2,6 +2,12 @@
 
 namespace apex;
 
+use apex\DB;
+use apex\core\lib\registry;
+use apex\core\lib\debug;
+use apex\core\lib\network;
+use apex\core\lib\template;
+
 
 // Update public site
 if (registry::$action == 'update_public') { 

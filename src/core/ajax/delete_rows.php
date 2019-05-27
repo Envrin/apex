@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 use apex\core\components;
 use apex\core\forms;
 
-class delete_rows extends \apex\ajax
+class delete_rows extends \apex\core\lib\ajax
 {
 
 /**
@@ -20,11 +20,11 @@ public function process()
 
 // Get package / alias
     if (!list($package, $parent, $alias) = components::check('table', registry::post('table'))) { 
-        trigger_error("The table '$_POST[table]' either does not exists, or no package was defined and exists in more than one package.", E_USER_ERROR);
+        trigger_error("The table '' either does not exists, or no package was defined and exists in more than one package.", E_USER_ERROR);
     }
 
     // Load table
-    $table = components::load('table', $alias, $package, '', $_POST);
+    $table = components::load('table', $alias, $package, '', registry::getall_post());
     $dbtable = $table->delete_dbtable ?? $package . '_' . $alias;
     $dbcolumn = $table->delete_dbcolumn ?? 'id';
 

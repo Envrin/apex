@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 use apex\core\components;
 
 class translate

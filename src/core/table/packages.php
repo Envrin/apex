@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\DB;
-use apex\network;
+use apex\core\lib\network;
 
 
-class packages extends \apex\abstracts\table
+class packages extends \apex\core\lib\abstracts\table
 {
 
     // Set columns

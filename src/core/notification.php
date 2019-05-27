@@ -4,12 +4,12 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\debug;
-use apex\message;
-use apex\ApexException;
-use apex\CommException;
-use apex\ComponentException;
+use apex\core\lib\registry;
+use apex\core\lib\debug;
+use apex\core\lib\message;
+use apex\core\lib\exceptions\ApexException;
+use apex\core\lib\exceptions\CommException;
+use apex\core\lib\exceptions\ComponentException;
 use apex\core\components;
 use apex\core\forms;
 use apex\users\user;

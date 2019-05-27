@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\ApexException;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\exceptions\ApexException;
 use apex\core\io;
 use apex\core\date;
 use Kunnu\Dropbox\Dropbox;
@@ -26,7 +26,7 @@ class backups
 
 /**
 * Performs a backup of the system, and stores archive 
-* file locally within the /data/backups/ directory.
+* file locally within the /storage/backups/ directory.
 *     @param string $type The type of backup to perform (db or full)
 *     @return string The name or the .tar.gz archive that was created.
 */
@@ -55,7 +55,7 @@ public function perform_backup(string $type = 'full')
 
     // Delete local file, if needed
     if (registry::config('core:backups_save_locally') != 1) { 
-        @unlink(SITE_PATH . '/data/backups/' . $archive_file);
+        @unlink(SITE_PATH . '/storage/backups/' . $archive_file);
     }
 
     // Return
@@ -64,7 +64,7 @@ public function perform_backup(string $type = 'full')
 }
 
 /**
-* Remove expired archives from /data/backups/ directory
+* Remove expired archives from /storage/backups/ directory
 */
 private function remove_expired_archives()
 {
@@ -75,7 +75,7 @@ private function remove_expired_archives()
     }
 
     // Go through all files
-    $files = io::parse_dir(SITE_PATH . '/data/backups', false);
+    $files = io::parse_dir(SITE_PATH . '/storage/backups', false);
     foreach ($files as $file) { 
 
         // Check filename
@@ -88,7 +88,7 @@ private function remove_expired_archives()
         if ($start_time> $secs) { continue; }
 
         // Delete file
-        @unlink(SITE_PATH . '/data/backups/' . $file);
+        @unlink(SITE_PATH . '/storage/backups/' . $file);
 
         // Debug
         debug::add(4, fmsg("Deleted backup file, as it has expired, {1}", $file), __FILE__, __LINE__, 'info');
@@ -97,9 +97,9 @@ private function remove_expired_archives()
 }
 
 /**
-* Perform a local backup, and save archive file to /data/backups/ directory
+* Perform a local backup, and save archive file to /storage/backups/ directory
 *     @param string $type The type of backup to perform (db / full)
-*     @return string The name of the archive file within /data/backups/ directory
+*     @return string The name of the archive file within /storage/backups/ directory
 */
 private function backup_local(string $type)
 {
@@ -118,14 +118,14 @@ private function backup_local(string $type)
     // Get filename
     $secs = (date('H') * 3600) + (date('i') * 60) + date('s');
     $archive_file = $type . '-' . date('Y-m-d_') . $secs . '.tar';
-    io::create_dir(SITE_PATH . '/data/backups');
+    io::create_dir(SITE_PATH . '/storage/backups');
     chdir(SITE_PATH);
 
     // Archive the system
     $backup_source = $type == 'db' ? "./dump.sql" : "./";
-    $tar_cmd = "tar --exclude='data/backups/*' -cf " . SITE_PATH . '/data/backups/' . $archive_file . " $backup_source";
+    $tar_cmd = "tar --exclude='storage/backups/*' -cf " . SITE_PATH . '/storage/backups/' . $archive_file . " $backup_source";
     system($tar_cmd);
-    system("gzip " . SITE_PATH . "/data/backups/$archive_file");
+    system("gzip " . SITE_PATH . "/storage/backups/$archive_file");
 
     // Update next time to run
     $interval = registry::config('core:backups_' . $type . '_interval');
@@ -139,7 +139,7 @@ private function backup_local(string $type)
 
 /**
 * Upload a backup archive to DropBox
-*     @param string $filename The name of the file within /data/backups/ to upload
+*     @param string $filename The name of the file within /storage/backups/ to upload
 */
 private function upload_dropbox(string $filename)
 {
@@ -150,7 +150,7 @@ private function upload_dropbox(string $filename)
 
     // Upload file
     try {
-        $dropboxFile = new DropboxFile(SITE_PATH . '/data/backups/' . $filename);
+        $dropboxFile = new DropboxFile(SITE_PATH . '/storage/backups/' . $filename);
         $uploadedFile = $dropbox->upload($dropboxFile, "/" . $filename, ['autorename' => true]);
     } catch (Exception $E) {
         throw new ApexException('error', "Unable to upload to Dropbox: " . $e->getMessage());
@@ -163,7 +163,7 @@ private function upload_dropbox(string $filename)
 
 /**
 * Upload backup archive to Google Drive
-*     @param string $filename The filename from the /data/backups/ directory to upload
+*     @param string $filename The filename from the /storage/backups/ directory to upload
 */
 private function upload_google_drive(string $filename)
 {

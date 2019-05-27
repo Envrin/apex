@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\form;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
-class repo extends \apex\abstracts\form
+class repo extends \apex\core\lib\abstracts\form
 {
 
     public $allow_post_values = 0;

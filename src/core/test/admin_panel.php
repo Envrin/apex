@@ -4,15 +4,15 @@ declare(strict_types = 1);
 namespace apex\core\test;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\template;
-use apex\test;
-use apex\network;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\template;
+use apex\core\lib\test;
+use apex\core\lib\network;
 use apex\core\forms;
 
-class test_admin_panel extends \apex\test
+class test_admin_panel extends \apex\core\lib\test
 {
 
 /**

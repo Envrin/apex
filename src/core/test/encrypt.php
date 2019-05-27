@@ -4,17 +4,17 @@ declare(strict_types = 1);
 namespace apex\core\test;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\encrypt;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\encrypt;
 use apex\core\io;
 
 /**
 * Add any necessary phpUnit test methods into this class.  You may execute all 
 * tests by running:  php apex.php test core
 */
-class test_encrypt extends \apex\test
+class test_encrypt extends \apex\core\lib\test
 {
 
 /**

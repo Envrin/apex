@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\htmlfunc;
 
 use apex\DB;
-use apex\template;
-use apex\registry;
+use apex\core\lib\template;
+use apex\core\lib\registry;
 use apex\core\components;
 
-class display_autosuggest extends \apex\abstracts\htmlfunc
+class display_autosuggest extends \apex\core\lib\abstracts\htmlfunc
 {
 
 /**

@@ -4,12 +4,12 @@ declare(strict_types = 1);
 namespace apex\core\tabcontrol\debugger;
 
 use apex\DB;
-use apex\template;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\template;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
-class line_items extends \apex\abstracts\tabpage
+class line_items extends \apex\core\lib\abstracts\tabpage
 {
 
     // Page variables

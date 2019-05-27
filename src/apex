@@ -7,7 +7,7 @@
 # - Start: `service myservice start` or `/etc/init.d/myservice start`
 # - Stop: `service myservice stop` or `/etc/init.d/myservice stop`
 
-SITE_PATH="/home/boxer/devel/apex";
+SITE_PATH="~site_path~";
 NAME=apex
 
 DESC="Apex Daemons"
@@ -21,35 +21,35 @@ set -e
 case "$1" in
     start)
         echo -n "Starting ${DESC}: "
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/worker.pid --exec ${DAEMON} $SITE_PATH/src/worker.php > $SITE_PATH/log/services/worker.log
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/rpc.pid --exec ${DAEMON} $SITE_PATH/src/rpc_server.php > $SITE_PATH/log/services/rpc.log
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/websocket.pid --exec ${DAEMON} $SITE_PATH/src/ws_server.php > $SITE_PATH/log/services/websocket.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/worker.pid --exec ${DAEMON} $SITE_PATH/src/worker.php > $SITE_PATH/log/services/worker.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/rpc.pid --exec ${DAEMON} $SITE_PATH/src/rpc_server.php > $SITE_PATH/log/services/rpc.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/websocket.pid --exec ${DAEMON} $SITE_PATH/src/ws_server.php > $SITE_PATH/log/services/websocket.log
         echo "$NAME."
         ;;
     stop)
         echo -n "Stopping $DESC: "
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/worker.pid
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/rpc.pid
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/websocket.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/worker.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/rpc.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/websocket.pid
         echo "$NAME."
-        rm -f $SITE_PATH/tmp/worker.pid
-        rm -f $SITE_PATH/tmp/rpc.pid
-        rm -f $SITE_PATH/tmp/websocket.pid
+        rm -f $SITE_PATH/log/pids/worker.pid
+        rm -f $SITE_PATH/log/pids/rpc.pid
+        rm -f $SITE_PATH/log/pids/websocket.pid
 
         ;;
     restart|force-reload)
         echo -n "Restarting $DESC: "
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/worker.pid
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/rpc.pid
-        start-stop-daemon --stop --pidfile $SITE_PATH/tmp/websocket.pid
-        rm -f $SITE_PATH/tmp/worker.pid
-        rm -f $SITE_PATH/tmp/rpc.pid
-        rm -f $SITE_PATH/tmp/websocket.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/worker.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/rpc.pid
+        start-stop-daemon --stop --pidfile $SITE_PATH/log/pids/websocket.pid
+        rm -f $SITE_PATH/log/pids/worker.pid
+        rm -f $SITE_PATH/log/pids/rpc.pid
+        rm -f $SITE_PATH/log/pids/websocket.pid
 
         sleep 1
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/worker.pid --exec ${DAEMON} $SITE_PATH/src/worker.php > $SITE_PATH/log/services/worker.log
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/rpc.pid --exec ${DAEMON} $SITE_PATH/src/rpc_server.php > $SITE_PATH/log/services/rpc.log
-        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/tmp/websocket.pid --exec ${DAEMON} $SITE_PATH/src/ws_server.php > $SITE_PATH/log/services/websocket.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/worker.pid --exec ${DAEMON} $SITE_PATH/src/worker.php > $SITE_PATH/log/services/worker.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/rpc.pid --exec ${DAEMON} $SITE_PATH/src/rpc_server.php > $SITE_PATH/log/services/rpc.log
+        start-stop-daemon --start --background --make-pidfile --pidfile $SITE_PATH/log/pids/websocket.pid --exec ${DAEMON} $SITE_PATH/src/ws_server.php > $SITE_PATH/log/services/websocket.log
         echo "$NAME."
         ;;
     *)

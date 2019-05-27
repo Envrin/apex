@@ -5,9 +5,9 @@ namespace apex\core\htmlfunc;
 
 use apex\DB;
 use apex\emplate;
-use apex\registry;
+use apex\core\lib\registry;
 
-class password_meter extends \apex\abstracts\htmlfunc
+class password_meter extends \apex\core\lib\abstracts\htmlfunc
 {
 
 /**

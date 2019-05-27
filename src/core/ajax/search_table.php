@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 use apex\core\components;
 use apex\core\tables;
-use apex\ComponentException;
+use apex\core\lib\exceptions\ComponentException;
 
 
-class search_table Extends \apex\ajax
+class search_table Extends \apex\core\lib\ajax
 {
 
 /**
@@ -48,13 +48,13 @@ public function process()
     $details = tables::get_details($table, $id);
 
     // Clear table rows
-    $this->clear_table($_POST['id']);
+    $this->clear_table(registry::post('id'));
 
     // Add new rows
     $this->add_data_rows($id, registry::post('table'), $details['rows'], registry::getall_post());
 
     // Set pagination
-    $this->set_pagination($_POST['id'], $details);
+    $this->set_pagination(registry::post('id'), $details);
 
 }
 

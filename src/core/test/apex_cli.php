@@ -4,20 +4,20 @@ declare(strict_types = 1);
 namespace apex\core\test;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\apex_cli;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\apex_cli;
 use apex\core\io;
 use apex\core\components;
-use apex\pkg\package_config;
-use apex\pkg\pkg_components;
+use apex\core\lib\pkg\package_config;
+use apex\core\lib\pkg\pkg_components;
 
 /**
 * Unit tests for the /apex.php CLI commands, and the 
 * /lib/apex_cli.php class.  
 */
-class test_apex_cli extends \apex\test
+class test_apex_cli extends \apex\core\lib\test
 {
 
 /**
@@ -502,7 +502,7 @@ public function test_publish_verify()
 {
 
     // Unpack archive
-    $tmp_dir = SITE_PATH . '/tmp/test';
+    $tmp_dir = sys_get_temp_dir() . '/test';
     if (is_dir($tmp_dir)) { io::remove_dir($tmp_dir); }
     io::unpack_zip_archive(SITE_PATH . '/data/repo/unit_test/latest.zip', $tmp_dir);
 

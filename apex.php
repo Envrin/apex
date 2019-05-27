@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 namespace apex;
 
-use apex\apex_cli;
+use apex\DB;
+use apex\core\lib\registry;
+use apex\core\lib\apex_cli;
 
 // Load
 require("./src/load.php");

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\cron;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\message;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\message;
 use apex\core\io;
 use apex\core\date;
 
@@ -17,7 +17,7 @@ use apex\core\date;
 * rotate log files, delete old logged session data, 
 * check for modifications to the filesystem, etc.
 */
-class maintenance extends \apex\abstracts\cron
+class maintenance extends \apex\core\lib\abstracts\cron
 {
 
     // Properties

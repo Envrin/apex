@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
-class login_notices extends \apex\abstracts\table
+class login_notices extends \apex\core\lib\abstracts\table
 {
 
     // Columns

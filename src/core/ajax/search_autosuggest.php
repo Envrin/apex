@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 use apex\core\components;
 
-class search_autosuggest Extends \apex\ajax 
+class search_autosuggest Extends \apex\core\lib\ajax 
 {
 
 /**

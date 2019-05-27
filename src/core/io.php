@@ -4,12 +4,13 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\IOException;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\exceptions\IOException;
+use apex\core\lib\third_party\SqlParser;
 use ZipArchive;
-use SqlParser;
+
 
 /**
 ( Handles various input / output operations on files and 
@@ -80,22 +81,29 @@ public static function create_dir(string $dirname)
     // Debug
     debug::add(4, fmsg("Creating new directory at {1}", $dirname), __FILE__, __LINE__);
 
-
     if (is_dir($dirname)) { return; }
+    $tmp = str_replace("/", "\\/", sys_get_temp_dir());
 
     // Format dirname
-    $dirname = trim(str_replace(SITE_PATH, "", $dirname), '/');
+    if (!preg_match("/^$tmp/", $dirname)) { 
+        $dirname = trim(str_replace(SITE_PATH, "", $dirname), '/');
+        $site_path = SITE_PATH;
+    } else { 
+        $site_path = sys_get_temp_dir();
+        $dirname = preg_replace("/^$tmp/", "", $dirname);
+    }
     $dirs = explode("/", $dirname);
 
     // Go through dirs
     $tmp_dir = '';
     foreach ($dirs as $dir) { 
+        if ($dir == '') { continue; }
         $tmp_dir .= '/' . $dir;
-    if (is_dir(SITE_PATH . '/' . $tmp_dir)) { continue; }
+        if (is_dir($site_path . '/' . $tmp_dir)) { continue; }
 
         // Create directory
         try { 
-            @mkdir(SITE_PATH . '/' . $tmp_dir);
+            @mkdir($site_path . '/' . $tmp_dir);
         } catch (Exception $e) { 
             throw new IOException('no_mkdir', $tmp_dir);
         }
@@ -117,20 +125,27 @@ public static function remove_dir(string $dirname)
 {
 
     // Debug
-    debug::add(4, fmsg("Remoing the directory at {1}", $dirname), __FILE__, __LINE__);
+    debug::add(4, fmsg("Removing the directory at {1}", $dirname), __FILE__, __LINE__);
 
     if (!is_dir($dirname)) { return true; }
+    $tmp = str_replace("/", "\\/", sys_get_temp_dir());
 
     // Parse dir
-    $dirname = trim(str_replace(SITE_PATH, "", $dirname), '/');
-    $files = self::parse_dir(SITE_PATH . '/' . $dirname, true);
+    if (!preg_match("/^$tmp/", $dirname)) { 
+        $dirname = trim(str_replace(SITE_PATH, "", $dirname), '/');
+        $files = self::parse_dir(SITE_PATH . '/' . $dirname, true);
+        $site_path = SITE_PATH . '/';
+    } else {
+        $files = self::parse_dir($dirname, true);        $site_path = sys_get_temp_dir();
+        $dirname = preg_replace("/^$tmp/", "", $dirname);
+    }
 
     // Go through, and delete all files
     foreach ($files as $file) {
-        if (is_dir(SITE_PATH . "/$dirname/$file")) { continue; }
+        if (is_dir($site_path . "$dirname/$file")) { continue; }
 
         try { 
-            unlink(SITE_PATH . "/$dirname/$file");
+            unlink($site_path . "$dirname/$file");
         } catch (Exception $e) { 
             throw new IOException('no_unlink', "$dirname/$file");
         
@@ -139,10 +154,10 @@ public static function remove_dir(string $dirname)
     // Delete directories
     $files = array_reverse($files);
     foreach ($files as $subdir) {
-        if (!is_dir(SITE_PATH . "/$dirname/$subdir")) { continue; }
+        if (!is_dir($site_path . "$dirname/$subdir")) { continue; }
 
         try {
-            rmdir(SITE_PATH . "/$dirname/$subdir");
+            rmdir($site_path . "$dirname/$subdir");
         } catch (Exception $e) { 
             throw new IOException('normdir', "$dirname/$subdir");
         }
@@ -150,7 +165,7 @@ public static function remove_dir(string $dirname)
 
     // Remove directory
     try {
-    rmdir(SITE_PATH . '/' . $dirname);
+    rmdir($site_path . $dirname);
     } catch (Exception $e) { 
         throw new IOException('no_rmdir', $dirname);
     }
@@ -186,8 +201,6 @@ public static function send_http_request(string $url, string $method = 'GET', $r
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($ch, CURLOPT_HEADER, $return_headers);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-    curl_setopt($ch, CURLOPT_COOKIEJAR, SITE_PATH . '/data/tmp/cookies.txt');
-    curl_setopt($ch, CURLOPT_COOKIEFILE, SITE_PATH . '/data/tmp/cookies.txt');
     if (preg_match("/^https/", $url)) { curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); }
 
     // Set headers
@@ -238,8 +251,6 @@ public static function send_tor_request(string $url, string $method = 'GET', arr
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($ch, CURLOPT_HEADER, $return_headers);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-    curl_setopt($ch, CURLOPT_COOKIEJAR, SITE_PATH . '/data/tmp/cookies.txt');
-    curl_setopt($ch, CURLOPT_COOKIEFILE, SITE_PATH . '/data/tmp/cookies.txt');
     if (preg_match("/^https/", $url)) { curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); }
 
     // Set POST fields, if needed
@@ -298,9 +309,9 @@ public static function create_zip_archive(string $tmp_dir, string $archive_file)
     // Debug
     debug::add(2, fmsg("Creating a new zip archive from directory {1} and aving at {2}", $tmp_dir, $archive_file), __FILE__, __LINE__);
  
-    if (file_exists(SITE_PATH . '/tmp/' . $archive_file)) { @unlink(SITE_PATH . '/tmp/' . $archive_file); }
+    if (file_exists($archive_file)) { @unlink($archive_file); }
     $zip = new ZipArchive();
-    $zip->open(SITE_PATH . "/tmp/$archive_file", ZIPARCHIVE::CREATE);
+    $zip->open($archive_file, ZIPARCHIVE::CREATE);
 
     // Go through files
     $files = self::parse_dir($tmp_dir, true);

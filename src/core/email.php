@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\DB;
-use apex\registry;
-use apex\CommException;
+use apex\core\lib\registry;
+use apex\core\lib\exceptions\CommException;
 
 /**
 * Handles sending and formatting of 

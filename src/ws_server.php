@@ -3,8 +3,8 @@
 namespace apex;
 
 use apex\DB;
-use apex\message;
-use apex\wsbot;
+use apex\core\lib\message;
+use apex\core\lib\wsbot;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;

@@ -5,7 +5,7 @@ namespace apex\core\table;
 
 use apex\DB;
 
-class crontab extends \apex\abstracts\table
+class crontab extends \apex\core\lib\abstracts\table
 {
 
     // Set columns

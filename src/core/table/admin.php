@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 
-class admin extends \apex\abstracts\table
+class admin extends \apex\core\lib\abstracts\table
 { 
 
     // Set columns

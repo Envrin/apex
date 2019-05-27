@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 
-class clear_dropdown extends \apex\Ajax 
+class clear_dropdown extends \apex\core/lib/Ajax 
 {
 
 /**

@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
 use apex\core\components;
 use apex\core\date;
 
@@ -75,8 +75,8 @@ function cron_check_pids()
     // Get current pids
     $pids = array();
     foreach (array('worker.pid', 'rpc.pid', 'websocket.pid') as $file) { 
-        if (!file_exists(SITE_PATH . "/tmp/$file")) { continue; }
-        $pids[] = trim(file_get_contents(SITE_PATH . "/tmp/$file"));
+        if (!file_exists(SITE_PATH . "/log/pids/$file")) { continue; }
+        $pids[] = trim(file_get_contents(SITE_PATH . "/log/pids/$file"));
     }
 
     // Get list of processes

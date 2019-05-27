@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\test;
 
 use apex\DB;
-use apex\registry;
-use apex\log;
-use apex\debug;
-use apex\network;
+use apex\core\lib\registry;
+use apex\core\lib\log;
+use apex\core\lib\debug;
+use apex\core\lib\network;
 use apex\package;
 
 
@@ -16,7 +16,7 @@ use apex\package;
 * repo communication such as list all packages / theme, check for 
 * upgrades, search packages, etc.
 */
-class test_network extends \apex\test
+class test_network extends \apex\core\lib\test
 {
 
 /**

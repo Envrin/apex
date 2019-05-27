@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 namespace apex;
 
-use DB;
+use apex\core\lib\registry;
+use apex\core\lib\installer;
+
 
 // Define component types
 define('COMPONENT_TYPES', array(
@@ -27,13 +29,12 @@ define('COMPONENT_TYPES', array(
 $site_path = preg_replace("/\/src$/", "", realpath(dirname(__FILE__)));
 define ('SITE_PATH', $site_path);
 
-// Load autoloaders
-require_once(SITE_PATH . '/src/autoload.php');
+// Load autoloader
 require_once(SITE_PATH . '/vendor/autoload.php');
 
 // Load files
 require_once(SITE_PATH . '/etc/config.php');
-require_once(SITE_PATH . '/lib/functions.php');
+require_once(SITE_PATH . '/src/core/lib/functions.php');
 
 // Start registry
 registry::create();
@@ -44,7 +45,7 @@ if (!defined('REDIS_HOST')) {
 } else { 
     if (!$db_driver = registry::$redis->hget('config', 'db_driver')) { $db_driver = 'mysql'; }
 }
-require_once(SITE_PATH . '/lib/db/' . $db_driver .'.php');
+require_once(SITE_PATH . '/src/core/lib/db/' . $db_driver .'.php');
 
 // Set error reporting
 error_reporting(E_ALL);

@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 
-class sort_table extends \apex\ajax 
+class sort_table extends \apex\core\lib\ajax 
 {
 
 /**
@@ -18,22 +18,22 @@ public function process() extends ajax
 {
 
     // Set variables
-    $package = $_POST['package'] ?? '';
+    $package = registry::post('package') ?? '';
 
     // Load table
-    $table = load_component('table', $_POST['table'], $package, '', $_POST);
+    $table = load_component('table', registry::post('table'), $package, '', registry::getall_post());
 
     // Get table details
-    $details = get_table_details($table, $_POST['id']);
+    $details = get_table_details($table, registry::post('id'));
 
     // Clear table
-    $this->clear_table($_POST['id']);
+    $this->clear_table(registry::post('id'));
 
     // Add new rows
-    $this->add_data_rows($_POST['id'], $_POST['table'], $package, $details['rows'], $_POST);
+    $this->add_data_rows(registry::post('id'), registry::post('table'), $package, $details['rows'], registry::getall_post());
 
     // Set pagination
-    $this->set_pagination($_POST['id'], $details);
+    $this->set_pagination(registry::post('id'), $details);
 
 }
 

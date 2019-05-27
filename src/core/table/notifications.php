@@ -6,7 +6,7 @@ namespace apex\core\table;
 use apex\DB;
 use apex\core\components;
 
-class notifications extends \apex\abstracts\table
+class notifications extends \apex\core\lib\abstracts\table
 {
 
     // Set columns

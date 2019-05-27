@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\DB;
-use apex\registry;
+use apex\core\lib\registry;
 use apex\core\images;
-use apex\rpc;
+use apex\core\lib\rpc;
 
 class image extends \apex\core\controller\http_requests
 {

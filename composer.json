@@ -1,7 +1,8 @@
 {
-    "name": "Apex",
-    "description": "Powerful PHP based framework to efficiently develop quality, robust, streamlined, and professional online operations.",
+    "name": "Apex-platform",
+    "description": "Powerful PHP based platform to efficiently develop quality, robust, streamlined, and professional online operations.",
     "keywords": ["apex", "framework", "platform", "infrastructure"],
+    "type": "project", 
     "license": "MIT",
     "authors": [
         {
