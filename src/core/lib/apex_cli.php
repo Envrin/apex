@@ -14,6 +14,7 @@ use apex\core\lib\pkg\package;
 use apex\core\lib\pkg\theme;
 use apex\core\lib\pkg\upgrade;
 use apex\core\lib\pkg\pkg_component;
+use apex\core\lib\exceptions\PackageException;
 
 /**
 * Class that handles all functions executed via the apex.php CLI script 
