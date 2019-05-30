@@ -399,7 +399,7 @@ protected static function process_menu_row(string $html, array $row, string $sub
     } else { $url = ''; } 
 
     // Merge HTML
-    $icon = $row['icon'] == '' ? '' : '<i class=\""' . $row['icon'] . '"\"></i>';
+    $icon = $row['icon'] == '' ? '' : '<i class="' . $row['icon'] . '"></i>';
     $html = str_replace("~url~", $url, $html);
     $html = str_replace("~icon~", $icon, $html);
     $html = str_replace("~name~", tr($row['display_name']), $html);
