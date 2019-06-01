@@ -571,7 +571,7 @@ public function phone(array $attr, string $text = ''):string
 
     // Set HTML
     $name = $attr['name'];
-    $html = "+ <input type=\"text\" name=\"" . $name . "_country\" value=\"$country\" class=\"form-control\" style=\"width: 30px;\"> ";
+    $html = "+ <input type=\"text\" name=\"" . $name . "_country\" value=\"$country\" class=\"form-control\" style=\"width: 30px;\" maxlength=\"3\"> ";
     $html .= "<input type=\"text\" name=\"$name\" value=\"$phone\" class=\"form-control\" style=\"width: 200px;\">";
 
     // Return

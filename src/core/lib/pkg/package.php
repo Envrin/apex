@@ -846,6 +846,50 @@ public function reset(string $pkg_alias)
 }
 
 /**
+* Rename a package from one alias to another.  Please note, this will NOT rename 
+* the package within the repository, and will only rename it locally.
+*     @param string $pkg_alias The alias of the current package
+*     @param string $new_alias The alias to rename the package to
+*/
+public function rename_package(string $pkg_alias, string $new_alias)
+{
+
+    // Get current package row
+    if (!$row = DB::get_row("SELECT * FROM internal_packages WHERE alias = %s", $pkg_alias)) {
+        throw new PackageException('not_exists', $pkg_alias);
+    }
+
+    // Add new package
+    DB::insert('internal_packages', array(
+        'is_private' => $row['is_private'], 
+        'repo_id' => $row['repo_id'], 
+        'version' => '1.0.0', 
+        'last_modified' => '1900-01-01 12:00:00', 
+        'alias' => $new_alias, 
+    'display_name' => $row['display_name'])
+    );
+    $package_id = DB::insert_id();
+
+    // Rename components
+    DB::query("UPDATE internal_components SET owner = %s WHERE owner = %s", $new_alias, $pkg_alias);
+    DB::query("UPDATE internal_crontab SET package = %s WHERE package = %s", $new_alias, $pkg_alias);
+    DB::query("UPDATE cms_menus SET package = %s WHERE package = %s", $new_alias, $pkg_alias);
+    DB::query("UPDATE internal_boxlists SET owner = %s WHERE owner = %s", $new_alias, $pkg_alias);
+    DB::query("UPDATE cms_placeholders SET package = %s WHERE package = %s", $new_alias, $pkg_alias);
+
+    // Rename directories
+    rename(SITE_PATH . '/etc/' . $pkg_alias, SITE_PATH . '/etc/' . $new_alias);
+    rename(SITE_PATH . '/src/' . $pkg_alias, SITE_PATH . '/src/' . $new_alias);
+
+    // Delete old package
+    DB::query("DELETE FROM internal_packages WHERE alias = %s", $pkg_alias);
+
+    // Return
+    return true;
+
+}
+
+/**
 * Reinstall components.  Deletes all existing components of a packagew from 
 * the database, and re-installs them using the /etc/PACKAGE/components.json file.
 *     @param string $pkg_alias The alias of the package to re-install components for.

@@ -314,6 +314,27 @@ protected function delete_package($vars)
 }
 
 /**
+* Rename a package
+*/
+protected function rename_package($vars)
+{
+
+    // Debug
+    debug::add(4, fmsg("Starting to rename package from {1} to the new alias {2}", $vars[0], $vars[1]), __FILE__, __LINE__, 'info');
+
+    // Rename package
+    $client = new package();
+    $package->rename($vars[0], $vars[1]);
+
+    // Debug
+    debug::add(4, fmsg("Successfully renamed packaeg {1} to new alias {2}", $vars[0], $vars[1]), __FILE__, __LINE__, 'info');
+
+    // Return
+    return "Successfully renamed the package $vars[0] to new alias $vars[1]\n\n";
+
+}
+
+/**
 * Publishes a package to the appropriate repository, from where 
 * it can be instantly installed on other Apex systems.
 *   Usage: php apex.php publish PACKAGE_ALIAS
