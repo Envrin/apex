@@ -1,18 +1,23 @@
 <?php
 declare(strict_types = 1);
 
-namespace apex;
+namespace apex\views;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\debug;
-use apex\core\lib\template;
-use apex\core\forms;
-use apex\core\lib\pkg\package_config;
+use apex\app;
+use apex\services\db;
+use apex\services\template;
+use apex\services\redis;
+use apex\services\utils\forms;
+use apex\app\pkg\package_config;
+
+/**
+ * All code below this line is automatically executed when this template is viewed, 
+ * and used to perform any necessary template specific actions.
+ */
 
 
 // Update general settings
-if (registry::$action == 'update_general') { 
+if (app::get_action() == 'update_general') { 
 
     // Set vars
     $vars = array(
@@ -32,14 +37,14 @@ if (registry::$action == 'update_general') {
 
     // Update config vars
     foreach ($vars as $var) { 
-        registry::update_config_var('core:' . $var, registry::post($var));
+        app::update_config_var('core:' . $var, app::_post($var));
     }
 
     // User message
-    template::add_message("Successfully updated general settings");
+    template::add_callout("Successfully updated general settings");
 
 // SIte info settings
-} elseif (registry::$action == 'site_info') { 
+} elseif (app::get_action() == 'site_info') { 
 
     // Set vars
     $vars = array(
@@ -57,14 +62,14 @@ if (registry::$action == 'update_general') {
 
     // Update config avrs
     foreach ($vars as $var) { 
-        registry::update_config_var('core:' . $var, registry::post($var));
+        app::update_config_var('core:' . $var, app::_post($var));
     }
 
     // User message
-    template::add_message("Successfully updated site info settings");
+    template::add_callout("Successfully updated site info settings");
 
 // Security settings
-} elseif (registry::$action == 'security') { 
+} elseif (app::get_action() == 'security') { 
 
     // Set vars
     $vars = array(
@@ -76,59 +81,59 @@ if (registry::$action == 'update_general') {
 
     // Update config vars
     foreach ($vars as $var) { 
-        registry::update_config_var('core:' . $var, registry::post($var));
+        app::update_config_var('core:' . $var, app::_post($var));
     }
 
     // Update date intervals
-    registry::update_config_var('core:session_retain_logs', forms::get_date_interval('session_retain_logs'));
-    registry::update_config_var('core:force_password_reset_time', forms::get_date_interval('force_password_reset_time'));
+    app::update_config_var('core:session_retain_logs', forms::get_date_interval('session_retain_logs'));
+    app::update_config_var('core:force_password_reset_time', forms::get_date_interval('force_password_reset_time'));
 
     // User message
-    template::add_message("Successfully updated admin panel security settings");
+    template::add_callout("Successfully updated admin panel security settings");
 
 // Add database
-} elseif (registry::$action == 'add_database') { 
+} elseif (app::get_action() == 'add_database') { 
 
     // Set vars
     $vars = array(
-        'dbname' => registry::post('dbname'), 
-        'dbuser' => registry::post('dbuser'), 
-        'dbpass' => registry::post('dbpass'), 
-        'dbhost' => registry::post('dbhost'), 
-        'dbport' => registry::post('dbport')
+        'dbname' => app::_post('dbname'), 
+        'dbuser' => app::_post('dbuser'), 
+        'dbpass' => app::_post('dbpass'), 
+        'dbhost' => app::_post('dbhost'), 
+        'dbport' => app::_post('dbport')
     );
-    registry::$redis->rpush('config:db_slaves', json_encode($vars));
+    redis::rpush('config:db_slaves', json_encode($vars));
 
     // User message
-    template::add_message("Successfully added new database server");
+    template::add_callout("Successfully added new database server");
 
 // Update database
-} elseif (registry::$action == 'update_database') { 
+} elseif (app::get_action() == 'update_database') { 
 
     // Set variables
-    $server_id = (int) registry::post('server_id');
+    $server_id = (int) app::_post('server_id');
 
     // Set vars
     $vars = array(
-        'dbname' => registry::post('dbname'), 
-        'dbuser' => registry::post('dbuser'), 
-        'dbpass' => registry::post('dbpass'), 
-        'dbhost' => registry::post('dbhost'), 
-        'dbport' => registry::post('dbport')
+        'dbname' => app::_post('dbname'), 
+        'dbuser' => app::_post('dbuser'), 
+        'dbpass' => app::_post('dbpass'), 
+        'dbhost' => app::_post('dbhost'), 
+        'dbport' => app::_post('dbport')
     );
 
     // Save to redis
-    registry::$redis->lset('config:db_slaves', $server_id, json_encode($vars));
+    redis::lset('config:db_slaves', $server_id, json_encode($vars));
 
     // User message
-    template::add_message("Successfully updated database server");
+    template::add_callout("Successfully updated database server");
 
 // Delete databases
-} elseif (registry::$action == 'delete_database') { 
+} elseif (app::get_action() == 'delete_database') { 
 
     // Get IDs
     $ids = forms::get_chk('db_server_id');
-    $slaves = registry::$redis->lrange('config:db_slaves', 0, -1);
+    $slaves = redis::lrange('config:db_slaves', 0, -1);
     $new_slaves = array();
     // Delete databases
     $num=0;
@@ -138,56 +143,56 @@ if (registry::$action == 'update_general') {
     }
 
     // Reset slave servers
-    registry::$redis->del('config:db_slaves');
+    redis::del('config:db_slaves');
     foreach ($new_slaves as $data) { 
-        registry::$redis->rpush('config:db_slaves', $data);
+        redis::rpush('config:db_slaves', $data);
     }
 
     // User message
-    template::add_message("Successfully deleted checked database servers");
+    template::add_callout("Successfully deleted checked database servers");
 
 // Add SMTP e-mail server
-} elseif (registry::$action == 'add_email') { 
+} elseif (app::get_action() == 'add_email') { 
 
     // Set vars
     $vars = array(
-        'is_ssl' => registry::post('email_is_ssl'), 
-        'host' => registry::post('email_host'), 
-        'username' => registry::post('email_user'), 
-        'password' => registry::post('email_pass'), 
-        'port' => registry::post('email_port')
+        'is_ssl' => app::_post('email_is_ssl'), 
+        'host' => app::_post('email_host'), 
+        'username' => app::_post('email_user'), 
+        'password' => app::_post('email_pass'), 
+        'port' => app::_post('email_port')
     );
 
     // Add to redis
-    registry::$redis->rpush('config:email_servers', json_encode($vars));
+    redis::rpush('config:email_servers', json_encode($vars));
 
     // Add message
-    template::add_message("Successfully added new SMTP e-mail server");
+    template::add_callout("Successfully added new SMTP e-mail server");
 
 // Update e-mail SMTP server
-} elseif (registry::$action == 'update_email') { 
+} elseif (app::get_action() == 'update_email') { 
 
     // Set vars
     $vars = array(
-        'is_ssl' => registry::post('email_is_ssl'), 
-        'host' => registry::post('email_ost'), 
-        'username' => registry::post('email_user'), 
-        'password' => registry::post('email_pass'), 
-        'port' => registry::post('email_port')
+        'is_ssl' => app::_post('email_is_ssl'), 
+        'host' => app::_post('email_ost'), 
+        'username' => app::_post('email_user'), 
+        'password' => app::_post('email_pass'), 
+        'port' => app::_post('email_port')
     );
 
     // Update redis database
-    registry::$redis->lset('config:email_servers', registry::post('server_id'), json_encode($vars));
+    redis::lset('config:email_servers', app::_post('server_id'), json_encode($vars));
 
     // User message
-    template::add_message("Successfully updated e-mail SMTP server");
+    template::add_callout("Successfully updated e-mail SMTP server");
 
 // Delete e-mail SMTP servers
-} elseif (registry::$action == 'delete_email') {
+} elseif (app::get_action() == 'delete_email') {
 
     // Get IDs
     $ids = forms::get_chk('email_server_id');
-    $servers = registry::$redis->lrange('config:email_servers', 0, -1);
+    $servers = redis::lrange('config:email_servers', 0, -1);
     $new_servers = array();
 
     // Delete e-mail servers
@@ -198,41 +203,41 @@ if (registry::$action == 'update_general') {
     }
 
     // Reset e-mail servers
-    registry::$redis->del('config:email_servers');
+    redis::del('config:email_servers');
     foreach ($new_servers as $data) { 
-        registry::$redis->rpush('config:email_servers', $data);
+        redis::rpush('config:email_servers', $data);
     }
 
     // User message
-    template::add_message("Successfully deleted all checked e-mail SMTP servers");
+    template::add_callout("Successfully deleted all checked e-mail SMTP servers");
 
 // Update RabbitMQ info
-} elseif (registry::$action == 'update_rabbitmq') { 
+} elseif (app::get_action() == 'update_rabbitmq') { 
 
     // Set vars
     $vars = array(
-        'host' => registry::post('rabbitmq_host'), 
-        'port' => registry::post('rabbitmq_port'), 
-        'user' => registry::post('rabbitmq_user'), 
-        'pass' => registry::post('rabbitmq_pass')
+        'host' => app::_post('rabbitmq_host'), 
+        'port' => app::_post('rabbitmq_port'), 
+        'user' => app::_post('rabbitmq_user'), 
+        'pass' => app::_post('rabbitmq_pass')
     );
 
     // Update redis
-    registry::$redis->hmset('config:rabbitmq', $vars);
+    redis::hmset('config:rabbitmq', $vars);
 
     // User message
-    template::add_message("Successuflly updated RabbitMQ connection info");
+    template::add_callout("Successuflly updated RabbitMQ connection info");
 
 // Reset redis
-} elseif (registry::$action == 'reset_redis') { 
+} elseif (app::get_action() == 'reset_redis') { 
 
     // Check
-    if (strtolower(registry::post('redis_reset')) != 'reset') { 
-        template::add_message("You did not enter RESET in the provided text box", 'error');
+    if (strtolower(app::_post('redis_reset')) != 'reset') { 
+        template::add_callout("You did not enter RESET in the provided text box", 'error');
     } else { 
 
         // Go through packages
-        $packages = DB::get_column("SELECT alias FROM internal_packages");
+        $packages = db::get_column("SELECT alias FROM internal_packages");
         foreach ($packages as $alias) { 
             $client = new Package_config($alias);
             $pkg = $client->load();
@@ -242,14 +247,14 @@ if (registry::$action == 'update_general') {
         }
 
         // User message
-        template::add_message("Successfully reset the redis database");
+        template::add_callout("Successfully reset the redis database");
     }
 
 }
 
 
 // Get RabbitMQ info
-if (!$rabbitmq_vars = registry::$redis->hgetall('config:rabbitmq')) { 
+if (!$rabbitmq_vars = redis::hgetall('config:rabbitmq')) { 
     $rabbitmq_vars = array(
         'host' => 'localhost', 
         'port' => '5672', 
@@ -260,5 +265,4 @@ if (!$rabbitmq_vars = registry::$redis->hgetall('config:rabbitmq')) {
 
 // Template variables
 template::assign('rabbitmq', $rabbitmq_vars);
-
 

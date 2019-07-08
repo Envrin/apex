@@ -3,34 +3,39 @@ declare(strict_types = 1);
 
 namespace apex\core\form;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
-use apex\core\lib\template;
+use apex\app;
+use apex\services\db;
+use apex\services\template;
 use apex\core\notification;
+use apex\app\interfaces\components\form;
 
-class notification_message extends \apex\core\lib\abstracts\form
+
+class notification_message implements form
 {
+
+
+
 
     public $allow_post_values = 1;
 
-/**
-* Defines the form fields included within the HTML form.
-* 
-*   @param array $data An array of all attributes specified within the e:function tag that called the form. 
-*   @return array Keys of the array are the names of the form fields.
-*       Values of the array are arrays that specify the attributes 
-*       of the form field.  Refer to documentation for details.
-*/
+    /**
+     * Defines the form fields included within the HTML form. 
+     *
+     * @param array $data An array of all attributes specified within the e:function tag that called the form.
+     *
+     * @return array Keys of the array are the names of the form fields.
+     */
+
+
+
 
 public function get_fields(array $data = array()):array
-{
+{ 
 
 
     // Get controller
     if (isset($data['record_id']) && $data['record_id'] > 0) { 
-        $controller = DB::get_field("SELECT controller FROM notifications WHERE id = %i", $data['record_id']);
+        $controller = db::get_field("SELECT controller FROM notifications WHERE id = %i", $data['record_id']);
     } else { 
         $controller = $data['controller'];
     }
@@ -42,16 +47,16 @@ public function get_fields(array $data = array()):array
 
     // Define form fields
     $form_fields = array(
-        'sep1' => array('field' => 'seperator', 'label' => 'Optional E-Mails'), 
-        'reply_to' => array('field' => 'textbox'), 
-        'cc' => array('field' => 'textbox'), 
-        'bcc' => array('field' => 'textbox'), 
-        'sep2' => array('field' => 'seperator', 'label' => 'Message Body'), 
-        'content_type' => array('field' => 'select', 'data_source' => 'hash:core:notification_content_type'), 
+        'sep1' => array('field' => 'seperator', 'label' => 'Optional E-Mails'),
+        'reply_to' => array('field' => 'textbox'),
+        'cc' => array('field' => 'textbox'),
+        'bcc' => array('field' => 'textbox'),
+        'sep2' => array('field' => 'seperator', 'label' => 'Message Body'),
+        'content_type' => array('field' => 'select', 'data_source' => 'hash:core:notification_content_type'),
         'subject' => array('field' => 'textbox', 'label' => 'Subject', 'required' => 1),
-        'attachment' => array('field' => 'textbox', 'type' => 'file', 'label' => 'Attachment'), 
-        'merge_vars' => array('field' => 'custom', 'label' => 'Merge Variables', 'contents' =>"<select name=\"merge_vars\">~merge_variable_options~</select>  <button type=\"button\" onclick=\"addMergeField();\" class=\"btn btn-primary btn-md\">Add</button>"), 
-        'contents' => array('field' => 'textarea', 'label' => 'Message Contents', 'size' => '600px,300px', 'placeholder', 'Enter your message contents', 'required' => 1) 
+        'attachment' => array('field' => 'textbox', 'type' => 'file', 'label' => 'Attachment'),
+        'merge_vars' => array('field' => 'custom', 'label' => 'Merge Variables', 'contents' =>"<select name=\"merge_vars\">~merge_variable_options~</select>  <button type=\"button\" onclick=\"addMergeField();\" class=\"btn btn-primary btn-md\">Add</button>"),
+        'contents' => array('field' => 'textarea', 'label' => 'Message Contents', 'size' => '600px,300px', 'placeholder', 'Enter your message contents', 'required' => 1)
     );
 
     // Add submit button
@@ -66,19 +71,20 @@ public function get_fields(array $data = array()):array
 }
 
 /**
-* Method is called if a 'record_id' attribute exists within the 
-* e:function tag that calls the form.  Will retrieve the values from the 
-* database to populate the form fields with.
-*
-*   @param string $record_id The value of the 'record_id' attribute from the e:function tag.
-*   @return array An array of key-value pairs containg the values of the form fields.
-*/
-
-public function get_record(string $record_id):array 
-{
+ * Get record from database. 
+ *
+ * Gathers the necessary row from the database for a specific record ID, and 
+ * is used to populate the form fields.  Used when modifying a record. 
+ *
+ * @param string $record_id The value of the 'record_id' attribute from the e:function tag.
+ *
+ * @return array An array of key-value pairs containg the values of the form fields.
+ */
+public function get_record(string $record_id):array
+{ 
 
     // Get record
-    $row = DB::get_idrow('notifications', $record_id);
+    $row = db::get_idrow('notifications', $record_id);
     $row['contents'] = base64_decode($row['contents']);
 
     // Return
@@ -87,21 +93,23 @@ public function get_record(string $record_id):array
 }
 
 /**
-* Allows for additional validation of the submitted form.  
-* The standard server-side validation checks are carried out, automatically as 
-* designated in the $form_fields defined for this form.  However, this 
-* allows additional validation if warranted.
-*
-*     @param array $data Any array of data passed to the registry::validate_form() method.  Used 
-*         to validate based on existing records / rows (eg. duplocate username check, but don't include the current user).
-*/
-
-public function validate(array $data = array()) 
-{
+ * Perform additional form validation. 
+ *
+ * On top of the standard form validation checks such as required fields, data 
+ * types, min / max length, and so on, you can also perform additional 
+ * validation for this specific form via this method.  Simply add the needed 
+ * error callouts via the template->add_callout() method for any validation 
+ * errors. 
+ *
+ * @param array $data Any array of data passed to the app::validate_form() method.  Used
+ */
+public function validate(array $data = array())
+{ 
 
     // Additional validation checks
 
 }
+
 
 }
 

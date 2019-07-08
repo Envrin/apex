@@ -1,15 +1,18 @@
 
 # Apex Training - Admin Panel Settings
 
-Within the administration panel, you will notice the Settings->Marketplace menu that we added in the 
-previous step, which we are going to fill in.  To do this, we first need to create a new template.  Within terminal, type:
+Within the administration panel, you will notice the Settings->Marketplace menu that we added in the previous
+step, which we are going to fill in.  To do this, we first need to create a new template.  Within terminal,
+type:
 
 ~~~
 php apex.php create template admin/settings/marketplace marketplace
 ~~~
 
-All components are created via apex.php in the same manner, although since we created a template we also had to define which package it belongs to 
-in order to ensure it is compiled with the package during publishing, etc.  For details on the various component types available and how to create them, please visit the below links.
+All components are created via apex.php in the same manner, although since we created a template we also had
+to define which package it belongs to in order to ensure it is compiled with the package during publishing,
+etc.  For details on the various component types available and how to create them, please visit the below
+links.
 
 - [Components Overview](../components.md)
 - [CLI Component Commands](../cli_component.md)
@@ -18,8 +21,8 @@ in order to ensure it is compiled with the package during publishing, etc.  For 
 
 ### Template - /admin/settings/marketplace
 
-Let's quickly fill in our new template.  Open the newly created file at */views/tpl/admin/settings/marketplace.tpl* and 
-enter the following contents:
+Let's quickly fill in our new template.  Open the newly created file at
+*/views/tpl/admin/settings/marketplace.tpl* and enter the following contents:
 
 ~~~
 
@@ -53,12 +56,13 @@ A few brief notes about the above TPL file:
 - Use `<e:box>` and `<e:box_header>` tags as shown above where appropriate, as it helps ensure a professional and standardized look across all packages, templates and themes.
 
 
-For full details on templates, the special HTML tags, and the PHP functions available to communicate with the template engine, please visit the online documentation at [Template Structure / Engine](../templates.md).
+For full details on templates, the special HTML tags, and the PHP functions available to communicate with the
+template engine, please visit the online documentation at [Template Structure / Engine](../templates.md).
 
 
 ### Template -- admin/settings/marketplace.php
 
-Now that we have the TPL code in place for our template, let's add the necessary PHP code.  Open the newly 
+Now that we have the TPL code in place for our template, let's add the necessary PHP code. Open the newly
 created file at */views/php/admin/settings/marketplace.php* and enter the following contents:
 
 ~~~php
@@ -72,14 +76,14 @@ use apex\core\images;
 
 
 // Update settings
-if (registry::$action == 'update') { 
+if (registry::$action == 'update') {
 
     // Update config vars
     registry::update_config_var('marketplace:product_thumb_width', registry::post('product_thumb_width'));
     registry::update_config_var('marketplace:product_thumb_height', registry::post('product_thumb_height'));
 
     // Upload default image
-    if ($image_id = images::upload('default_image', 'product', 'default', 1)) { 
+    if ($image_id = images::upload('default_image', 'product', 'default', 1)) {
         images::add_thumbnail('product', 'default', 'thumb', (int) registry::post('product_thumb_width'), (int) registry::post('product_thumb_height'), 1);
     }
 
@@ -89,24 +93,29 @@ if (registry::$action == 'update') {
 }
 ~~~
 
-The above form simply updates the configuration variables as necessary when the form is submitted.  The `registry` class is 
-central to Apex, includes details on all requests such as the URI being displayed, inputted data (POST, GET, SERVER, etc.), configuration variables, redis connection, allows you to set the response contents, and more.  For full details on the registry class, 
-please visit the documentation at [Request Handling (registry class)](../request_handling.md).
+The above form simply updates the configuration variables as necessary when the form is submitted.  The
+`registry` class is central to Apex, includes details on all requests such as the URI being displayed,
+inputted data (POST, GET, SERVER, etc.), configuration variables, redis connection, allows you to set the
+response contents, and more.  For full details on the registry class, please visit the documentation at
+[Request Handling (registry class)](../request_handling.md).
 
-You will also notice this template takes advantage of the images library within the core package for the default product image.  This is a 
-library available within the "core" package, and allows for the very easy uploading and management of images and thumbnails with minimal work.  For full details on the 
-images library, please visit the documentation at [Image Handling](../core/images.md).
+You will also notice this template takes advantage of the images library within the core package for the
+default product image.  This is a library available within the "core" package, and allows for the very easy
+uploading and management of images and thumbnails with minimal work.  For full details on the images library,
+please visit the documentation at [Image Handling](../core/images.md).
 
 
 ### Next
 
-Now that we've defined our first template, let's move onto the next step, [Products Admin Menu](admin_products.md).
+Now that we've defined our first template, let's move onto the next step, [Products Admin
+Menu](admin_products.md).
 
 
 
 
-Last, let's define the PHP class for the form component we created at the beginning of this page.  open the newly created file 
-at */src/users_verification/level.php*, and replace the contents of the first `get_fields()` function with:
+Last, let's define the PHP class for the form component we created at the beginning of this page.  open the
+newly created file at */src/users_verification/level.php*, and replace the contents of the first
+`get_fields()` function with:
 
 ~~~php
 
@@ -114,26 +123,26 @@ public function get_fields(array $data = array()):array
 {
 
     // Set form fields
-    $form_fields = array( 
-        'name' => array('field' => 'textbox'), 
-        'manual_only' => array('field' => 'boolean', 'label' => 'Manual Assign Only?', 'value' => 0), 
-        'sep_basic' => array('field' => 'seperator', 'label' => 'Basic Requirements'), 
-        'require_email' => array('field' => 'boolean', 'label' => 'Require Verified E-Mail?', 'value' => 0), 
-        'require_phone' => array('field' => 'boolean', 'label' => 'Require Verified Phone?', 'value' => 0), 
-        'require_photo' => array('field' => 'boolean', 'label' => 'Require Photo ID?', 'value' => 0), 
-        'require_proof_address' => array('field' => 'boolean', 'label' => 'Require Proof of Address?', 'value' => 0), 
-        'register_length' => array('field' => 'date_interval', 'label' => 'Registration Length'), 
-        'sep_financial' => array('field' => 'seperator', 'label' => 'Financial Requirements'), 
-        'current_balance' => array('field' => 'amount'), 
-        'deposit_total' => array('field' => 'amount', 'label' => 'Total Deposits'), 
-        'withdraw_total' => array('field' => 'amount', 'label' => 'Total Withdrawals'), 
-        'deposit_30day' => array('field' => 'amount', 'label' => 'Deposits Past 30 Days?'), 
-        'withdraw_30day' => array('field' => 'amount', 'label' => 'Withdrawals Past 30 Days?'), 
-        'sep_limits' => array('field' => 'seperator', 'label' => 'Transaction Limits Upon Verification'), 
-        'limit_balance' => array('field' => 'amount', 'label' => 'Maximum Balance'), 
-        'limit_deposit_total' => array('field' => 'amount', 'label' => 'Maximum Total Deposits'), 
-        'limit_deposit_30day' => array('field' => 'amount', 'label' => 'Maximum Monthly Deposits'), 
-        'limit_withdraw_total' => array('field' => 'amount', 'label' => 'Maximum Total Withdrawals'), 
+    $form_fields = array(
+        'name' => array('field' => 'textbox'),
+        'manual_only' => array('field' => 'boolean', 'label' => 'Manual Assign Only?', 'value' => 0),
+        'sep_basic' => array('field' => 'seperator', 'label' => 'Basic Requirements'),
+        'require_email' => array('field' => 'boolean', 'label' => 'Require Verified E-Mail?', 'value' => 0),
+        'require_phone' => array('field' => 'boolean', 'label' => 'Require Verified Phone?', 'value' => 0),
+        'require_photo' => array('field' => 'boolean', 'label' => 'Require Photo ID?', 'value' => 0),
+        'require_proof_address' => array('field' => 'boolean', 'label' => 'Require Proof of Address?', 'value' => 0),
+        'register_length' => array('field' => 'date_interval', 'label' => 'Registration Length'),
+        'sep_financial' => array('field' => 'seperator', 'label' => 'Financial Requirements'),
+        'current_balance' => array('field' => 'amount'),
+        'deposit_total' => array('field' => 'amount', 'label' => 'Total Deposits'),
+        'withdraw_total' => array('field' => 'amount', 'label' => 'Total Withdrawals'),
+        'deposit_30day' => array('field' => 'amount', 'label' => 'Deposits Past 30 Days?'),
+        'withdraw_30day' => array('field' => 'amount', 'label' => 'Withdrawals Past 30 Days?'),
+        'sep_limits' => array('field' => 'seperator', 'label' => 'Transaction Limits Upon Verification'),
+        'limit_balance' => array('field' => 'amount', 'label' => 'Maximum Balance'),
+        'limit_deposit_total' => array('field' => 'amount', 'label' => 'Maximum Total Deposits'),
+        'limit_deposit_30day' => array('field' => 'amount', 'label' => 'Maximum Monthly Deposits'),
+        'limit_withdraw_total' => array('field' => 'amount', 'label' => 'Maximum Total Withdrawals'),
         'limit_withdraw_30day' => array('field' => 'amount', 'label' => 'Maximum Monthly Withdrawals')
     );
 
@@ -151,11 +160,11 @@ The next function within this PHP class is `get_record()`, which you can replace
 
 ~~~php
 
-public function get_record(string $record_id):array 
+public function get_record(string $record_id):array
 {
 
     // Get record
-    if (!$row = DB::get_idrow('users_verification_levels', $record_id)) { 
+    if (!$row = DB::get_idrow('users_verification_levels', $record_id)) {
         return false;
     }
 
@@ -166,15 +175,18 @@ public function get_record(string $record_id):array
 
 ~~~
 
-This function simply obtains the appropriate record from the database and populates the form fields with its values 
-when managing / updating a record.
+This function simply obtains the appropriate record from the database and populates the form fields with its
+values when managing / updating a record.
 
 
 
 ### Data Table - users_verification:payment_methods
 
-Last, let's modify the second data table we created, which will list all payment methods that have been created via the Settings->Financial->Payment methods menu, 
-and allow the administrator to define different fees and limits for each when adding / updating a verification level.  Open the file at */src/users_verification/table/payment_methods.php* and first add the following line just below the namespace declaration:
+Last, let's modify the second data table we created, which will list all payment methods that have been
+created via the Settings->Financial->Payment methods menu, and allow the administrator to define different
+fees and limits for each when adding / updating a verification level.  Open the file at
+*/src/users_verification/table/payment_methods.php* and first add the following line just below the namespace
+declaration:
 
 `use apex\core\components;`
 
@@ -184,12 +196,12 @@ Then make the following changes to the properties:
 
     // Columns
     public $columns = array(
-        'method' => 'Method', 
-        'processor' => 'Processor', 
-        'fee' => 'Fee', 
-        'amount_total' => 'Max Total', 
-        'amount_30day' => 'Max / Month', 
-        'amount_1week' => 'Max / Week', 
+        'method' => 'Method',
+        'processor' => 'Processor',
+        'fee' => 'Fee',
+        'amount_total' => 'Max Total',
+        'amount_30day' => 'Max / Month',
+        'amount_1week' => 'Max / Week',
         'amount_1day' => 'Max / Day'
     );
 
@@ -197,8 +209,8 @@ Then make the following changes to the properties:
 
 ~~~
 
-Aside from modifying the two properties above, also delete the three "Delete button" properties at the bottom of the property list, as we 
-don't need a delete button for this table.
+Aside from modifying the two properties above, also delete the three "Delete button" properties at the bottom
+of the property list, as we don't need a delete button for this table.
 
 
 #### `get_attributes()`
@@ -215,10 +227,10 @@ public function get_attributes(array $data = array())
     $this->level_id = $data['level_id'] ?? 0;
 
     // Get current limits, if needed
-    if ($this->level_id > 0) { 
+    if ($this->level_id > 0) {
 
         DB::query("SELECT * FROM users_verification_limits WHERE level_id = %i", $this->level_id);
-        foreach ($rows as $row) { 
+        foreach ($rows as $row) {
             $this->limits[$row['method_id']] = $row;
         }
     }
@@ -227,9 +239,10 @@ public function get_attributes(array $data = array())
 
 ~~~
 
-This function is automatically executed if it exists, and passes all attributes of the `<e:function>` tag that called the table.  It allows you to easily 
-do things such as customize the columns or data sets being displayed as necessary.  In the above instance, if updating a level (ie. "level_id" attribute passed within `<e:function>` tag), it will grab the 
-existing limits of that verification level.
+This function is automatically executed if it exists, and passes all attributes of the `<e:function>` tag that
+called the table.  It allows you to easily do things such as customize the columns or data sets being
+displayed as necessary.  In the above instance, if updating a level (ie. "level_id" attribute passed within
+`<e:function>` tag), it will grab the existing limits of that verification level.
 
 
 #### `get_total()`
@@ -238,7 +251,7 @@ For this table we never want pagination, so replace the contents of `get_total()
 
 ~~~php
 
-public function get_total(string $search_term = ''):int 
+public function get_total(string $search_term = ''):int
 {
     return 1;
 }
@@ -248,8 +261,8 @@ public function get_total(string $search_term = ''):int
 
 #### `get_rows()`
 
-Within this function, simply replace the top section of code that retrieves the rows from the table with the below line, and 
-leave the rest as is.
+Within this function, simply replace the top section of code that retrieves the rows from the table with the
+below line, and leave the rest as is.
 
 ~~~php
     // Get rows
@@ -272,7 +285,7 @@ Change the contents of this function to:
 
 ### Conclusion
 
-Ok, give it all a try.  Login to the administration panel, visit the Settings->Users menu, and click on the "Verification Levels" item.  You should see our newly created 
+Ok, give it all a try.  Login to the administration panel, visit the Settings->Users menu, and click on the "Verification Levels" item.  You should see our newly created
 template with data table and HTML form appear.
 
 Next, let's quickly finalize this menu in the next page, [Admin Panel Settings - Part 2](admin_settings2.md).

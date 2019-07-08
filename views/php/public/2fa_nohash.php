@@ -1,12 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace apex;
+namespace apex\views;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\template;
-use apex\core\lib\debug;
+use apex\app;
+
+/**
+ * All code below this line is automatically executed when this template is viewed, 
+ * and used to perform any necessary template specific actions.
+ */
+
 
 
 

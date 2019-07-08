@@ -1,5 +1,6 @@
 
 
+DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS images_contents;
 DROP TABLE IF EXISTS images;
 DROP TABLE IF EXISTS notifications_login_notices;
@@ -15,7 +16,6 @@ DROP TABLE IF EXISTS auth_history_pages;
 DROP TABLE IF EXISTS auth_history;
 DROP TABLE IF EXISTS auth_security_questions;
 DROP TABLE IF EXISTS auth_allowips;
-DROP TABLE IF EXISTS admin;
 DROP TABLE IF EXISTS cms_pages;
 DROP TABLE IF EXISTS cms_menus;
 DROP TABLE IF EXISTS cms_placeholders;
@@ -40,29 +40,31 @@ CREATE TABLE internal_repos (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
     is_local TINYINT(1) NOT NULL DEFAULT 0, 
     is_active TINYINT(1) NOT NULL DEFAULT 1, 
+    is_ssl TINYINT(1) NOT NULL DEFAULT 1, 
+    host VARCHAR(255) NOT NULL UNIQUE,   
+    alias VARCHAR(100) NOT NULL DEFAULT '', 
     date_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     username VARCHAR(255) NOT NULL DEFAULT '', 
     password VARCHAR(255) NOT NULL DEFAULT '', 
-    url VARCHAR(255) NOT NULL, 
-    display_name VARCHAR(255) NOT NULL, 
-    description TEXT NOT NULL
+    name VARCHAR(255) NOT NULL, 
+    description TEXT
 ) engine=InnoDB;	
 
-INSERT INTO internal_repos (url,display_name,description) VALUES ('http://apex.envrin.com', 'Apex Public Repository', 'The main, public repository for the Apex Framework.');
+INSERT INTO internal_repos (is_ssl,host,name,description) VALUES (1, 'repo.apex-platform.org', 'Apex Public Repository', 'The main, public repository for the Apex Software Platform.');
 
 CREATE TABLE internal_packages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-    is_private TINYINT(1) NOT NULL DEFAULT 0, 
+    access ENUM('public','private') NOT NULL DEFAULT 'public', 
     repo_id INT NOT NULL, 
     version VARCHAR(15) NOT NULL DEFAULT '0.0.0', 
     prev_version VARCHAR(15) NOT NULL DEFAULT '0.0.0',
     date_installed TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     last_modified DATETIME,  
     alias VARCHAR(100) NOT NULL UNIQUE, 
-    display_name VARCHAR(255) NOT NULL, 
+    name VARCHAR(255) NOT NULL, 
     FOREIGN KEY (repo_id) REFERENCES internal_repos (id) ON DELETE CASCADE
 ) engine=InnoDB;
-INSERT INTO internal_packages (repo_id, version, alias, display_name) VALUES (1, '1.0.0.0', 'core', 'Core Framework');
+INSERT INTO internal_packages (repo_id, version, alias, name) VALUES (1, '1.0.0.0', 'core', 'Core Framework');
 
 
 CREATE TABLE internal_components (
@@ -179,7 +181,7 @@ CREATE TABLE cms_menus (
     icon VARCHAR(100) NOT NULL DEFAULT '', 
     parent VARCHAR(100) NOT NULL DEFAULT '', 
     alias VARCHAR (100) NOT NULL, 
-    display_name VARCHAR(100) NOT NULL, 
+    name VARCHAR(100) NOT NULL, 
     url VARCHAR(255) NOT NULL DEFAULT '' 
 ) engine=InnoDB;
 
@@ -191,7 +193,6 @@ CREATE TABLE cms_placeholders (
     contents TEXT NOT NULL, 
     FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE
 ) engine=InnoDB;
-
 
 --------------------------------------------------
 -- Admin tables
@@ -238,7 +239,7 @@ CREATE TABLE auth_allowips (
 
 CREATE TABLE auth_history (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-    type ENUM('user', 'admin') NOT NULL, 
+    type ENUM('user','admin') NOT NULL DEFAULT 'user', 
     userid INT NOT NULL, 
     ip_address VARCHAR(60) NOT NULL, 
     user_agent VARCHAR(150) NOT NULL, 

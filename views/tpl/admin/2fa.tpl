@@ -3,6 +3,6 @@
 <p>This action requires you to authenticate via 2FA.  An e-mail hass been sent to the address on account.  Please check your e-mail, 
 and click on the link within it to proceed.</p>
 
-<e:form action="2fa">
-<center><e:submit value="resend" label="Resend E-Mail"></center>
+<a:form action="2fa">
+<center><a:submit value="resend" label="Resend E-Mail"></center>
 

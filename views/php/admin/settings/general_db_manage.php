@@ -1,14 +1,17 @@
 <?php
 declare(strict_types = 1);
 
-namespace apex;
+namespace apex\views;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\debug;
-use apex\core\lib\template;
+use apex\app;
+use apex\services\template;
+
+/**
+ * All code below this line is automatically executed when this template is viewed, 
+ * and used to perform any necessary template specific actions.
+ */
 
 
 // Template variables
-template::assign('server_id', registry::get('server_id'));
+template::assign('server_id', app::_get('server_id'));
 

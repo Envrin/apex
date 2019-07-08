@@ -1,7 +1,7 @@
 
 # Apex Training 0 Admin Panel -- Process Orders
 
-One of the last development tasks for this package is the Marketplace->Orders menu we added to the 
+One of the last development tasks for this package is the Marketplace->Orders menu we added to the
 administration panel.  Let's start that by creating the necessary template:
 
 `php apex.php create template admin/market/orders marketplace`
@@ -51,8 +51,9 @@ Open the newly created file at */views/tpl/admin/market/orders.tpl* and enter th
 
 ~~~
 
-This template is a simple tab control with three tab pages, showing the orders that are currently pending processing, and previously approved and declined orders.  Next, 
-open the file at */views/php/admin/market/orders.php* and enter the following contents:
+This template is a simple tab control with three tab pages, showing the orders that are currently pending
+processing, and previously approved and declined orders.  Next, open the file at
+*/views/php/admin/market/orders.php* and enter the following contents:
 
 ~~~php
 <?php
@@ -64,24 +65,24 @@ use apex\core\forms;
 
 
 // Process orders, if needed
-if (registry::$action == 'process') { 
+if (registry::$action == 'process') {
 
     // Get order IDs
     $order_ids = forms::get_chk('order_id');
 
     // Go through orders
-    foreach ($orders as $order_id) { 
+    foreach ($orders as $order_id) {
 
         // Get order row
-        if (!$row = DB::get_idrow('market_orders', $order_id)) { 
+        if (!$row = DB::get_idrow('market_orders', $order_id)) {
             continue;
         }
 
         // Update database
         DB::update('market_orders', array(
-            'require_processing' => 0, 
-            'shipping_id' => registry::post('shipping_id'), 
-            'note' => registry::post('note')), 
+            'require_processing' => 0,
+            'shipping_id' => registry::post('shipping_id'),
+            'note' => registry::post('note')),
         "id = %i", $order_id);
 
         // Process e-mails
@@ -105,8 +106,8 @@ We also need to quickly create one more table to display the pending orders, so 
 
 `php apex.php create table marketplace:orders`
 
-Then open the file at */src/marketplace/table/orders.php* and enter the following contents for the entire file.  To help save time, we 
-won't bother going through this PHP class function by function again.
+Then open the file at */src/marketplace/table/orders.php* and enter the following contents for the entire
+file.  To help save time, we won't bother going through this PHP class function by function again.
 
 ~~~php
 <?php
@@ -128,10 +129,10 @@ class orders extends \apex\abstracts\table
 
     // Columns
     public $columns = array(
-        'date_added' => 'Date', 
-        'user' => 'User', 
-        'product' => 'Product Name', 
-        'amount' => 'Amount', 
+        'date_added' => 'Date',
+        'user' => 'User',
+        'product' => 'Product Name',
+        'amount' => 'Amount',
         'viewtx' => 'View Tx'
     );
 
@@ -145,13 +146,13 @@ class orders extends \apex\abstracts\table
     // Form field (left-most column)
     public $form_field = 'checkbox';
     public $form_name = 'order_id';
-    public $form_value = 'id'; 
+    public $form_value = 'id';
 
 /**
 * Passes the attributes contained within the <e:function> tag that called the table.
-* Used mainly to show/hide columns, and retrieve subsets of 
+* Used mainly to show/hide columns, and retrieve subsets of
 * data (eg. specific records for a user ID#).
-* 
+*
 (     @param array $data The attributes contained within the <e:function> tag that called the table.
 */
 
@@ -163,11 +164,11 @@ public function get_attributes(array $data = array())
 /**
 * Get the total number of rows available for this table.
 * This is used to determine pagination links.
-* 
+*
 *     @param string $search_term Only applicable if the AJAX search box has been submitted, and is the term being searched for.
 *     @return int The total number of rows available for this table.
 */
-public function get_total(string $search_term = ''):int 
+public function get_total(string $search_term = ''):int
 {
 
     // Get total
@@ -181,7 +182,7 @@ public function get_total(string $search_term = ''):int
 
 /**
 * Gets the actual rows to display to the web browser.
-* Used for when initially displaying the table, plus AJAX based search, 
+* Used for when initially displaying the table, plus AJAX based search,
 * sort, and pagination.
 *
 *     @param int $start The number to start retrieving rows at, used within the LIMIT clause of the SQL statement.
@@ -189,7 +190,7 @@ public function get_total(string $search_term = ''):int
 *     @param string $order_by Must have a default value, but changes when the sort arrows in column headers are clicked.  Used within the ORDER BY clause in the SQL statement.
 *     @return array An array of associative arrays giving key-value pairs of the rows to display.
 */
-public function get_rows(int $start = 0, string $search_term = '', string $order_by = 'id desc'):array 
+public function get_rows(int $start = 0, string $search_term = '', string $order_by = 'id desc'):array
 {
 
     // Get rows
@@ -197,7 +198,7 @@ public function get_rows(int $start = 0, string $search_term = '', string $order
 
     // Go through rows
     $results = array();
-    foreach ($rows as $row) { 
+    foreach ($rows as $row) {
         array_push($results, $this->format_row($row));
     }
 
@@ -207,13 +208,13 @@ public function get_rows(int $start = 0, string $search_term = '', string $order
 }
 
 /**
-* Retrieves raw data from the database, which must be 
+* Retrieves raw data from the database, which must be
 * formatted into user readable format (eg. format amounts, dates, etc.).
 *
 *     @param array $row The row from the database.
 *     @return array The resulting array that should be displayed to the browser.
 */
-public function format_row(array $row):array 
+public function format_row(array $row):array
 {
 
     // Load transaction
@@ -240,7 +241,7 @@ public function format_row(array $row):array
 
 ### Conclusion
 
-We've now fully developed our small marketplace package, and are ready to publish it to a repository.  To continue, 
-read the next page in the training guide, [Publish Package](publish_package.md).
+We've now fully developed our small marketplace package, and are ready to publish it to a repository.  To
+continue, read the next page in the training guide, [Publish Package](publish_package.md).
 
 

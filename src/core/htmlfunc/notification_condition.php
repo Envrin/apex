@@ -3,29 +3,55 @@ declare(strict_types = 1);
 
 namespace apex\core\htmlfunc;
 
-use apex\DB;
-use apex\core\lib\template;
-use apex\core\lib\registry;
-use apex\core\lib\html_tags;
-use apex\core\components;
+use apex\app;
+use apex\services\db;
+use apex\services\debug;
+use apex\services\template;
+use apex\services\utils\components;
+use apex\app\web\html_tags;
 use apex\core\admin;
 
-class notification_condition extends \apex\core\lib\abstracts\htmlfunc
+
+class notification_condition
 {
+
+
+    /**
+     * @Inject
+     * @var app
+     */
+
+    private $app;
+
+    /**
+     * @Inject
+     * @var html_tags
+     */
+
+    private $html_tags;
+
+    /**
+     * @Inject
+     * @var admin
+     */
+
+    private $admin;
+
 
 /**
-* Replaces the calling <e:function> tag with the resulting 
-* string of this function.
-* 
-*   @param string $html The contents of the TPL file, if exists, located at /views/htmlfunc/<package>/<alias>.tpl
-*   @param array $data The attributes within the calling e:function> tag.
-*   @return string The resulting HTML code, which the <e:function> tag within the template is replaced with.
-*/
-public function process(string $html, array $data = array()):string 
-{
+ * Replaces the calling <e:function> tag with the resulting string of this 
+ * function. 
+ *
+ * @param string $html The contents of the TPL file, if exists, located at /views/htmlfunc/<package>/<alias>.tpl
+ * @param array $data The attributes within the calling e:function> tag.
+ *
+ * @return string The resulting HTML code, which the <e:function> tag within the template is replaced with.
+ */
+public function process(string $html, array $data = array()):string
+{ 
 
     // Initialize
-    $html_tags = new html_tags();
+    $html_tags = $this->html_tags;
     list($sender, $recipient, $condition) = array('', '', array());
 
     // Get values
@@ -38,11 +64,11 @@ public function process(string $html, array $data = array()):string
 
     // Load component
     if (!$client = components::load('controller', $data['controller'], 'core', 'notifications')) { 
-        return "<b>ERROR:</b> The notification controller '$data[controller]' does not exist."; 
+        return "<b>ERROR:</b> The notification controller '$data[controller]' does not exist.";
     }
 
     // Create admin options
-    $admin = new admin();
+    $admin = $this->admin;
     $admin_options = $admin->create_select_options(0, true);
 
     // Sender option
@@ -58,12 +84,12 @@ public function process(string $html, array $data = array()):string
 
 // Recipient options
     $recipient_options = '';
-    foreach ($client->recipients as $key => $recipient_name) { 
+    foreach ($client->recipients as $key => $recipientr_name) { 
         if ($key == 'admin' && preg_match("/admin:(\d+)/", $key, $match)) { $recipient_options .= $admin->create_select_options((int) $match[1], true); }
         elseif ($key == 'admin') { $recipient_options .= $admin_options; }
-        else {
+        else { 
             $chk = $key == $recipient ? 'selected="selected"' : '';
-            $recipient_options .= "<option value=\"$key\" $chk>$recipient_name</option>";
+            $recipient_options .= "<option value=\"$key\" $chk>$sender_name</option>";
         }
     }
 
@@ -73,7 +99,7 @@ public function process(string $html, array $data = array()):string
     $html .= $html_tags->ft_seperator(array('label' => 'Condition Information'));
 
     // Get conditional HTML
-    foreach ($client->fields as $field_name => $vars) {
+    foreach ($client->fields as $field_name => $vars) { 
         $vars['name'] = 'cond_' .  $field_name;
         $func_name = 'ft_' . $vars['field'];
         $vars['value'] = isset($condition[$field_name]) ? $condition[$field_name] : '';
@@ -85,5 +111,7 @@ public function process(string $html, array $data = array()):string
     return $html;
 
 }
+
+
 }
 

@@ -3,30 +3,36 @@ declare(strict_types = 1);
 
 namespace apex\core\controller\http_requests;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\template;
-use apex\core\components;
+use apex\app;
+use apex\services\template;
+use apex\app\sys\components;
 
-class modal extends \apex\core\controller\http_requests
+
+class modal   extends \apex\core\controller\http_requests
 {
+
+
+
 
 /**
-* Processes all modals that are opened via the open_modal() Javascript function.
-*/
+ * Display a modal 
+ *
+ * Processes all modals that are opened via the open_modal() Javascript 
+ * function. 
+ */
 public function process()
-{
+{ 
 
-    // Set response content-type to text/json, so 
+    // Set response content-type to text/json, so
     // in case of error, a JSON response is returned.
-    registry::set_content_type('application/json');
+    app::set_res_content_type('application/json');
 
     // Ensure a proper modal was defined in URI
-    if (!isset(registry::$uri[0])) { trigger_error("Invalid request", E_USER_ERROR); }
+    if (!isset(app::get_uri_segments()[0])) { trigger_error("Invalid request", E_USER_ERROR); }
 
     // Get package / alias
-    if (!list($package, $parent, $alias) = components::check('modal', registry::$uri[0])) { 
-        throw new ComponentException('not_exists', 'modal', registry::$uri[0]);
+    if (!list($package, $parent, $alias) = components::check('modal', app::get_uri_segments()[0])) { 
+        throw new ComponentException('not_exists', 'modal', app::get_uri_segments()[0]);
     }
 
     // Get TPL code
@@ -55,12 +61,14 @@ if (preg_match("/<h1>(.+?)<\/h1>/i", $tpl_code, $match)) {
 
     // Set results array
     $results = array(
-        'title' => template::parse_html($title), 
+        'title' => template::parse_html($title),
         'body' => $html
     );
 
     // Set response
-    registry::set_response(json_encode($results));
+    app::set_res_body(json_encode($results));
 }
+
+
 }
 

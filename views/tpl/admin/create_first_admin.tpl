@@ -3,8 +3,8 @@
 
 <p>To continue, enter the desired administrator information below.  These are the login credentials you will use to login to the admin panel in the future.</p>
 
-<e:form action="/admin/index">
+<a:form action="/admin/index">
 
-<e:function alias="display_form" form="admin">
+<a:function alias="display_form" form="admin">
 
 

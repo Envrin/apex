@@ -3,39 +3,41 @@ declare(strict_types = 1);
 
 namespace apex\core\controller\notifications;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
-use apex\core\components;
+use apex\app;
+use apex\app\sys\components;
 
-class system 
+
+class system
 {
+
+
+
 
     // Properties
     public $display_name = 'System Notifications';
 
     // Set fields
     public $fields = array(
-        'action' => array('field' => 'select', 'data_source' => 'hash:core:notify_system_actions', 'label' => 'Action')
+    'action' => array('field' => 'select', 'data_source' => 'hash:core:notify_system_actions', 'label' => 'Action')
     );
 
     // Senders
     public $senders = array(
-        'admin' => 'Administrator' 
+    'admin' => 'Administrator'
     );
 
     // Recipients
     public $recipients = array(
-        'user' => 'User', 
-        'admin' => 'Administrator'		
+    'user' => 'User',
+    'admin' => 'Administrator'
     );
 
 /**
-* Get available merge fields.  Used when creating notification via admin panel.
-*/
-public function get_merge_fields():array 
-{
+ * Get available merge fields.  Used when creating notification via admin 
+ * panel. 
+ */
+public function get_merge_fields():array
+{ 
 
     // Set fields
     $fields = array();
@@ -47,11 +49,11 @@ public function get_merge_fields():array
     return $fields;
 }
 
-/** 
-* Get merge variables
-*/
+/**
+ * Get merge variables 
+ */
 public function get_merge_vars(int $userid, array $data):array
-{
+{ 
 
     // Initialize
     $vars = array();
@@ -59,13 +61,14 @@ public function get_merge_vars(int $userid, array $data):array
     // Get 2FA hash, if needed
     if (isset($data['2fa_hash'])) { 
         $vars['2fa-url'] = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
-        $vars['2fa-url'] .= registry::config('core:domain_name') . '/auth2fa/' . $data['2fa_hash'];
+        $vars['2fa-url'] .= app::_config('core:domain_name') . '/auth2fa/' . $data['2fa_hash'];
     }
 
     // Return
     return $vars;
 
 }
+
 
 }
 

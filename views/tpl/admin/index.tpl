@@ -1,33 +1,33 @@
 
 <h1>Welcome to the admin panel.</h1>
 
-<e:form>
+<a:form>
 
 <div class="w-100 overflow-auto order-2 order-md-1">
 
-    <e:tab_control>
+    <a:tab_control>
 
-        <e:tab_page name="My Tickets">
+        <a:tab_page name="My Tickets">
             <h3>My Tickets</h3>
 
             <h5>Members</h5>
-            <e:function alias="display_table" table="support:tickets" is_open="1" is_public="0" admin_id="~userid~" is_pending="0"><br />
+            <a:function alias="display_table" table="support:tickets" is_open="1" is_public="0" admin_id="~userid~" is_pending="0"><br />
 
             <h5>Public</h5>
-            <e:function alias="display_table" table="support:tickets" is_open="1" is_public="1" admin_id="~userid~" is_pending="0">
-        </e:tab_page>
+            <a:function alias="display_table" table="support:tickets" is_open="1" is_public="1" admin_id="~userid~" is_pending="0">
+        </a:tab_page>
 
-        <e:tab_page name="New Tickets">
+        <a:tab_page name="New Tickets">
             <h3>New Tickets</h3>
 
             <h5>Members</h5>
-            <e:function alias="display_table" table="support:tickets" is_open="1" is_public="0" admin_id="0" is_pending="0"><br />
+            <a:function alias="display_table" table="support:tickets" is_open="1" is_public="0" admin_id="0" is_pending="0"><br />
 
             <h5>Public</h5>
-            <e:function alias="display_table" table="support:tickets" is_open="1" is_public="1" admin_id="0" is_pending="0">
-        </e:tab_page>
+            <a:function alias="display_table" table="support:tickets" is_open="1" is_public="1" admin_id="0" is_pending="0">
+        </a:tab_page>
 
-    </e:tab_control>
+    </a:tab_control>
 
 </div>
 

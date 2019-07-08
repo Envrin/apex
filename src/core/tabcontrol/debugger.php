@@ -3,69 +3,86 @@ declare(strict_types = 1);
 
 namespace apex\core\tabcontrol;
 
-use apex\DB;
-use apex\core\lib\template;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
-use apex\core\hashes;
+use apex\app;
+use apex\services\db;
+use apex\services\debug;
+use apex\services\template;
+use apex\services\redis;
+use apex\app\utils\hashes;
+use apex\app\interfaces\components\tabcontrol;
 
-class debugger extends \apex\core\lib\abstracts\tabcontrol
+
+class debugger implements tabcontrol
 {
+
+
+
+
+    private $app;
+    private $hashes;
 
     // Define tab pages
     public $tabpages = array(
-        'general' => 'General', 
-    'trace' => 'Trace', 
-        'line_items' => 'Line Items', 
-    'input' => 'Input Arrays', 
+    'general' => 'General',
+    'trace' => 'Trace',
+    'line_items' => 'Line Items',
+    'input' => 'Input Arrays',
     'server' => 'Server',
     'sql' => 'SQL Queries'
     );
 
 /**
-* Is executed every time the tab control is displayed, 
-* is used to perform any actions submitted within forms 
-* of the tab control, and mainly to retrieve and assign variables 
-* to the template engine.
-*
-*     @param array $data The attributes contained within the <e:function> tag that called the tab control.
-*/
+ * Constructor.  Grab some injected dependencies we will need. 
+ */
+public function __construct(app $app, hashes $hashes)
+{ 
+    $this->app = $app;
+    $this->hashes = $hashes;
+}
 
-public function process(array $data) 
-{
+/**
+ * Process tab control. 
+ *
+ * This method is executed every time the tab control is displayed, and allows 
+ * you to execute any necessary actions, assign various template variables as 
+ * necessary, and so on. 
+ *
+ * @param array $data The attributes contained within the <e:function> tag that called the tab control.
+ */
+public function process(array $data)
+{ 
 
     // Get data
     if (isset($data['from_redis']) && $data['from_redis'] == 1) { 
-        $data = json_decode(registry::$redis->get('config:debug_log'), true);
+        $data = json_decode(redis::get('config:debug_log'), true);
     } else { 
-        $data = debug::$data;
+        $data = debug::get_data();
     }
 
     // Get URI
     $uri = $data['registry']['http_controller'] == 'public' ? 'public' : $data['registry']['http_controller'];
-    $uri = '/' . $uri . '/' . $data['registry']['route'];
+    $uri = '/' . $uri . '/' . $data['registry']['uri'];
 
     // Get authenticated user
     if ($data['registry']['userid'] > 0) { 
-        $table = $data['registry']['panel'] == 'admin' ? 'admin' : 'users';
-        $auth_user = DB::get_field("SELECT username FROM $table WHERE id = %i", $data['registry']['userid']);
+        $table = $data['registry']['area'] == 'admin' ? 'admin' : 'users';
+        $auth_user = db::get_field("SELECT username FROM $table WHERE id = %i", $data['registry']['userid']);
         $auth_user .= ' (ID# ' . $data['registry']['userid'] . ')';
     } else { $auth_user = 'Not Logged In'; }
 
     // Set request info
     $req = array(
-        'request_method' => $data['registry']['request_method'], 
-        'uri' => $uri, 
-        'date_added' => fdate($data['date'], true), 
-        'exec_time' => ($data['end_time'] - $data['start_time']), 
-        'ip_address' => $data['registry']['ip_address'], 
-        'user_agent' => $data['registry']['user_agent'], 
-        'panel' => $data['registry']['panel'], 
-        'theme' => $data['registry']['theme'], 
-        'language' => hashes::get_stdvar('language', $data['registry']['language']), 
-        'timezone' => hashes::get_stdvar('timezone', $data['registry']['timezone']), 
-        'auth_user' => $auth_user, 
+        'request_method' => $data['registry']['request_method'],
+        'uri' => $uri,
+        'date_added' => fdate($data['date'], true),
+        'exec_time' => ($data['end_time'] - $data['start_time']),
+        'ip_address' => $data['registry']['ip_address'],
+        'user_agent' => $data['registry']['user_agent'],
+        'panel' => $data['registry']['area'],
+        'theme' => 'N/A', 
+        'language' => $this->hashes->get_stdvar('language', $data['registry']['language']),
+        'timezone' => $this->hashes->get_stdvar('timezone', $data['registry']['timezone']),
+        'auth_user' => $auth_user,
         'action' => $data['registry']['action']
     );
 
@@ -88,6 +105,7 @@ public function process(array $data)
     template::assign('sql', $sql);
 
 }
+
 
 }
 

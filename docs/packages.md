@@ -1,83 +1,58 @@
 
-# Create, Publish and Install Packages
+# Packages and Components
 
-apex has a standardized modular design, which not only allows you to instantly install / remove packages from any system, but all packages fit together and interact with each 
-other perfectly.  Plus you can also easily develop your own packages, and if desired upload them to a public repository, or to a 
-private repository that you control, allowing you to easily distribute and maintain your commercial code to your clients.
+Apex has a very modular design, and each system is comprised of a series of packages allowing you to customize
+and finely tune each system to its specific needs without having a bulky system that contains functionality
+that is not needed.  All packages have the same basic structure, allowing them to be instantly installed /
+removed, and simply work without any additional effort.
 
+For details on how to create, develop, and publish packages, plus maintain them with hands free version
+control, click on the below links.
 
-## Package Basics
-
-Each package has a directory located at */etc/PACKAGE_ALIAS* which holds 
-configuration and installation details.  Below lists all files within this directory:
-
-File | Description
-------------- |------------- 
-components.json | Will only exist once the package has been published, and is a JSON file containing information on all components included within the package.
-package.php | The main package configuration file, and defines things such as configuration variables, hashes, and menus that are included in the package.  Full details on this package are found in a below section on this page.
-install.sql | Optional, and if exists, all SQL code included within this file will be executed against the database upon installation.
-install_after.sql | Optional, and if exists, all SQL within this file will be executed against the database at the very end of package installation, meaning after all configuration variables have been installed, and other PHP code has been executed.
-| reset.sql | Optional, and if exists, all SQL code within will be executed when the package is reset from within the administration panel.  This is meant to clear all database from the package, and reset it to just after it was installed.
-remove.sql | Optional, and if exists, all SQL code within this file will be executed against the database upon removal of the package.  Should drop all database tables created during installation.
-/upgrades/ | Directory that contains details on all upgrade points created against this package.
-
-All packages also have a sub-directory located at */src/PACKAGE_ALIAS* which holds all PHP code within the package.  The 
-library files are storied directly within the sub-directory, plus there are also various other sub-directories inside which hold all PHP code for 
-the various components created within the package.  For example, the PHP code for all HTML functions will be located at 
-*/src/PACKAGE_ALIAS/htmlfunc/*, and so on.
-
-Last, each package also has a sub-directory located at */docs/PACKAGE_ALIAS* to hold all .md files for docuemtnation of the package.
+1. [Package Structure](packages_structure.md)
+2. [Package Configuration](packages_config.md)
+3. [Upgrades and Version Control](upgrades.md)
 
 
-### Create Package
+<a name="#components">
+## Components
 
-You can easily create a new package any time.  Within terminal change to the Apex installation directory, and type:
+Although virtually full flexibility is available, various standardized components are supported by Apex to
+help streamline and aide in development.  All supported components are listed in the below table, with links
+to full details on each.
 
-`php apex.php create_package PACKAGE_ALIAS`
-
-Where `PACKAGE_ALIAS` is the alias of the new package is all lowercase.  This will prompt you for a few basic questions such as the full package name, 
-and starting version number.  It will then add the package to the database, and create all necessary files and directories.
-
-
-### package.php Configuration File
-
-This is the main configuration file for the package.  At the top are a few properties for the 
-package name, version, whether it's public / private package, and all should be fairly straight forward.  The `__construct()` function 
-is where you populate various arrays defining the configuration of the package.  Due to its size, 
-a separate page has been devoted to this function, which you can find at [package.php __construct() Function](packages_construct.md) page.
-
-
-##### `Install_before()` and `install_after()`
-
-These two functions allow you to execute additional PHP code before and after installation of the 
-package.  The before code is executed before any installation has begun, not even the SQL code being executed.  The after code is executed once all installation is complete, 
-even after all SQL code has been executed.
-
-
-##### `reset()`
-
-Optional, and executed whenever this package is reset, generally from within the administration panel.  This is meant to 
-delete all data, and reset the package to just after it was initially installed.
-
-
-##### `remove()`
-
-Optional, and if exists is executed while the package is being removed from the system.
-
-
-### Publish Package
-
-Once development is complete, it is very easy to publish your package to a repository.  If you do not wish to publish to the main public Apex repository, 
-manage the package via the Devel Kit-&gt;Packages menu of the administration panel, and change the repository assigned to the 
-package.  If you wish to upload to your own private repository, please see the [Repositories](repos) page of this manual.
-
-To publish your package, in terminal change to the installation directory, and type:
-
-`php apex.php publish PACKAGE_ALIAS`
-
-That's it.  The package will then be published to the repository, and can then be installed on any Apex system by typing:
-
-`php apex.php install PACKAGE_ALIAS`
-
+Name | Description ------------- |------------- [Library](components/lib.md) | Blank PHP library file for a
+new class, and is most commonly used within Apex. [Views](components/view.md) | One of the core components,
+and are the individual pages that display output to the browser, and perform necessary actions.
+[Workers](components/worker.md) | The workers / listeners that handle all the heavy loading of the software.
+These listen to messages from RabbitMQ, and are what allow for horizontal scaling. [AJAX
+Function](components/ajax.md) | Easily execute code via AJAX with no Javascript required.  Full library
+available allowing for easily manipulation of the DOM elements. [Auto-Suggest /
+Complete](components/autosuggest.md) | Standard auto-suggest/complete boxes that allow users to enter a few
+characters, and a list of possible options is displayed.  Useful for things such as searching user accounts,
+and can be easily placed in any template within a couple minutes with no Javascript.
+[Controller](components/controller.md) | Allows for the easy handling of different process flows which overall
+work in the same way, but handle the data slightly differently. Example of this are e-mail notifications
+(different notification types pull different database records to personalize the e-mail message) and
+transaction types (deposit, withdraw, commission, fee, product purchase, etc.). [Crontab
+Job](components/cron.md) | Easily add in crontab jobs that execute at specified time intervals.  No need to
+add the crontab job to the server itself, as the in-house cron daemon will execute it when needed. [Data
+Tables](components/table.md) | Quality, stylish data tables with full AJAX functionality including pagination,
+search, sort, and row deletion.  Flexible, customizable, and can be developed to display any data and placed
+in templates within a couple short minutes. [HTML Form](components/form.md) | Quality HTML forms with full
+Javascript validation, easily customizable with conditional fields, can be placed in any template with one
+HTML tag blank, with values from the database or pre-filled with POST variables (ie. in case of user
+submission errors). [HTML Function](components/htmlfunc.md) | Allows you to place one HTML tag in any
+templates, and have it replaced with anything you wish.  Useful when you want the same element /
+functionality, or variation thereof, placed within multiple locations throughout the system.
+[Modal](components/modal.md) | Standard modal / popup dialog allowing for a more user-friendly experience. Can
+contain any output you want, with built-in functionality for form processing within the modal. [Tab Control
+](components/tabcontrol.md) | Supports both, static and dynamic tab controls. These dynamic tab controls are
+easily expandable by other packages, plus allow for the easy placement in multiple templates system-wide while
+providing the same functionality. [Tab Page](components/tabpage.md) | Singular pages within an existing tab
+control, allowing your package to expand on existing tab controls (eg. add a tab when managing a user's
+profile). [Unit Test](components/test.md) | Unit tests via phpUnit, allowing you to provide 100% code coverage
+with unit tests. [CLI Command](components/cli.md) | CLI command that you perform from via the terminal /
+console.
 
 

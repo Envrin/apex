@@ -3,32 +3,37 @@ declare(strict_types = 1);
 
 namespace apex\core\controller\http_requests;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\auth;
-use apex\core\components;
+use apex\app;
+use apex\services\auth;
+use apex\services\utils\components;
 
-class ajax extends \apex\core\controller\http_requests
+
+class ajax
 {
+
+
+
 
 /**
-* Processes the AJAX request, handles all HTTP requests sent to /ajax/ URI
-* Performs necessary back-end operations, then utilizes the /lib/ajax.php class to 
-( change DOM elements as necessary.
-*/
-public function process() 
-{
+ * Process AJAX request 
+ *
+ * Processes the AJAX request, handles all HTTP requests sent to /ajax/ URI 
+ * Performs necessary back-end operations, then utilizes the /lib/ajax.php 
+ * class to ( change DOM elements as necessary. 
+ */
+public function process()
+{ 
 
-    // Set response content-type to text/json, 
+    // Set response content-type to text/json,
     // so in case of error, a JSON error will be returned.
-    registry::set_content_type('application/json');
+    app::set_res_content_type('application/json');
 
     // Ensure a proper alias and/or package is defined
-    if (!isset(registry::$uri[0])) { trigger_error("Invalid request 123445", E_USER_ERROR); }
-    if (isset(registry::$uri[1]) && registry::$uri[1] != '') { 
-        $ajax_alias = registry::$uri[0] . ':' . registry::$uri[1];
+    if (!isset(app::get_uri_segments()[0])) { trigger_error("Invalid request 123445", E_USER_ERROR); }
+    if (isset(app::get_uri_segments()[1]) && app::get_uri_segments()[1] != '') { 
+        $ajax_alias = app::get_uri_segments()[0] . ':' . app::get_uri_segments()[1];
     } else { 
-        $ajax_alias = registry::$uri[0];
+        $ajax_alias = app::get_uri_segments()[0];
     }
 
     // Check if component exists
@@ -42,9 +47,8 @@ public function process()
     }
 
     // Check auth
-    $auth_type = registry::post('auth_type') ?? 'user';
-    if ($auth_type == 'admin') { registry::$panel = 'admin'; }
-    auth::set_auth_type($auth_type);
+    $auth_type = app::_post('auth_type') ?? 'user';
+    if ($auth_type == 'admin') { app::set_area('admin'); }
     auth::check_login(false);
 
     // Process the AJAX function
@@ -52,14 +56,15 @@ public function process()
 
     // Display response
     $response = array(
-        'status' => 'ok', 
+        'status' => 'ok',
         'actions' => $client->results
     );
 
     // Set the response
-    registry::set_response(json_encode($response));
+    app::set_res_body(json_encode($response));
 
 }
+
 
 }
 

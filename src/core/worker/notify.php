@@ -3,83 +3,52 @@ declare(strict_types = 1);
 
 namespace apex\core\worker;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
-use apex\core\email;
+use apex\app;
+use apex\app\msg\emailer;
+use apex\app\msg\utils\msg_utils;
+use apex\app\interfaces\msg\EventMessageInterface as event;
 
 
+/**
+ * Handles various forms of notifications such as sending of e-mail, SMS and 
+ * web socket messages. 
+ */
 class notify
 {
 
+
+
 /**
-* Send an e-mail message
-*/
-public function send_email($data)
-{
+ * Send an e-mail message 
+ */
+public function send_email(event $msg, emailer $emailer)
+{ 
 
-    // Decode JSON
-    $vars = json_decode($data, true);
-
-    // Start e-mail
-    $email = new email();
-    $email->to_email($vars['to_email']);
-    $email->to_name($vars['to_name']);
-    $email->from_email($vars['from_email']);
-    $email->from_name($vars['from_name']);
-    $email->subject($vars['subject']);
-    $email->message($vars['message']);
-
-    // Set reply-to
-    if (isset($vars['reply_to']) && $vars['reply_to'] != '') { 
-        $email->reply_to($vars['reply_to']);
-    }
-
-    // Set CC
-    if (isset($vars['cc']) && $vars['cc'] != '') { 
-        $email->cc($vars['cc']);
-    }
-
-    // Set BCC
-    if (isset($vars['bcc']) && $vars['bcc'] != '') { 
-        $email->bcc($vars['bcc']);
-    }
-
-    // Set content type
-    if (isset($vars['content_type']) && $vars['content_type'] != '') { 
-        $email->content_type($vars['content_type']);
-    }
-
-    // Add attachments
-    if (isset($vars['attachments']) && is_array($vars['attachments'])) { 
-        foreach ($vars['attachments'] as $filename => $contents) { 
-            $email->add_attachment($filename, $contents);
-        }
-    }
+    // Initialize
+    $email = $msg->get_params();
 
     // Send the e-mail message
-    $email->send();
+    $emailer->dispatch_smtp($email);
 
 }
 
-/*
-* Send SMS message
-*/
-public function send_sms($data)
-{
+/**
+ * Send a SMS message via Nexmo 
+ */
+public function send_sms(event $msg)
+{ 
 
-    // Decode JSON
-    $vars = json_decode($data, true);
+    // Initialize
+    $sms = $msg->get_params();
 
     // Set request
-    $phone = preg_replace("/[\D]/", "", $vars['phone']);
+    $phone = preg_replace("/[\D]/", "", $sms->get_phone());
     $request = array(
-        'api_key' => registry::config('core:nexmo_api_key'), 
-        'api_secret' => registry::config('core:nexmo_api_secret'),  
-        'from' => registry::config('core:site_name'), 
-        'to' => $vars['phone'], 
-        'text' => $vars['message']
+        'api_key' => app::_config('core:nexmo_api_key'),
+        'api_secret' => app::_config('core:nexmo_api_secret'),
+        'from' => $sms->get_from_name,
+        'to' => $phone,
+        'text' => $sms->get_message()
     );
 
     // Set URL
@@ -89,19 +58,20 @@ public function send_sms($data)
     // Send request
     $response = io::send_http_request($url);
 
-    $vars = json_decode($response);
-
     // Return
     $ok = preg_match("/\"error-text\":\"(.+?)\"/", $response, $match) ? false : true;
-    return $ok; 
+    return $ok;
 
 }
 
 /**
-* Send Web Socket message
-*/
-public function send_ws($data)
-{
+ * Send Web Socket message 
+ */
+public function send_ws(event $msg, app $app)
+{ 
+
+    // Initialize
+    $data = $msg->get_params();
 
     // Start header
     $header = '1000' . sprintf('%04b', 1) . '1';
@@ -118,7 +88,7 @@ public function send_ws($data)
 
     // Start body of message
     $frame = '';
-    foreach (str_split($header, 8) as $binstr) {
+    foreach (str_split($header, 8) as $binstr) { 
         $frame .= chr(bindec($binstr));
     }
 
@@ -127,13 +97,17 @@ public function send_ws($data)
     $frame .= $mask;
 
     // Add data to message
-    for ($i = 0; $i < $length; $i++) {
+    for ($i = 0; $i < $length; $i++) { 
         $frame .= $data[$i] ^ $mask[$i % 4];
     }
 
+    // Get RabbitMQ connection info
+    $msg_utils = $app->make(msg_utils::class);
+    $vars = $msg_utils->get_rabbitmq_connection_info();
+
     // Send message
     try { 
-        if (!$sock = @fsockopen(RABBITMQ_HOST, 8194, $errno, $errstr, 3)) { 
+        if (!$sock = @fsockopen($vars['host'], 8194, $errno, $errstr, 3)) { 
             return true;
             }
     } catch (Exception $e) { 
@@ -145,6 +119,7 @@ public function send_ws($data)
     fclose($sock);
 
 }
+
 
 }
 

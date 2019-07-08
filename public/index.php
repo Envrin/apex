@@ -1,20 +1,31 @@
 <?php
-declare(strict_types = 1);
 
-namespace apex;
+/**
+ * Load composer, so we have all of our goodies available to us.
+ */
+require_once(__DIR__ . '/../vendor/autoload.php');
 
-use apex\core\lib\registry;
+/**
+ * Initialize the application.  This will get everything loaded, 
+ * our container built, services assigned, everything sanitized, 
+ * redis connection established, and so on to get ready to handle the request.
+ */
+$app = new \apex\app('http');
 
+/**
+ * Pass the request off to the correct HTTP controller, 
+ * which is dependant on the first segment of the URI.
+ */
+$app->call(["apex\\core\\controller\\http_requests\\" . $app->get_http_controller(), 'process']);
 
-// Load
-require_once('../src/load.php');
+/**
+ * Now that the request is handled, go ahead and 
+ * output the response to the web browser.
+ */
+$app->echo_response();
 
-// Handle request
-registry::handle_request();
-
-// Echo response
-registry::echo_response();
-
-// Exit
+/**
+ * Gracefully exit.
+ */
 exit(0);
 

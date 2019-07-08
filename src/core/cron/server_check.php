@@ -3,24 +3,29 @@ declare(strict_types = 1);
 
 namespace apex\core\cron;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
+use apex\app;
+use apex\app\interfaces\components\cron;
 
-class server_check extends \apex\core\lib\abstracts\cron
+
+class server_check implements cron
 {
+
+
+
 
     // Properties
     public $time_interval = 'I5';
     public $name = 'Server Health Check';
 
-/**
-* Processes the crontab job.
-*/
+    /**
+     * Processes the crontab job. 
+     */
+
+
+
 
 public function process()
-{
+{ 
 
     // Initialize
     $results = array();
@@ -29,7 +34,7 @@ public function process()
     $lines = explode("\n", shell_exec("/usr/bin/top -n 1"));
     if (preg_match("/load average: (.+?)\(/", $lines[0], $match)) { 
         $results['cpu'] = sprintf("%.2f", (array_sum(explode(", ", $match[1])) / 3));
-    } else { $results['cpu'] = 0; } 
+    } else { $results['cpu'] = 0; }
 
     // Get memory
     $lines = explode("\n", shell_exec('top -n 1 -b | grep "Mem"'));
@@ -52,11 +57,13 @@ public function process()
     }
 
     // Update config var
-    registry::update_config_var('core:server_status', json_encode($results));
+    app::update_config_var('core:server_status', json_encode($results));
 
 
 
 
 }
 
+
 }
+

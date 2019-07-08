@@ -3,31 +3,34 @@ declare(strict_types = 1);
 
 namespace apex\core\worker;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\lib\log;
-use apex\core\lib\debug;
+use apex\app;
+use apex\services\db;
+use apex\app\interfaces\msg\EventMessageInterface;
+
 
 class logs
 {
 
-/**
-* Add login history
-*/
-public function add_auth_login(string $data) { 
 
-    // Decode JSON
-    $vars = json_decode($data, true);
+
+
+/**
+ * Add login history 
+ */
+public function add_auth_login(EventMessageInterface $msg) { 
+
+    // Initialize
+    $vars = $msg->get_request();
 
     // Add to DB
-    DB::insert('auth_history', array(
-        'type' => $vars['type'], 
-        'userid' => $vars['userid'], 
-        'ip_address' => $vars['ip_address'], 
-        'user_agent' => $vars['user_agent'], 
+    db::insert('auth_history', array(
+        'type' => ($vars['area'] == 'admin' ? 'admin' : 'user'),
+        'userid' => $vars['userid'],
+        'ip_address' => $vars['ip_address'],
+        'user_agent' => $vars['user_agent'],
         'logout_date' => date('Y-m-d H:i:s'))
     );
-    $history_id = DB::insert_id();
+    $history_id = db::insert_id();
 
     // Return
     return $history_id;
@@ -35,22 +38,20 @@ public function add_auth_login(string $data) {
 }
 
 /**
-* Add auth history page
-*/
-public function add_auth_pageview(string $data)
-{
+ * Add auth history page 
+ */
+public function add_auth_pageview(EventMessageInterface $msg)
+{ 
 
     // Decode JSON
-    $vars = json_decode($data, true);
+    $vars = $msg->get_params();
 
-    // Set variables
-    $uri = $vars['panel'] == 'public' ? $vars['route'] : $vars['panel'] . '/' . $vars['route'];
     // Add to database
-    DB::insert('auth_history_pages', array(
+    db::insert('auth_history_pages', array(
         'history_id' => $vars['history_id'],
         'request_method' => $vars['request_method'],
-        'uri' => $uri, 
-        'get_vars' => $vars['get_vars'], 
+        'uri' => $vars['uri'],
+        'get_vars' => $vars['get_vars'],
         'post_vars' => $vars['post_vars'])
     );
 

@@ -3,29 +3,29 @@ declare(strict_types = 1);
 
 namespace apex\core\ajax;
 
-use apex\DB;
-use apex\core\lib\registry;
-use apex\core\components;
+use apex\app;
+use apex\services\db;
+use apex\app\web\ajax;
+use apex\services\utils\components;
 
-class search_autosuggest Extends \apex\core\lib\ajax 
+class search_autosuggest Extends ajax
 {
 
 /**
-* Loads the appropriate autosuggest component, performs a 
-* search, and displays the results to the browser.
-**********/ 
-
+ * Loads the appropriate autosuggest component, performs a 
+ * search, and displays the results to the browser.
+ */
 public function process() 
 {
 
     // Set variables
-    list($package, $parent, $alias) = components::check('autosuggest', registry::get('autosuggest'));
+    list($package, $parent, $alias) = components::check('autosuggest', app::_get('autosuggest'));
 
     // Load autosuggest
-    $autosuggest = components::load('autosuggest', $alias, $package, '', registry::getall_get());
+    $autosuggest = components::load('autosuggest', $alias, $package, '', app::getall_get());
 
     // Get options
-    $options = $autosuggest->search($_GET['term']);
+    $options = $autosuggest->search(app::_get('term'));
 
     // Format options
     $results = array();

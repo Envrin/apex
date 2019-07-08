@@ -3,55 +3,64 @@ declare(strict_types = 1);
 
 namespace apex\core\controller\http_requests;
 
-use apex\DB;
-use apex\core\lib\template;
-use apex\core\lib\registry;
-use apex\core\lib\auth;
+use apex\app;
+use apex\services\db;
+use apex\services\template;
+use apex\services\auth;
+use apex\core\controller\http_requests;
 
-class admin extends \apex\core\controller\http_requests
-{
 
 /**
-* Processes all HTTP requests send to http://domain.com/admin/
-* Simply checks authentication, then passes the request off to the template engine.
-* Also checks if an administrator exists, and if not, prompts to create the first administrator.
-*/
-public function process()
+ * Handle admin panel HTTP request 
+ *
+ * Handles all HTTP requests to the administration panel, and ensure the user 
+ * is an authenticated administrator. 
+ */
+class admin
 {
+
+
+
+/**
+ * Process admin panel HTTP request 
+ *
+ * Processes all HTTP requests send to http://domain.com/admin/ Simply checks 
+ * authentication, then passes the request off to the template engine. Also 
+ * checks if an administrator exists, and if not, prompts to create the first 
+ * administrator. 
+ */
+public function process(app $app)
+{ 
 
     // Check if admin enabled
     if (ENABLE_ADMIN == 0) { 
-        registry::set_http_status(404);
-        registry::echo_template('404');
+        app::set_res_http_status(404);
+        app::echo_template('404');
     }
 
-    // Set registry variables
-    registry::$panel = 'admin';
-    registry::$theme = registry::config('core:theme_admin');
-    auth::set_auth_type('admin');
+    // Set area and theme
+    app::set_area('admin');
+    app::set_theme(app::_config('core:theme_admin'));
 
     //  Check if admin exists
-    $count = DB::get_field("SELECT count(*) FROM admin");
-    if (registry::$action == 'create' && $count == 0) {
+    $count = db::get_field("SELECT count(*) FROM admin");
+    if (app::get_action() == 'create' && $count == 0) { 
 
-        // Create first admin 
-        $client = new \apex\core\admin();
+        // Create first admin
+        $client = $app->make(\apex\core\admin::class);
         if (!$userid = $client->create()) { 
-            registry::set_route('create_first_admin');
-            registry::set_response(template::parse());
+            app::set_uri('admin/create_first_admin');
+            app::set_res_body(template::parse());
             return;
         }
 
-        // Set userid
-        registry::set_userid((int) $userid);
-
-        auth::login(true);
+        auth::auto_login((int) $userid);
         return;
 
     // Display form to create first admin
     } elseif ($count == 0) { 
-        registry::set_route('create_first_admin');
-        registry::set_response(template::parse());
+        app::set_uri('admin/create_first_admin');
+        app::set_res_body(template::parse());
         return;
     }
 
@@ -61,9 +70,10 @@ public function process()
     }
 
     // Parse template
-    registry::set_response(template::parse());
+    app::set_res_body(template::parse());
 
 }
+
 
 }
 

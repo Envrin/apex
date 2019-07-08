@@ -2,30 +2,38 @@
 
 namespace apex;
 
-use apex\core\lib\registry;
-use apex\core\lib\pkg\package;
+use apex\app;
+use apex\services\redis;
+use apex\app\pkg\package;
 
 class pkg_core
 {
 
 // Set package variables
-public $version = '1.0.18';
+public $version = '1.1.0';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
 
-// Define configuration
-public function __construct() { 
+/**
+ * Define the base configuration of the package, 
+ * including configuration variables, hashes, menus, 
+ * external files, etc.
+ */
+public function __construct() 
+{
 
 // Config variables
 $this->config = array(
-    'cron_pid' => 0,
+    'encrypt_cipher' => 'aes-256-cbc', 
+    'encrypt_password' => '', 
+    'encrypt_iv' => '', 
     'mode' => 'devel', 
     'debug' => 3, 
     'date_format' => 'F j, Y', 
     'start_year' => date('Y'),
-    'db_driver' => 'mysql',  
-    'server_type' => '', 
+    'server_type' => '',
+    'server_name' => 'apex',  
     'theme_admin' => 'limitless', 
     'theme_public' => 'koupon', 
     'site_name' => 'Apex', 
@@ -108,130 +116,44 @@ $this->menus[] = array(
     'alias' => 'settings', 
     'name' => 'Settings', 
     'menus' => array(
-        'general' => 'General', 
-        'admin' => 'Administrators', 
-        'notifications' => 'Notifications'
+        'general' => 'General' 
     )
 );
-
-// Admin - Maintenance menu
-$this->menus[] = array(
-    'area' => 'admin', 
-    'position' => 'after settings', 
-    'type' => 'parent', 
-    'icon' => 'fa fa-fw fa-wrench', 
-    'alias' => 'maintenance', 
-    'name' => 'Maintenance', 
-    'menus' => array(
-        'package_manager' => 'Package Manager', 
-        'theme_manager' => 'Theme Manager', 
-        'backup_manager' => 'Backup Manager', 
-        'cron_manager' => 'Cron Manager' 
-    )
-);
-
-// Menu -- header -- Site
-$this->menus[] = array(
-    'area' => 'admin', 
-    'position' => 'after hdr_setup', 
-    'type' => 'header', 
-    'alias' => 'hdr_site', 
-    'name' => 'Site'
-);
-
-// Menus -- CMS
-$this->menus[] = array(
-    'area' => 'admin', 
-    'position' => 'after hdr_site', 
-    'icon' => 'fa fa-fw fa-pagelines', 
-    'type' => 'parent', 
-    'alias' => 'cms', 
-    'name' => 'CMS', 
-    'menus' => array(
-        'menus' => 'Menus', 
-        'pages' => 'Titles / Layouts', 
-    'placeholders' => 'Placeholders'
-    )
-);
-
-// Menus - Reports
-$this->menus[] = array(
-    'area' => 'admin', 
-    'position' => 'after cms', 
-    'type' => 'parent', 
-    'icon' => 'fa fa-fw fa-bar-chart', 
-    'alias' => 'reports', 
-    'name' => 'Reports', 
-    'menus' => array()
-); 
-
 
 
 
     // External files
 $this->ext_files = array(		
+    'apex', 
     'apex.php',
     'composer.json',  
     'License.txt', 
-    'Readme.md', 
-    'src/core/lib/ajax.php',
-    'src/core/lib/apex_cli.php',  
-    'src/core/lib/auth.php', 
-    'src/core/lib/debug.php', 
-    'src/core/lib/encrypt.php', 
-    'src/core/lib/functions.php', 
-    'src/core/lib/html_tags.php', 
-    'src/core/lib/installer.php', 
-    'src/core/lib/log.php', 
-    'src/core/lib/log_channel.php', 
-    'src/core/lib/message.php', 
-    'src/core/lib/network.php', 
-    'src/core/lib/registry.php', 
-    'src/core/lib/rpc.php', 
-    'src/core/lib/template.php', 
-    'src/core/lib/test.php', 
-    'src/core/lib/wsbot.php', 
-    'src/core/lib/abstracts/autosuggest.php', 
-    'src/core/lib/abstracts/cron.php', 
-    'src/core/lib/abstracts/form.php', 
-    'src/core/lib/abstracts/htmlfunc.php', 
-    'src/core/lib/abstracts/modal.php', 
-    'src/core/lib/abstracts/tabcontrol.php', 
-    'src/core/lib/abstracts/table.php', 
-    'src/core/lib/abstracts/tabpage.php', 
-    'src/core/lib/db/mysql.php',
-    'src/core/lib/exceptions/ApexException.php',
-    'src/core/lib/exceptions/CommException.php', 
-    'src/core/lib/exceptions/ComponentException.php', 
-    'src/core/lib/exceptions/DBException.php', 
-    'src/core/lib/exceptions/EncryptException.php', 
-    'src/core/lib/exceptions/FormException.php', 
-    'src/core/lib/exceptions/IOException.php', 
-    'src/core/lib/exceptions/MiscException.php', 
-    'src/core/lib/exceptions/PackageException.php', 
-    'src/core/lib/exceptions/RepoException.php', 
-    'src/core/lib/exceptions/ThemeException.php', 
-    'src/core/lib/exceptions/UpgradeException.php', 
-    'src/core/lib/exceptions/UserException.php', 
-    'src/core/lib/pkg/package.php', 
-    'src/core/lib/pkg/package_config.php', 
-    'src/core/lib/pkg/pkg_component.php', 
-    'src/core/lib/pkg/theme.php', 
-    'src/core/lib/pkg/upgrade.php',  
-    'src/core/lib/third_party/maxmind/*', 
-    'src/core/lib/third_party/SqlParser.php', 
-    'public/plugins/flags/*', 
+    'phpunit.xml', 
+    'Readme.md',
+    'bootstrap/apex', 
+    'bootstrap/cli.php', 
+    'bootstrap/http.php', 
+    'bootstrap/test.php', 
+    'docs/components/*', 
+    'docs/core/*', 
+    'docs/training/*', 
+    'etc/constants.php',
+    'etc/core/stdlists',  
     'public/plugins/apex.js', 
+    'public/plugins/flags/*', 
     'public/plugins/parsley.js/*', 
     'public/plugins/sounds/notify.wav', 
+    'public/themes/koupon/*',  
+    'public/themes/limitless/*', 
+    'public/themes/supradmin/*', 
     'public/index.php', 
-    'src/apex',
-    'src/apex_worker',  
-    'src/cron.php', 
-    'src/load.php', 
-    'src/rpc_server.php', 
-    'src/worker.php', 
-    'src/ws_server.php'
+    'src/app.php', 
+    'src/app/*', 
+    'src/services/*',  
+    'tests/core/*', 
+    'views/themes/koupon/*', 
+    'views/themes/limitless/*', 
+    'views/themes/supradmin/*' 
 );
 
 
@@ -297,8 +219,8 @@ public function define_hashes() {
     );
 
     $vars['log_levels'] = array(
-        'info,warning,notice, error,critical,alert,emergency' => 'All Levels', 
-        'notice, error,critical,alert,emergency' => 'All Levels, except INFO and NOTICE',
+        'info,warning,notice,error,critical,alert,emergency' => 'All Levels', 
+        'notice,error,critical,alert,emergency' => 'All Levels, except INFO and NOTICE',
         'error,critical,alert,emergency' => 'Only Errors', 
         'none' => 'No Logging'
     );
@@ -340,7 +262,7 @@ public function define_hashes() {
 
     // Form fields
     $vars['form_fields'] = array(
-        'textbix' => 'Textbox', 
+        'textbox' => 'Textbox', 
         'textarea' => 'Textarea', 
         'select' => 'Select List', 
         'radio' => 'Radio List', 
@@ -434,10 +356,10 @@ public function install_after()
 {
 
     // Delete keys from redis
-    registry::$redis->del('std:language');
-    registry::$redis->del('std:currency');
-    registry::$redis->del('std:timezone');
-    registry::$redis->del('std:country');
+    redis::del('std:language');
+    redis::del('std:currency');
+    redis::del('std:timezone');
+    redis::del('std:country');
 
     $lines = file(SITE_PATH . '/etc/core/stdlists');
     foreach ($lines as $line) { 
@@ -445,24 +367,24 @@ public function install_after()
 
         if ($vars[0] == 'currency') { 
             $line = implode("::", array($vars[2], $vars[4], $vars[5]));
-        registry::$redis->hset('std:currency', $vars[1], $line); 
+        redis::hset('std:currency', $vars[1], $line); 
 
         } elseif ($vars[0] == 'timezone') {  
         $line = implode("::", array($vars[2], $vars[3], $vars[4]));
-            registry::$redis->hset('std:timezone', $vars[1], $line); 
+            redis::hset('std:timezone', $vars[1], $line); 
 
         } elseif ($vars[0] == 'country') { 
             $line = implode("::", array($vars[2], $vars[3], $vars[4], $vars[5], $vars[6], $vars[7]));
-            registry::$redis->hset('std:country', $vars[1], $line); 
+            redis::hset('std:country', $vars[1], $line); 
 
         } elseif ($vars[0] == 'language') { 
-            registry::$redis->hset('std:language', $vars[1], $vars[2]); 
+            redis::hset('std:language', $vars[1], $vars[2]); 
         }
 
     }
 
     // Active languages
-    registry::$redis->lpush('config:language', 'en');
+    redis::lpush('config:language', 'en');
 
 }
 
@@ -488,12 +410,12 @@ public function reset_redis()
 {
 
     // Delete needed keys
-    registry::$redis->del('config:components');
-    registry::$redis->del('config:components_package');
-    registry::$redis->del('hash');
-    registry::$redis->del('cms:titles');
-    registry::$redis->del('cms:layouts');
-    registry::$redis->del('cms:placeholders');
+    redis::del('config:components');
+    redis::del('config:components_package');
+    redis::del('hash');
+    redis::del('cms:titles');
+    redis::del('cms:layouts');
+    redis::del('cms:placeholders');
 
     // Go through all components
     $rows = DB::query("SELECT * FROM internal_components");
@@ -501,21 +423,21 @@ public function reset_redis()
 
         // Add to components
         $line = implode(":", array($row['type'], $row['package'], $row['parent'], $row['alias']));
-        registry::$redis->sadd('config:components', $line);
+        redis::sadd('config:components', $line);
 
         // Add to components_package
         $chk = $row['type'] . ':' . $row['alias'];
-        if ($value = registry::$redis->hget('config:components_package', $chk)) { 
-            registry::$redis->hset('config:components_package', $chk, 2);
+        if ($value = redis::hget('config:components_package', $chk)) { 
+            redis::hset('config:components_package', $chk, 2);
         } else { 
-            registry::$redis->hset('config:components_package', $chk, $row['package']);
+            redis::hset('config:components_package', $chk, $row['package']);
         }
 
         // Process hash, if needed
         if ($row['type'] == 'hash') {
             $hash_alias = $row['package'] . ':' . $row['alias']; 
             $vars = DB::get_hash("SELECT alias,value FROM internal_components WHERE type = 'hash_var' AND parent = %s AND package = %s", $row['alias'], $row['package']);
-            registry::$redis->hset('hash', $hash_alias, json_encode($vars));
+            redis::hset('hash', $hash_alias, json_encode($vars));
         }
     }
 
@@ -523,15 +445,15 @@ public function reset_redis()
     $rows = DB::query("SELECT * FROM cms_pages");
     foreach ($rows as $row) { 
         $key = $row['area'] . '/' . $row['filename'];
-        registry::$redis->hset('cms:titles', $key, $row['title']);
-        registry::$redis->hset('cms:layouts', $key, $row['layout']);
+        redis::hset('cms:titles', $key, $row['title']);
+        redis::hset('cms:layouts', $key, $row['layout']);
     }
 
     // CMS placeholders
     $rows = DB::query("SELECT * FROM cms_placeholders WHERE contents != ''");
     foreach ($rows as $row) { 
         $key = $row['uri'] . ':' . $row['alias'];
-        registry::$redis->hset('cms_placeholders', $key, $row['contents']);
+        redis::hset('cms_placeholders', $key, $row['contents']);
     }
 
     // CMS menus
