@@ -28,9 +28,9 @@
                 <p>Read through all Apex documentation via the below links.</p>
 
                 <ul class="arrow_list">
-                    <li><a href="/docs/index">Developer Reference</a></li>
+                    <li><a href="/docs/index">Developer Manual</a></li>
+                    <li><a href="https://apex-platform.org/api/">Developer API Reference</a></li>
                     <li><a href="/docs/training/index">Developer Training Guide</a></li>
-                    <li><a href="/docs/user_manual/index">User Manual</a></li>
                 </ul>
             </div>
         </div>

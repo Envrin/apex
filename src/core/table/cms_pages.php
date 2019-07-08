@@ -5,7 +5,7 @@ namespace apex\core\table;
 
 use apex\app;
 use apex\services\db;
-use apex\app\io\io;
+use apex\services\utils\io;
 use apex\app\interfaces\components\table;
 
 
@@ -89,7 +89,7 @@ public function get_rows(int $start = 0, string $search_term = '', string $order
     // Get existing pages
     $pages = array();
     $rows = db::query("SELECT * FROM cms_pages WHERE area = %s", $this->area);
-    foreach ($rws as $row) { 
+    foreach ($rows as $row) { 
         $pages[$row['filename']] = array(
             'layout' => $row['layout'],
             'title' => $row['title']
@@ -98,13 +98,13 @@ public function get_rows(int $start = 0, string $search_term = '', string $order
 
     // Get available layouts
     $var = $this->area == 'members' ? 'users:theme_members' : 'core:theme_public';
-    $theme_dir = SITE_PATH . '/themes/' . app::_config($var) . '/layouts';
+    $theme_dir = SITE_PATH . '/views/themes/' . app::_config($var) . '/layouts';
     $layout_files = io::parse_dir($theme_dir);
 
     // Go through layouts
     $layouts = array();
     foreach ($layout_files as $file) { 
-        $file - preg_replace("/\.tpl$/", "", $file);
+        $file = preg_replace("/\.tpl$/", "", $file);
         $layouts[$file] = ucwords(str_replace("_", " ", $file));
     }
 

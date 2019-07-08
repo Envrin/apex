@@ -29,6 +29,11 @@ return [
         'class' => apex\app\msg\dispatcher::class, 
     'params' => ['channel_name' => 'apex']
     ], 
+    'template' => [
+        'interface' => TemplateInterface::class, 
+        'class' => apex\app\web\template::class, 
+        'autowire' => true
+    ], 
     'auth' => [
         'interface' => AuthInterface::class, 
         'class' => apex\app\sys\auth::class
@@ -36,6 +41,7 @@ return [
     'utils/components' => ['class' => apex\app\sys\components::class], 
     'utils/date' => ['class' => apex\app\utils\date::class], 
     'utils/encrypt' => ['class' => apex\app\sys\encrypt::class], 
+    'utils/forms' => ['class' => apex\app\utils\forms::class], 
     'utils/hashes' => ['class' => apex\app\utils\hashes::class], 
     'utils/images' => ['class' => apex\app\utils\images::class], 
     'utils/io' => ['class' => apex\app\io\io::class], 

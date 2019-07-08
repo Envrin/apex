@@ -511,7 +511,7 @@ private function complete_install()
     // Set encryption info
     app::update_config_var('core:encrypt_cipher', 'aes-256-cbc');
     app::update_config_var('core:encrypt_password', base64_encode(openssl_random_pseudo_bytes(32)));
-    app::update_config_var('core:encrypt_iv', base64_encode(openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'))));
+    app::update_config_var('core:encrypt_iv', io::generate_random_string(16));
 
     // Create apex init file
     $init_file = file_get_contents(SITE_PATH . '/bootstrap/apex');

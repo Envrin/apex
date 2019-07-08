@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
+use apex\services\redis;
 use apex\services\log;
 use apex\app\utils\date;
 use apex\app\interfaces\DebuggerInterface;
@@ -37,7 +38,8 @@ use apex\app\interfaces\DebuggerInterface;
 class debug implements DebuggerInterface
 {
 
-
+    // properties
+    private $log_dir;
 
 
     // Debugger properties
@@ -58,6 +60,8 @@ public function __construct(date $date)
     // Get variables
     $this->date = $date;
     $this->start_time = time();
+    $this->log_dir = SITE_PATH . '/storage/logs';
+
 
 }
 
@@ -166,8 +170,8 @@ public function finish_session()
     if ($app->_config('core:debug') < 1) { return; }
 
     // Save json to redis
-    $app->redis->set('config:debug_log', json_encode($data));
-    $app->redis->expire('config:debug_log', 10800);
+    redis::set('config:debug_log', json_encode($data));
+    redis::expire('config:debug_log', 10800);
 
     // Save response output
     if (is_writeable($this->log_dir . '/response.txt')) { 
@@ -175,7 +179,7 @@ public function finish_session()
     }
 
     // Update config, as needed
-    if ($app->config('core:debug') != 2) { 
+    if (app::_config('core:debug') != 2) { 
         $app->update_config_var('core:debug', '0');
     }
 
