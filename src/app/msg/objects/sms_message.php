@@ -21,6 +21,10 @@ class sms_message implements SMSMessageInterface
 
 /**
  * Constructor.  Define the SMS message. 
+ *
+ * @param string $phone The recipient phone number.
+ * @param string $message The message to send.
+ * @param string $from_name The sender name.
  */
 public function __construct(string $phone, string $message, string $from_name = '')
 { 

@@ -1,10 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace apex\services;
+namespace apex\svc;
 
 use apex\app\exceptions\ServiceException;
-use apex\services\debug;
 use redis as redisdb;
 
 /**
@@ -74,8 +73,7 @@ class redis
 
         // Ensure method exists
         if (!method_exists(self::$instance, $method)) { 
-            self::singleton();
-            //throw new ServiceException('no_method', SERVICE_DB, $method);
+            throw new ServiceException('no_method', __CLASS__, $method);
         }
 
         // Call method, and return 

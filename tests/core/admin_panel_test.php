@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace tests\core;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\utils\forms;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\forms;
 use apex\app\sys\network;
 use apex\app\db\db_connections;
 use apex\app\tests\test;
@@ -81,7 +81,9 @@ public function test_login()
         'password' => $_SERVER['apex_admin_password'], 
         'submit' => 'login'
     );
+
     $html = $this->http_request('/admin/login', 'POST', $vars);
+file_put_contents(SITE_PATH . '/public/error.html', $html);
     $this->assertPageTitleContains("Welcome");
 
 }
@@ -164,7 +166,6 @@ public function test_page_settings_general()
         'session_expire_mins' => 45,
         'password_retries_allowed' => 8,
         'require_2fa' => 2,
-        'num_security_questions' => 9,
         'session_retain_logs_period' => 'W',
         'session_retain_logs_num' => '1',
         'force_password_reset_time_period' => 'D',

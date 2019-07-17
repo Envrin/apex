@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\app\web;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\utils\date;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\date;
 use apex\app\utils\hashes;
 
 
@@ -23,6 +23,9 @@ class html_tags
 
 /**
  * Construct 
+ *
+ * @param date $date the /app/utils/data.php class.  Injected.
+ * @param hashes $hashes The /app/utils/hashes.php class.  Injected
  */
 public function __construct(date $date, hashes $hashes)
 { 
@@ -37,6 +40,8 @@ public function __construct(date $date, hashes $hashes)
  * Is replaced with the standard success / error / warning messages on the top 
  * of a page contents alertying the user of a successful action being 
  * completed, user submission error, etc. 
+ *
+ * @param array $messages An array of the callouts to format.
  */
 public function callouts(array $messages):string
 { 
@@ -73,6 +78,11 @@ public function callouts(array $messages):string
  * Page title.  Checks the database first for a defined title, if none exists, 
  * checks the TPL code for <h1> tags, and otherwise just uses the site name 
  * configuration variable. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function page_title(array $attr, string $text):string
 { 
@@ -88,6 +98,11 @@ public function page_title(array $attr, string $text):string
  * Replaced with a standard <form> tab, and unless attributes are defined to 
  * the contrary, the action points to the current template being displayed, 
  * with a method of POST. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function form($attr, $text = '')
 { 
@@ -108,7 +123,12 @@ public function form($attr, $text = '')
 }
 
 /**
- * Form table. 
+ * Form table.
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function form_table(array $attr, string $text):string
 { 
@@ -128,6 +148,11 @@ public function form_table(array $attr, string $text):string
 
 /**
  * Seperator.  Used to separate different groups of form fields. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_seperator(array $attr, string $text = ''):string
 { 
@@ -139,6 +164,11 @@ public function ft_seperator(array $attr, string $text = ''):string
 
 /**
  * Input textbox form field. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_textbox(array $attr, string $text = ''):string
 { 
@@ -166,6 +196,11 @@ public function ft_textbox(array $attr, string $text = ''):string
 
 /**
  * Amount textbox form field 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_amount(array $attr, string $text = ''):string
 { 
@@ -194,6 +229,11 @@ public function ft_amount(array $attr, string $text = ''):string
 /**
  * Phone number.  Contains small select list for the country code, then 
  * textbox for the actual phone number. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_phone(array $attr, string $text = ''):string
 { 
@@ -220,7 +260,12 @@ public function ft_phone(array $attr, string $text = ''):string
 }
 
 /**
- * Textarea 
+ * Textarea
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_textarea(array $attr, string $text = ''):string
 { 
@@ -248,6 +293,11 @@ public function ft_textarea(array $attr, string $text = ''):string
 
 /**
  * Date.  Lists three select lists for month, day, and year. 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_date(array $attr, string $text = ''):string
 { 
@@ -273,6 +323,11 @@ public function ft_date(array $attr, string $text = ''):string
 /**
  * Date interval.  One small textbox for an integer, and a small select list 
  * for the interval (days, weeks, months, years) 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function ft_date_interval(array $attr, string $text = ''):string
 { 
@@ -295,7 +350,12 @@ public function ft_date_interval(array $attr, string $text = ''):string
 }
 
 /**
- * ft_select 
+ * ft_select
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_select(array $attr, string $text = ''):string
 { 
@@ -319,7 +379,12 @@ public function ft_select(array $attr, string $text = ''):string
 }
 
 /**
- * ft_boolean 
+ * ft_boolean
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_boolean(array $attr, string $text = ''):string
 { 
@@ -344,7 +409,12 @@ return $html;
 }
 
 /**
- * ft_custom 
+ * ft_custom
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_custom(array $attr, string $text = ''):string
 { 
@@ -369,7 +439,12 @@ public function ft_custom(array $attr, string $text = ''):string
 }
 
 /**
- * ft_blank 
+ * ft_blank
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_blank(array $attr, string $text = ''):string
 { 
@@ -385,7 +460,12 @@ public function ft_blank(array $attr, string $text = ''):string
 }
 
 /**
- * ft_submit 
+ * ft_submit
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function ft_submit(array $attr, string $text = ''):string
 { 
@@ -411,7 +491,12 @@ $html = "<tr>\n\t<td colspan=\"2\" align=\"$align\">";
 }
 
 /**
- * submit 
+ * submit
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function submit(array $attr, string $text = ''):string
 { 
@@ -429,7 +514,12 @@ public function submit(array $attr, string $text = ''):string
 }
 
 /**
- * boolean 
+ * boolean
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function boolean(array $attr, string $text = ''):string
 { 
@@ -453,6 +543,11 @@ return $html;
 
 /**
  * select 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function select(array $attr, string $text = ''):string
 { 
@@ -488,7 +583,12 @@ public function select(array $attr, string $text = ''):string
 }
 
 /**
- * textbox 
+ * textbox
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function textbox(array $attr, string $text = ''):string
 { 
@@ -544,6 +644,11 @@ public function textbox(array $attr, string $text = ''):string
 
 /**
  * Amount text box 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function amount(array $attr, string $text):string
 { 
@@ -566,6 +671,11 @@ public function amount(array $attr, string $text):string
 
 /**
  * phone 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function phone(array $attr, string $text = ''):string
 { 
@@ -596,7 +706,12 @@ public function phone(array $attr, string $text = ''):string
 }
 
 /**
- * textarea 
+ * textarea
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function textarea(array $attr, string $text = ''):string
 { 
@@ -632,6 +747,11 @@ public function textarea(array $attr, string $text = ''):string
 
 /**
  * button 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function button(array $attr, string $text = ''):string
 { 
@@ -649,7 +769,12 @@ public function button(array $attr, string $text = ''):string
 }
 
 /**
- * Box / panel 
+ * Box / panel
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function box(array $attr, string $text = ''):string
 { 
@@ -671,6 +796,11 @@ public function box(array $attr, string $text = ''):string
 
 /**
  * Box / panel header 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function box_header(array $attr, string $text = ''):string
 { 
@@ -698,7 +828,12 @@ public function box_header(array $attr, string $text = ''):string
 }
 
 /**
- * Data table 
+ * Data table
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function data_table(array $attr, string $text = ''):string
 { 
@@ -719,13 +854,18 @@ public function data_table(array $attr, string $text = ''):string
 
 /**
  * Table search bar 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function table_search_bar(array $attr, string $text = ''):string
 { 
 
     // Set variables
     $search_id = 'search_' . $attr['id'];
-$ajaxdata = $attr['ajaxdata'] ?? '';
+    $ajaxdata = $attr['ajaxdata'] ?? '';
 
     // Set HTML
     $html = "<div class=\"tbl_search_bar\">\n";
@@ -743,6 +883,11 @@ $ajaxdata = $attr['ajaxdata'] ?? '';
 
 /**
  * Pagination links 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function pagination(array $attr, string $text = ''):string
 { 
@@ -815,7 +960,12 @@ public function pagination(array $attr, string $text = ''):string
 }
 
 /**
- * Tab control 
+ * Tab control
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function tab_control($attr, $text)
 { 
@@ -873,7 +1023,12 @@ public function tab_control($attr, $text)
 }
 
 /**
- * Boxlist 
+ * Boxlist
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function boxlist(array $attr, string $text = ''):string
 { 
@@ -897,6 +1052,11 @@ public function boxlist(array $attr, string $text = ''):string
 
 /**
  * date 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function date(array $attr, string $text = ''):string
 { 
@@ -952,6 +1112,11 @@ public function date(array $attr, string $text = ''):string
 
 /**
  * date interval 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function date_interval(array $attr, string $text = ''):string
 { 
@@ -992,6 +1157,11 @@ public function date_interval(array $attr, string $text = ''):string
 
 /**
  * Placeholder 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function placeholder($attr, $text)
 { 
@@ -1011,7 +1181,12 @@ public function placeholder($attr, $text)
 }
 
 /**
- * Fooflw ewXpatcha 
+ * reCaptcha
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code. 
  */
 public function recaptcha($attr, $text)
 { 
@@ -1028,6 +1203,12 @@ public function recaptcha($attr, $text)
 
 /**
  * Dropdown list of all unread notifications 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
+
  */
 public function dropdown_alerts($attr, $text)
 { 
@@ -1064,6 +1245,11 @@ public function dropdown_alerts($attr, $text)
 
 /**
  * Dropdown list of messages 
+ *
+ * @param array $attr All attributes passed within the HTML tag.
+ * @param string $text The text between the opening and closing tags, if applicable.
+ *
+ * @return string The resulting HTML code.
  */
 public function dropdown_messages($attr, $text)
 { 

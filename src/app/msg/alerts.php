@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\redis;
+use apex\svc\debug;
+use apex\svc\redis;
 use apex\app\web\ajax;
 use apex\app\msg\websocket;
 use apex\app\msg\objects\websocket_message;
@@ -25,6 +25,8 @@ class alerts
 
 /**
  * Construct. 
+ *
+ * @param websocket $websocket The web socket message to dispatch.
  */
 public function __construct(websocket $websocket)
 { 
@@ -42,7 +44,7 @@ public function dispatch_notification(string $recipient, string $message, string
 { 
 
     // Debug
-    debug::add(3, fmsg("Adding notification / alert via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
+    debug::add(3, tr("Adding notification / alert via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
 
     // Set vars
     $vars = array(
@@ -87,6 +89,7 @@ public function dispatch_notification(string $recipient, string $message, string
  * Add new dropdown notification message 
  *
  * @param string $recipient The recipient of the alert in standard format (eg. user:915, admin:3, etc.)
+ * @param string $from Who the message is from.
  * @param string $message The body of the alert message
  * @param string $url The URL to link the drop-down notification to
  */
@@ -94,7 +97,7 @@ public function dispatch_message(string $recipient, string $from, string $messag
 { 
 
     // Debug
-    debug::add(3, fmsg("Adding dropdown notification via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
+    debug::add(3, tr("Adding dropdown notification via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
 
     // Set vars
     $vars = array(

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\app;
-use apex\services\redis;
+use apex\svc\redis;
 
 
 class clear_dropdown   extends \apex\core/lib/Ajax

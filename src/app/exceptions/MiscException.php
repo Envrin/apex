@@ -23,6 +23,9 @@ class MiscException   extends ApexException
 
 /**
  * Construct 
+ * 
+ * @param string $message The exception message.
+ * @param string $id The unique ID# of the object / record.
  */
 public function __construct($message, $id = 0)
 { 
@@ -35,7 +38,7 @@ public function __construct($message, $id = 0)
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

@@ -4,15 +4,15 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\utils\date;
-use apex\services\utils\io;
+use apex\svc\date;
+use apex\svc\io;
 use apex\app\interfaces\LoggerInterface;
 
 
 /**
  * Log Handler
  *
- * Service: apex\services\log
+ * Service: apex\svc\log
  *
  * Handles all logging and ebugging of Apex, and is fully PSR3 compliant. 
  * Supports the 7 log levels, log channels, and PSR compliant placeholders 
@@ -24,18 +24,12 @@ use apex\app\interfaces\LoggerInterface;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  * 
  * namespace apex;
  * 
  * use apex\app;
- * use apex\services\log;
- *
- * // Warning log
- * log::warning("This is a warning");
- *
- * // Critical log
- * log::critical("Houston, we have a problem");
+ * use apex\svc\log;
  *
  */
 class log implements LoggerInterface
@@ -65,6 +59,8 @@ class log implements LoggerInterface
 
 /**
  * Initiates anew class, allowing for channel creation 
+ *
+ * @param string $channel_name The name of the log channel to create, defaults to 'apex'.
  */
 public function __construct(string $channel_name = 'apex')
 { 
@@ -84,6 +80,8 @@ public function __construct(string $channel_name = 'apex')
 
 /**
  * Set the log levels 
+ *
+ * @param array $levels The log levels to set.  Only levels within this array will be logged.
  */
 public function set_log_levels(array $levels)
 { 
@@ -91,7 +89,10 @@ public function set_log_levels(array $levels)
 }
 
 /**
- * DEBUG message. 
+ * DEBUG message.
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $context Values to replace the placeholders within the message with. 
  */
 public function debug($msg, array $context = array())
 { 
@@ -103,6 +104,9 @@ public function debug($msg, array $context = array())
 
 /**
  * INFO message. 
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $context Values to replace the placeholders within the message with. 
  */
 public function info($msg, array $context = array())
 { 
@@ -114,6 +118,9 @@ public function info($msg, array $context = array())
 
 /**
  * WARNING message. 
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars    Values to replace the placeholders within the message with. 
  */
 public function warning($msg, array $vars = array())
 { 
@@ -124,7 +131,10 @@ public function warning($msg, array $vars = array())
 }
 
 /**
- * NOTICE message. 
+ * NOTICE message.
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars Values to replace the placeholders within the message with.  
  */
 public function notice($msg, array $vars = array())
 { 
@@ -135,7 +145,10 @@ public function notice($msg, array $vars = array())
 }
 
 /**
- * ERROR message. 
+ * ERROR message.
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars Values to replace the placeholders within the message with.  
  */
 public function error($msg, array $vars = array())
 { 
@@ -146,7 +159,10 @@ public function error($msg, array $vars = array())
 }
 
 /**
- * CRITICAL message. 
+ * CRITICAL message.
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars Values to replace the placeholders within the message with.  
  */
 public function critical($msg, array $vars = array())
 { 
@@ -157,7 +173,10 @@ public function critical($msg, array $vars = array())
 }
 
 /**
- * ALERT message 
+ * ALERT message
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars Values to replace the placeholders within the message with.  
  */
 public function alert($msg, array $vars = array())
 { 
@@ -168,7 +187,10 @@ public function alert($msg, array $vars = array())
 }
 
 /**
- * EMERGENCY message. 
+ * EMERGENCY message.
+ *
+ * @param mixed $msg The log entry message.
+ * @param array $vars Values to replace the placeholders within the message with.  
  */
 public function emergency($msg, array $vars = array())
 { 
@@ -182,7 +204,7 @@ public function emergency($msg, array $vars = array())
  * Adds new line to log file 
  *
  * @param string $level One of the eight PSR3 log levels
- * @param string $Msg The log message
+ * @param mixed $msg The log message
  * @param array $context Optional array of context variables
  */
 public function log($level, $msg, array $context = array())
@@ -209,11 +231,11 @@ public function log($level, $msg, array $context = array())
     $logdate = '[' . date::get_logdate() . ' ] ';
 
     // Add to global messages logfile
-    $msg_line = $logdate . $this->channel . '.' . strtoupper($level) . $file_var . fmsg($msg, $context) . ' ' . json_encode($context);
+    $msg_line = $logdate . $this->channel . '.' . strtoupper($level) . $file_var . tr($msg, $context) . ' ' . json_encode($context);
     $this->write('messages', $msg_line);
 
     // Add to level-specific logfile
-    $type_line = $logdate . $this->channel . $file_var . fmsg($msg, $context) . ' ' . json_encode($context);
+    $type_line = $logdate . $this->channel . $file_var . tr($msg, $context) . ' ' . json_encode($context);
     $this->write($level, $type_line);
 
     // Add to system logfile, if needed
@@ -236,8 +258,8 @@ public function log($level, $msg, array $context = array())
  * a DEBUG level message comes in.  This is due to the fact file and line 
  * numbers are included, plus for filtering reasons. 
  *
- * @param string $type The type / level of log message
- * @param int $is_debug Whether this message is from the debugger.  If 0, then it's a PHP / trigger_error() log.
+ * @param string $type One of the eight PSR supported log levels
+ * @param int $is_system Whether this message is from the PHP compiler or not.
  * @param $file The __FILE__ variable captured.
  * @param int $line The __LINE__ variable captured.
  * @param string $msg The log message.

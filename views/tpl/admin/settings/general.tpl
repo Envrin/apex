@@ -74,9 +74,6 @@
             <td valign="top"><b>Length to Retain User Session Logs?</b><br />The length of time to retain detailed session logs for users.  Basic session details are saved forever, and this only pertains to detailed log information such as exactly which pages were visted, and what form information was submitted.<br /><br /></td>
             <td valign="top"><a:date_interval name="session_retain_logs" value="~config.core:session_retain_logs~"></td>
         </tr><tr>
-            <td valign="top"><b>Number of Security Questions?</b><br />The number of additional security questions users can submit.  When users login from a new computer and have security questions defined, they will be asked to answer one at random to login.<br /><br /></td>
-            <td valign="top"><a:textbox name="num_security_questions" value="~config.core:num_security_questions~" width="20px;"></td>
-        </tr><tr>
             <td valign="top"><b>Force Password Reset Interval?</b><br />Length of time users must reset their password, ensuring they don't use the same password for too long.  Leave blank to disable this feature.<br /><br /></td>
             <td valign="top"><a:date_interval" name="force_password_reset_time" value="~config.core:force_password_reset_time~"></td>
         </tr>

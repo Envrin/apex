@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\cli;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\log;
-use apex\services\utils\components;
-use apex\services\utils\date;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\log;
+use apex\svc\components;
+use apex\svc\date;
 
 
 /**
@@ -37,7 +37,7 @@ public function process(...$args)
         db::query("UPDATE internal_crontab SET failed = failed + 1 WHERE id = %i", $row['id']);
         if ($row['failed'] >= 5) { 
             db::query("UPDATE internal_crontab SET nextrun_time = %i WHERE id = %i", (time() + 10800), $row['id']);
-            log::critical(fmsg("Crontab job failed five or more times, package: {1}, alias: {2}", $row['package'], $row['alias']));
+            log::critical(tr("Crontab job failed five or more times, package: {1}, alias: {2}", $row['package'], $row['alias']));
         }
 
         // Load crontab job

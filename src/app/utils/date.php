@@ -10,7 +10,7 @@ use apex\app\utils\hashes;
 /**
  * Date Library
  *
- * Service: apex\services\utils\date
+ * Service: apex\svc\date
  *
  * Handles various date functions, such ad adding / subtracting intervals from 
  * dates, getting the log date, etc. 
@@ -21,12 +21,12 @@ use apex\app\utils\hashes;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\date;
+ * use apex\svc\date;
  *
  * // Add interval
  * $new_date = date::add_interval('M1');

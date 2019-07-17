@@ -4,15 +4,15 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\redis;
+use apex\svc\debug;
+use apex\svc\redis;
 use apex\app\exceptions\ComponentException;
 
 
 /**
  * Components Library
  *
- * Service: apex\services\utils\components
+ * Service: apex\svc\components
  *
  * Handles all internal components, such as checking whether or not a 
  * component exists, loading a component via the dependency injection 
@@ -24,12 +24,12 @@ use apex\app\exceptions\ComponentException;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\components;
+ * use apex\svc\components;
  *
  * // Load a component
  * $client = components::load('worker', 'myworker', 'somepackage');
@@ -38,19 +38,6 @@ use apex\app\exceptions\ComponentException;
 class components
 {
 
-
-
-
-    // Properties
-    private $app;
-
-/**
- * Constructor.  Grab one injected dependencies we will need 
- */
-public function __construct(app $app)
-{ 
-    $this->app = $app;
-}
 
 /**
  * Check if component exists 
@@ -78,7 +65,7 @@ public function check(string $type, string $alias)
     }
 
     // Debug
-    debug::add(5, fmsg("Checking if component exists, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Checking if component exists, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
 
     // Check package
     if ($package == '') { 
@@ -112,26 +99,23 @@ public function check(string $type, string $alias)
 public function load(string $type, string $alias, string $package = '', string $parent = '', array $data = array())
 { 
 
-    // Initialize
-    $app = $this->app;
-
     // Debug
-    debug::add(5, fmsg("Starting load component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Starting load component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
 
     // Check if class exists
     $class_name = $this->get_class_name($type, $alias, $package, $parent);
-    if (!$app->has($class_name)) { 
-        debug::add(4, fmsg("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
+    if (!app::has($class_name)) { 
+        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
         return false;
     }
 
     // Load object via container
-    if (!$object = $app->make($class_name, ['data' => $data])) { 
+    if (!$object = app::make($class_name, ['data' => $data])) { 
         return false;
     }
 
     // Debug
-    debug::add(5, fmsg("Loaded component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Loaded component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
 
     // Return
     return $object;
@@ -153,18 +137,15 @@ public function load(string $type, string $alias, string $package = '', string $
 public function call(string $function_name, string $type, string $alias, string $package = '', string $parent = '', array $data = array())
 { 
 
-    // Initialize
-    $app = $this->app;
-
     // Check if class exists
     $class_name = $this->get_class_name($type, $alias, $package, $parent);
-    if (!$app->has($class_name)) { 
-        debug::add(4, fmsg("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
+    if (!app::has($class_name)) { 
+        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
         return false;
     }
 
     // Call function
-    return $app->call([$class_name, $function_name], $data);
+    return app::call([$class_name, $function_name], $data);
 
 }
 
@@ -209,7 +190,7 @@ public function get_file(string $type, string $alias, string $package, string $p
 { 
 
     // Debug
-    debug::add(5, fmsg("Getting PHP component file, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Getting PHP component file, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
 
     // Ensure valid components type
     if (!in_array($type, COMPONENT_TYPES)) { 
@@ -237,7 +218,7 @@ public function get_file(string $type, string $alias, string $package, string $p
     $php_file .= $alias . '.php';
 
     // Debug
-    debug::add(5, fmsg("Got PHP component file, {1}", $php_file), __FILE__, __LINE__);
+    debug::add(5, tr("Got PHP component file, {1}", $php_file), __FILE__, __LINE__);
 
     // Return
     return $php_file;

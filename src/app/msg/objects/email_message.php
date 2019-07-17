@@ -88,6 +88,8 @@ public function from_name(string $name)
 
 /**
  * Set the reply-to e-mail address 
+ * 
+ * @param string $email The e-mail address.
  */
 public function reply_to(string $email)
 { 
@@ -100,7 +102,9 @@ public function reply_to(string $email)
 }
 
 /**
- * Set the CC e-mail address 
+ * Set the CC e-mail address
+ *
+ * @param string $email The e-mail address. 
  */
 public function cc(string $email)
 { 
@@ -114,6 +118,8 @@ public function cc(string $email)
 
 /**
  * Set the BCC e-mail address 
+ *
+ * @param string $email The e-mail address.
  */
 public function bcc(string $email)
 { 
@@ -148,7 +154,7 @@ public function message(string $message)
 /**
  * Set the content type of the -email message. 
  *
- * @param string $content_type The content type
+ * @param string $type The content type
  */
 public function content_type(string $type)
 { 

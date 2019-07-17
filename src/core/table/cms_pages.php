@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\app;
-use apex\services\db;
-use apex\services\utils\io;
+use apex\svc\db;
+use apex\svc\io;
 use apex\app\interfaces\components\table;
 
 

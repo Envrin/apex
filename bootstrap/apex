@@ -7,7 +7,7 @@
 # - Start: `service myservice start` or `/etc/init.d/myservice start`
 # - Stop: `service myservice stop` or `/etc/init.d/myservice stop`
 
-SITE_PATH="~site_path~";
+SITE_PATH="/home/boxer/devel/apex";
 NAME=apex
 
 DESC="Apex Daemons"

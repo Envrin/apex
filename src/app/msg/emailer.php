@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\debug;
-use apex\services\msg;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\debug;
+use apex\svc\msg;
 use apex\app\msg\utils\smtp_connections;
 use apex\app\msg\objects\email_message;
 use apex\app\msg\objects\event_message;
@@ -119,6 +119,8 @@ public function dispatch_smtp(EmailMessageInterface $msg)
 
 /**
  * Send e-mail via php mail() function if not SMTP is available. 
+ *
+ * @param EmailMessageInterface $msg The e-mail message to send.
  */
 private function dispatch_phpmail(EmailMessageInterface $msg)
 { 
@@ -135,14 +137,14 @@ private function dispatch_phpmail(EmailMessageInterface $msg)
  *
  * @param string $controller The notification controller / type alias of which to check.
  * @param int $userid The user ID# for which notifications are being processed against.
- * @param array $conditiom Associative array containing details on the current request, and is checked against the condition notifications were created with.
+ * @param array $condition Associative array containing details on the current request, and is checked against the condition notifications were created with.
  * @param array $data Associatve array that is passed to the notification controller, and contains any additional information to retrieve merge variables (eg. transaction ID#, support ticket ID#, etc.)
  */
 public function process_emails(string $controller, int $userid = 0, array $condition = array(), array $data = array())
 { 
 
     // Debug
-    debug::add(3, fmsg("Checking e-mail notifications for controller {1}, user ID# {2}", $controller, $userid), __FILE__, __LINE__);
+    debug::add(3, tr("Checking e-mail notifications for controller {1}, user ID# {2}", $controller, $userid), __FILE__, __LINE__);
 
     // Check for notifications
     $controller_alias = $controller;
@@ -160,7 +162,7 @@ public function process_emails(string $controller, int $userid = 0, array $condi
         if ($ok === false) { continue; }
 
         // Send notification
-        $client = $this->app->make(notification::class);
+        $client = app::make(notification::class);
         $client->send($userid, $row['id'], $data);
     }
 
@@ -189,7 +191,7 @@ public function send(string $to_email, string $to_name, string $from_email, stri
 { 
 
     // Debug
-    debug::add(4, fmsg("Sending e-mail message to {1} from {2} with subject: {3}", $to_email, $from_email, $subject), __FILE__, __LINE__);
+    debug::add(4, tr("Sending e-mail message to {1} from {2} with subject: {3}", $to_email, $from_email, $subject), __FILE__, __LINE__);
 
     // Create e-mail message
     $msg = new email_message();

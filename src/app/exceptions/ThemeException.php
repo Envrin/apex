@@ -25,6 +25,9 @@ class ThemeException   extends ApexException
     );
 /**
  * Construct 
+ * 
+ * @param string $message The exception message
+ * @param string $alias The theme alias.
  */
 public function __construct($message, $alias = '')
 { 
@@ -37,7 +40,7 @@ public function __construct($message, $alias = '')
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

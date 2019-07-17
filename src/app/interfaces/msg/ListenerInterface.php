@@ -12,8 +12,10 @@ use apex\app\interfaces\msg\EventMessageInterface;
 interface ListenerInterface
 {
     /**
-     * @param object $event
      *   An event for which to return the relevant listeners.
+     * 
+     * @param EventMessageInterface $event The event message object to get listners for.
+     *
      * @return iterable[callable]
      *   An iterable (array, iterator, or generator) of callables.  Each
      *   callable MUST be type-compatible with $event.

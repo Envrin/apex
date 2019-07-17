@@ -49,32 +49,25 @@ flexibility of dependancy injection.
 The below table lists all services available within the main Apex platform.  Please note, installed packages
 may offer additional services other than those listed below.
 
-Service | Description ------------- |------------- [db](database.md) | The back-end database (mySQL,
-PostgreSQL, etc.). [redis](redis.md) | The redis connection utilizing the popular php-redis extension.
-[msg](event_dispatchers.md) | Event dispatcher to send one-way direct or two-way RPC calls to listeners /
-workers. [template](https://apex-platform.org/api/classes/apex.app.web.template.html) | Template engine that
-parses and displays .tpl files. [debug](https://apex-platform.org/api/classes/apex.app.sys.debug.html) |
-Debugger which also doubles as the log handler.
-[log](https://apex-platform.org/api/classes/apex.app.sys.log.html) | The log handler, only useful if you want
-to add log entries outside of the debugger.
-[auth](https://apex-platform.org/api/classes/apex.app.sys.auth.html) | Authentication library, checks
-authenticated sessions, and logs in users.
-[utils/components](https://apex-platform.org/api/classes/apex.app.sys.components.html) | Provides easy access
-to check and load components, and call methods within them via dependancy injection.
-[utils/date](https://apex-platform.org/api/classes/apex.app.utils.date.html) | Various date functions, such as
-adding / subtracting a time interval.
-[utils/encrypt](https://apex-platform.org/api/classes/apex.app.sys.encrypt.html) | Allows various forms of
-encryption / decryption, such as basic, user segregated, and PGP.
-[utils/forms](https://apex-platform.org/api/classes/apex.app.utils.forms.html) | Provides various methods to
-facilitate handling HTML forms, including server-side form validation, retrieving values of a date / date
-interval field, and more. [utils/geoip](https://apex-platform.org/api/classes/apex.app.utils.geoip.html) |
-Allows you to easily GeoIP an IP address.
-[utils/hashes](https://apex-platform.org/api/classes/apex.app.utils.hashes.html) | Various methods to parse
-and load the hashes which are defined within package configuration. Mainly used for select lists.
-[utils/images](https://apex-platform.org/api/classes/apex.app.utils.images.html) | Easily manage databases of
-images -- upload, add, search, generate thumbnails, etc.
-[utils/io](https://apex-platform.org/api/classes/apex.app.io.io.html) | Various methods allowing for easy
-manipulation and parsing of files and directories including zip archives.
+Service | Description 
+------------- |------------- 
+[db](database.md) | The back-end database (mySQL,PostgreSQL, etc.). 
+[redis](redis.md) | The redis connection utilizing the popular php-redis extension.
+[msg](event_dispatchers.md) | Event dispatcher to send one-way direct or two-way RPC calls to listeners / workers. 
+[view](https://apex-platform.org/api/classes/apex.app.web.view.html) | Template engine that parses and displays .tpl files. 
+[debug](https://apex-platform.org/api/classes/apex.app.sys.debug.html) | Debugger which also doubles as the log handler.
+[log](https://apex-platform.org/api/classes/apex.app.sys.log.html) | The log handler, only useful if you want to add log entries outside of the debugger.
+[cache](https://apex-platform.org/api/classes/apex.app.io.cache.html) | Simply caching handler.
+[storage](https://apex-platform.org/api/classes/apex.app.io.storage.html) | File handline and management on remote networks, services such as AWS, etc.
+[auth](https://apex-platform.org/api/classes/apex.app.sys.auth.html) | Authentication library, checks authenticated sessions, and logs in users.
+[components](https://apex-platform.org/api/classes/apex.app.sys.components.html) | Provides easy access to check and load components, and call methods within them via dependancy injection.
+[date](https://apex-platform.org/api/classes/apex.app.utils.date.html) | Various date functions, such as adding / subtracting a time interval.
+[encrypt](https://apex-platform.org/api/classes/apex.app.sys.encrypt.html) | Allows various forms of encryption / decryption, such as basic, user segregated, and PGP.
+[forms](https://apex-platform.org/api/classes/apex.app.utils.forms.html) | Provides various methods to facilitate handling HTML forms, including server-side form validation, retrieving values of a date / date interval field, and more. 
+[geoip](https://apex-platform.org/api/classes/apex.app.utils.geoip.html) | Allows you to easily GeoIP an IP address.
+[hashes](https://apex-platform.org/api/classes/apex.app.utils.hashes.html) | Various methods to parse and load the hashes which are defined within package configuration. Mainly used for select lists.
+[images](https://apex-platform.org/api/classes/apex.app.utils.images.html) | Easily manage databases of images -- upload, add, search, generate thumbnails, etc.
+[io](https://apex-platform.org/api/classes/apex.app.io.io.html) | Various methods allowing for easy manipulation and parsing of files and directories including zip archives.
 
 
 ### Bootstrap Configuration Files

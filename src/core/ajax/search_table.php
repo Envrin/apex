@@ -4,12 +4,13 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\app;
-use apex\app\sys\components;
+use apex\svc\components;
 use apex\app\utils\tables;
+use apex\app\web\ajax;
 use apex\app\exceptions\ComponentException;
 
 
-class search_table
+class search_table extends ajax
 {
 
 
@@ -49,7 +50,8 @@ public function process()
     }
 
     // Get table details
-    $details = tables::get_details($table, $id);
+    $utils = new tables();
+    $details = $utils->get_details($table, $id);
 
     // Clear table rows
     $this->clear_table(app::_post('id'));

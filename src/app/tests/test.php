@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\app\tests;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
+use apex\svc\db;
+use apex\svc\view;
 use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_Constraint_IsEqual;
 
@@ -21,20 +21,6 @@ class test   extends TestCase
 
     private $app;
 
-/**
- * Constructor.  Initialize the application, so we have everything necessary 
- * available to us for testing. 
- */
-public function __construct_old($name = 'apex', array $data = [], $dataName = '')
-{ 
-
-    // Initialize app
-    $this->app = new app('test');
-
-    // Initialize phpUnit
-    parent::__construct();
-
-}
 
 /**
  * Some test method so phpUnit doesn't give off warnings. 
@@ -46,6 +32,9 @@ public function test_junk()
 
 /**
  * Login 
+ * 
+ * @param string The area to login to (admin, members)
+ * @param int $userid The ID# of the user to login as.
  */
 public function login(string $area = 'members', int $userid = 0)
 { 
@@ -76,7 +65,7 @@ public function http_request(string $uri, string $method = 'GET', array $post = 
     $app->setup_test($uri, $method, $post, $get, $cookie);
 
     // Handle request
-    $app->call(["apex\\core\\controller\\http_requests\\" . app::get_http_controller(), 'process']);
+    app::call(["apex\\core\\controller\\http_requests\\" . app::get_http_controller(), 'process']);
 
     // Return response
     return app::get_res_body();
@@ -113,16 +102,22 @@ public function invoke_method($object, string $method_name, array $params = [])
  */
 final public function assertPageTitle(string $title) { $this->checkPageTitle($title, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotPageTitle(string $title) { $this->checkPageTitle($title, false); }
 
+/**
+ * @Ignore
+ */
 private function checkPageTitle(string $title, bool $has = true)
 { 
 
     // Assert
-    $ok = $title == template::get_title() ? true : false;
+    $ok = $title == view::get_title() ? true : false;
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("Title of page at {1}/{2} does $not equal the title: {3}", app::get_area(), app::get_uri(), $title));
+        $this->asserttrue(false, tr("Title of page at {1}/{2} does $not equal the title: {3}", app::get_area(), app::get_uri(), $title));
     } else { 
         $this->asserttrue(true);
     }
@@ -139,16 +134,22 @@ private function checkPageTitle(string $title, bool $has = true)
  */
 final public function assertPageTitleContains(string $text) { $this->checkPageTitleContains($text, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertPageTitleNotContains(string $text) { $this->checkPageTitleContains($text, false); }
 
+/**
+ * @Ignore
+ */
 private function checkPageTitleContains(string $text, bool $has = true)
 { 
 
     // Assert
-    $ok = strpos(template::get_title(), $text) === false ? false : true;
+    $ok = strpos(view::get_title(), $text) === false ? false : true;
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : array();
-        $this->asserttrue(false, fmsg("Title of page {1}/{2} does $not contain the text: {3}", app::get_area(), app::get_uri(), $text));
+        $this->asserttrue(false, tr("Title of page {1}/{2} does $not contain the text: {3}", app::get_area(), app::get_uri(), $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -165,8 +166,14 @@ private function checkPageTitleContains(string $text, bool $has = true)
  */
 final public function assertPageContains(string $text) { $this->checkPageContains($text, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertPageNotContains(string $text) { $this->checkPageContains($text, false); }
 
+/**
+ * @Ignore
+ */
 private function checkPageContains(string $text, bool $has = true)
 { 
 
@@ -176,7 +183,7 @@ private function checkPageContains(string $text, bool $has = true)
     // Assert
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain the text {3}", app::get_area(), app::get_uri(), $text));
+        $this->asserttrue(false, tr("The page {1}/{2} does $not contain the text {3}", app::get_area(), app::get_uri(), $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -195,13 +202,19 @@ private function checkPageContains(string $text, bool $has = true)
  */
 final public function assertHasCallout($type = 'success', $text = '') { $this->checkHasCallout($type, $text, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasCallout($type = 'success', $text = '') { $this->checkHasCallout($type, $text, true); }
 
+/**
+ * @Ignore
+ */
 private function checkHasCallout(string $type, string $text = '', bool $has = true)
 { 
 
     // Get the messages to check
-    $msg = template::get_callouts();
+    $msg = view::get_callouts();
     if (!isset($msg[$type])) { $msg[$type] = array(); }
 
     // Check message type
@@ -220,7 +233,7 @@ private function checkHasCallout(string $type, string $text = '', bool $has = tr
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a user message of type {3} that contains the text: {4}", app::get_area(), app::get_uri(), $type, $text));
+        $this->asserttrue(false, tr("The page {1}/{2} does $not contain a user message of type {3} that contains the text: {4}", app::get_area(), app::get_uri(), $type, $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -240,14 +253,20 @@ private function checkHasCallout(string $type, string $text = '', bool $has = tr
  */
 final public function assertHasFormError(string $type, string $name) { $this->checkHasFormError($type, $name, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasFormError(string $type, string $name) { $this->checkHasFormError($type, $name, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasFormError(string $type, string $name, bool $has = true)
 { 
 
     // Set variables
     $name = ucwords(str_replace("_", " ", $name));
-    $errors = template::get_callouts()['error'] ?? array();
+    $errors = view::get_callouts()['error'] ?? array();
 
     // Create message
     if ($type == 'blank') { $msg = "The form field $name was left blank, and is required"; }
@@ -266,7 +285,7 @@ private function checkHasFormError(string $type, string $name, bool $has = true)
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a form error of type: {3} for the form field: {4}", app::get_area(), app::get_uri(), $type, $name));
+        $this->asserttrue(false, tr("The page {1}/{2} does $not contain a form error of type: {3} for the form field: {4}", app::get_area(), app::get_uri(), $type, $name));
     } else { 
         $this->asserttrue(true);
     }
@@ -284,8 +303,14 @@ private function checkHasFormError(string $type, string $name, bool $has = true)
  */
 final public function assertHasHeading($hnum, string $text) { $this->checkHasHeading($hnum, $text, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasHeading($hnum, string $text) { $this->checkHasHeading($hnum, $text, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasHeading($hnum, string $text, bool $has = true)
 { 
 
@@ -299,7 +324,7 @@ private function checkHasHeading($hnum, string $text, bool $has = true)
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a heading of h{3} with the text: {4}", app::get_area(), app::get_uri(), $hnum, $text));
+        $this->asserttrue(false, tr("The page {1}/{2} does $not contain a heading of h{3} with the text: {4}", app::get_area(), app::get_uri(), $hnum, $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -318,8 +343,14 @@ private function checkHasHeading($hnum, string $text, bool $has = true)
  */
 final public function assertHasSubmit(string $value, string $label) { $this->checkHasSubmit($value, $label, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasSubmit(string $value, string $label) { $this->checkHasSubmit($value, $label, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasSubmit(string $value, string $label, $has = true)
 { 
 
@@ -349,8 +380,14 @@ private function checkHasSubmit(string $value, string $label, $has = true)
  */
 final public function assertHasTable(string $table_alias) { $this->checkHasTable($table_alias, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasTable(string $table_alias) { $this->checkHasTable($table_alias, true); }
 
+/**
+ * @Ignore
+ */
 private function checkHasTable(string $table_alias, bool $has = true)
 { 
 
@@ -362,7 +399,7 @@ private function checkHasTable(string $table_alias, bool $has = true)
     $found = false;
     preg_match_all("/<table(.*?)>/si", $html, $table_match, PREG_SET_ORDER);
     foreach ($table_match as $match) { 
-        $attr = template::parse_attr($match[1]);
+        $attr = view::parse_attr($match[1]);
         $id = $attr['id'] ?? '';
         if ($id == $chk) { $found = true; }
     }
@@ -370,7 +407,7 @@ private function checkHasTable(string $table_alias, bool $has = true)
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The page {1}/{2} does $not contain a table with the alias: {3}", app::get_area(), app::get_uri(), $table_alias));
+        $this->asserttrue(false, tr("The page {1}/{2} does $not contain a table with the alias: {3}", app::get_area(), app::get_uri(), $table_alias));
     } else { 
         $this->asserttrue(true);
     }
@@ -389,8 +426,14 @@ private function checkHasTable(string $table_alias, bool $has = true)
  */
 final public function assertHasTableField(string $table_alias, int $col_num, string $value) { $this->checkHasTableField($table_alias, $col_num, $value, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasTableField(string $table_alias, int $col_num, string $value) { $this->checkHasTableField($table_alias, $col_num, $value, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasTableField(string $table_alias, int $column_num, string $value, bool $has = true)
 { 
 
@@ -404,7 +447,7 @@ private function checkHasTableField(string $table_alias, int $column_num, string
     foreach ($table_match as $match) { 
 
         // Check table ID
-        $attr = template::parse_attr($match[1]);
+        $attr = view::parse_attr($match[1]);
         $id = $attr['id'] ?? '';
         if ($id != $table_alias) { continue; }
 
@@ -434,7 +477,7 @@ private function checkHasTableField(string $table_alias, int $column_num, string
     // Assert
     if ($found !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("On the page {1}/{2} the table with alias {3} does $not have a row that contains the text {4} on column number {5}", app::get_area(), app::get_uri(), $table_alias, $value, $column_num));
+        $this->asserttrue(false, tr("On the page {1}/{2} the table with alias {3} does $not have a row that contains the text {4} on column number {5}", app::get_area(), app::get_uri(), $table_alias, $value, $column_num));
     } else { 
         $this->asserttrue(true);
     }
@@ -451,8 +494,14 @@ private function checkHasTableField(string $table_alias, int $column_num, string
  */
 final public function assertHasDBRow(string $sql) { $this->checkHasDBRow($sql, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNothasDBRow(string $sql) { $this->checkHasDBRow($sql, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasDBRow(string $sql, bool $has = true)
 { 
 
@@ -480,8 +529,14 @@ private function checkHasDBRow(string $sql, bool $has = true)
  */
 final public function assertHasDBField(string $sql, string $column, string $value) { $this->checkHasDBField($sql, $column, $value, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasDBField(string $sql, string $column, string $value) { $this->checkHasDBField($sql, $column, $value, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasDBField(string $sql, string $column, string $value, bool $has = true)
 { 
 
@@ -494,7 +549,7 @@ private function checkHasDBField(string $sql, string $column, string $value, boo
     // Assert
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("Database row does $not contain a column with the name {1} with the value {2}, retrived from the SQL query: {3}", $column, $value, $sql));
+        $this->asserttrue(false, tr("Database row does $not contain a column with the name {1} with the value {2}, retrived from the SQL query: {3}", $column, $value, $sql));
     } else { 
         $this->asserttrue(true);
     }
@@ -511,8 +566,14 @@ private function checkHasDBField(string $sql, string $column, string $value, boo
  */
 final public function assertHasFormField($name) { $this->checkHasFormField($name, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertNotHasFormField($name) { $this->checkHasFormField($name, false); }
 
+/**
+ * @Ignore
+ */
 private function checkHasFormField($name, bool $has = true)
 { 
 
@@ -530,7 +591,7 @@ private function checkHasFormField($name, bool $has = true)
         $found = false;
         preg_match_all("/<input(.*?)>/si", $html, $field_match, PREG_SET_ORDER);
         foreach ($field_match as $match) { 
-            $attr = template::parse_attr($match[1]);
+            $attr = view::parse_attr($match[1]);
             if (isset($attr['name']) && $attr['name'] == $name) { 
                 $found = true;
                 break;
@@ -540,7 +601,7 @@ private function checkHasFormField($name, bool $has = true)
         // Go through select lists
         preg_match_all("/<select(.*?)>/si", $html, $select_match, PREG_SET_ORDER);
         foreach ($select_match as $match) { 
-            $attr = template::parse_attr($match[1]);
+            $attr = view::parse_attr($match[1]);
             if (isset($attr['name']) && $attr['name'] == $name) { 
                 $found = true;
                 break;
@@ -550,7 +611,7 @@ private function checkHasFormField($name, bool $has = true)
         // Assert
         if ($found !== $has) { 
             $not = $has === true ? ' NOT ' : '';
-            $this->asserttrue(false, fmsg("Page at {1}/{2} does $not contain a form field with the name {3}", app::get_area(), app::get_uri(), $name));
+            $this->asserttrue(false, tr("Page at {1}/{2} does $not contain a form field with the name {3}", app::get_area(), app::get_uri(), $name));
         } else { 
             $this->asserttrue(true);
         }
@@ -570,8 +631,14 @@ private function checkHasFormField($name, bool $has = true)
  */
 final public function assertStringContains(string $string, string $text) { $this->checkStringContains($string, $text, true); }
 
+/**
+ * @Ignore
+ */
 final public function assertStringNotContains(string $string, string $text) { $this->checkStringContains($string, $text, false); }
 
+/**
+ * @Ignore
+ */
 private function checkStringContains(string $string, string $text, bool $has = true)
 { 
 
@@ -579,7 +646,7 @@ private function checkStringContains(string $string, string $text, bool $has = t
     $ok = strpos($string, $text) === false ? false : true;
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The provided string does $not contain the text: {1}", $text));
+        $this->asserttrue(false, tr("The provided string does $not contain the text: {1}", $text));
     } else { 
         $this->asserttrue(true);
     }
@@ -596,9 +663,14 @@ private function checkStringContains(string $string, string $text, bool $has = t
  * @param string $text The text to check if the file contents contains
  */
 final public function assertFileContains(string $filename, string $text) { $this->checkFileContains($filename, $text, true); }
-
+/**
+ * @Ignore
+ */
 final public function assertFileNotContains(string $filename, string $text) { $this->checkFileContains($filename, $text, false); }
 
+/**
+ * @Ignore
+ */
 private function checkFileContains(string $filename, string $text, bool $has = true)
 { 
 
@@ -616,7 +688,7 @@ private function checkFileContains(string $filename, string $text, bool $has = t
     // Assert
     if ($ok !== $has) { 
         $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, fmsg("The file {1} does $not contain the text: {2}", $filename, $text));
+        $this->asserttrue(false, tr("The file {1} does $not contain the text: {2}", $filename, $text));
     } else { 
         $this->asserttrue(true);
     }

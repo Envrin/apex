@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\form;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
+use apex\svc\db;
+use apex\svc\view;
 use apex\app\interfaces\components\form;
 
 
@@ -42,17 +42,6 @@ public function get_fields(array $data = array()):array
         'language' => array('field' => 'select', 'selected' => 'en', 'required' => 1, 'data_source' => 'stdlist:language:1'),
         'timezone' => array('field' => 'select', 'selected' => 'PST', 'required' => 1, 'data_source' => 'stdlist:timezone')
     );
-
-    // Security questions
-    if (app::_config('core:num_security_questions') > 0) { 
-        $form_fields['sep3'] = array('field' => 'seperator', 'label' => 'Secondary Security Questions');
-
-        for ($x=1; $x <= app::_config('core:num_security_questions'); $x++) { 
-            $form_fields['question' . $x] = array('field' => 'select', 'data_source' => 'hash:core:secondary_security_questions', 'label' => 'Question ' . $x, 'required' => 1);
-            $form_fields['answer' . $x] = array('field' => 'textbox', 'label' => 'Answer ' . $x, 'required' => 1);
-        }
-    }
-
 
     // Add submit button
     $record_id = $data['record_id'] ?? 0;
@@ -110,12 +99,12 @@ public function validate(array $data = array())
 
         // Check passwords confirm
         if (app::_post('password') != app::_post('confirm-password')) { 
-            template::add_callout("Passwords do not match.  Please try again.", 'error');
+            view::add_callout("Passwords do not match.  Please try again.", 'error');
         }
 
         // Check if username exists
         if ($id = db::get_field("SELECT id FROM admin WHERE username = %s", app::_post('username'))) { 
-            template::add_callout(tr("The username already exists for an administrator, %s", app::_post('username')), 'error');
+            view::add_callout(tr("The username already exists for an administrator, %s", app::_post('username')), 'error');
         }
     }
 

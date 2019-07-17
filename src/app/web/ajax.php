@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\app\web;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\utils\components;
+use apex\svc\debug;
+use apex\svc\components;
 use apex\app\utils\tables;
 
 
@@ -46,9 +46,10 @@ final protected function add(string $action, array $vars)
     array_push($this->results, $vars);
 
     // Debug
-    debug::add(5, fmsg("AJAX action added: {1}, variables: {2}", $action, serialize($vars)), __FILE__, __LINE__);
+    debug::add(5, tr("AJAX action added: {1}, variables: {2}", $action, serialize($vars)), __FILE__, __LINE__);
 
 }
+
 
 /**
  * Opens a dialog in the browser containing the provided message via the 
@@ -166,7 +167,7 @@ final public function set_pagination(string $divid, array $details)
  * ( Prepend text to an element. 
  *
  * @param string $divid The ID# of the DOM element to prepend to
- * @param string $Html THe HTML to prepent.
+ * @param string $html THe HTML to prepent.
  */
 final public function prepend(string $divid, string $html)
 { 
@@ -177,7 +178,7 @@ final public function prepend(string $divid, string $html)
  * Append text to an element 
  *
  * @param string $divid The ID# of the DOM element to append to
- * @param string $Html THe HTML to append
+ * @param string $html THe HTML to append
  */
 final public function append(string $divid, string $html)
 { 

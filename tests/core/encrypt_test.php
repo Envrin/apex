@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\test;
 
 use apex\app;
-use apex\services\db;
-use apex\services\utils\encrypt;
-use apex\services\utils\io;
+use apex\svc\db;
+use apex\svc\encrypt;
+use apex\svc\io;
 use apex\app\tests\test;
 
 
@@ -30,12 +30,9 @@ public function setUp():void
         $app = new app('test');
     }
     app::set_area('public');
-
-    $this->username = 'demo2';
-    $this->password = 'demo';
     $this->temp_password = 'kd*angk3AigU';
 
-    $this->userid = db::get_field("SELECT id FROM users WHERE username = %s", $this->username);
+    $this->userid = db::get_field("SELECT id FROM users WHERE username = %s", $_SERVER['apex_test_username']);
     app::set_userid((int) $this->userid);
 
     $this->data = array();
@@ -48,8 +45,8 @@ public function test_rsa()
 { 
 
 // Get ID# of demo user
-    if (!$userid = db::get_field("SELECT id FROM users WHERE username = %s", $this->username)) { 
-        trigger_error("The username specified in setUp, $this->username does not exist in the database, hence can not complete encryption unit tests", E_USER_ERROR);
+    if (!$userid = db::get_field("SELECT id FROM users WHERE username = %s", $_SERVER['apex_test_username'])) { 
+        trigger_error("The username specified in setUp, $_SERVER[apex_test_username] does not exist in the database, hence can not complete encryption unit tests", E_USER_ERROR);
     }
     $userid = (int) $userid;
 
@@ -57,7 +54,7 @@ public function test_rsa()
     db::query("DELETE FROM encrypt_keys WHERE userid = %i AND type = 'user'", $userid);
 
     // Generate new key-pair
-    $key_id = encrypt::generate_rsa_keypair($userid, 'user', $this->password);
+    $key_id = encrypt::generate_rsa_keypair($userid, 'user', $_SERVER['apex_test_password']);
     $this->assertnotfalse($key_id, "Unable to generate RSA key-pair for user ID# $userid");
 
     // Get public key
@@ -73,7 +70,7 @@ public function test_rsa()
     $this->assertequals(747, strlen($match[1]), "Newly generated RSA public key is not of the correct length");
 
     // Get private key
-    if (!list($chk_id, $private_key) = encrypt::get_key($userid, 'user', 'private', md5($this->password))) { 
+    if (!list($chk_id, $private_key) = encrypt::get_key($userid, 'user', 'private', md5($_SERVER['apex_test_password']))) { 
         $this->assertfalse(true, "Unable to retrieve newly generated RSA private key");
     } else { $this->asserttrue(true); }
     $this->assertequals($chk_id, $key_id, "The ID# of the RSA private key does not match the ID# of the newly generated key");
@@ -102,7 +99,7 @@ public function test_change_rsa_password()
     $data_id = encrypt::encrypt_user($text, array('user:' . $this->userid));
 
     // Change password
-    encrypt::change_rsa_password((int) $this->userid, 'user', md5($this->password), $this->temp_password);
+    encrypt::change_rsa_password((int) $this->userid, 'user', md5($_SERVER['apex_test_password']), $this->temp_password);
 
     // Get private key
     if (!list($chk_id, $private_key) = encrypt::get_key((int) $this->userid, 'user', 'private', md5($this->temp_password))) { 
@@ -201,10 +198,10 @@ public function test_revert_rsa_password()
     $data_id = encrypt::encrypt_user($text, array('user:' . $this->userid));
 
     // Change password
-    encrypt::change_rsa_password((int) $this->userid, 'user', md5($this->temp_password), $this->password);
+    encrypt::change_rsa_password((int) $this->userid, 'user', md5($this->temp_password), $_SERVER['apex_test_password']);
 
     // Get private key
-    if (!list($chk_id, $private_key) = encrypt::get_key((int) $this->userid, 'user', 'private', md5($this->password))) { 
+    if (!list($chk_id, $private_key) = encrypt::get_key((int) $this->userid, 'user', 'private', md5($_SERVER['apex_test_password']))) { 
         $this->assertfalse(true, "Unable to retrive RSA private key after the password was reverted back to original");
     } else { $this->asserttrue(true); }
 
@@ -220,7 +217,7 @@ public function test_revert_rsa_password()
     } else { $this->asserttrue(true); }
 
     // Decrypt
-    $chk_text = encrypt::decrypt_user($data_id, md5($this->password));
+    $chk_text = encrypt::decrypt_user($data_id, md5($_SERVER['apex_test_password']));
     if ($chk_text == $text) { 
         $this->asserttrue(true);
     } else { 
@@ -242,7 +239,7 @@ public function test_twoway_encrypt_secondpass($text)
     $data_id = encrypt::encrypt_user($text, array('user:' . $this->userid));
 
     // Decrypt
-    $chk_text = encrypt::decrypt_user($data_id, md5($this->password));
+    $chk_text = encrypt::decrypt_user($data_id, md5($_SERVER['apex_test_password']));
 
     // Check decryption
     if ($text == $chk_text) { 

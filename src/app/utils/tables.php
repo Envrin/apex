@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\utils;
 
 use apex\app;
-use apex\services\debug;
+use apex\svc\debug;
 
 
 /**
@@ -31,7 +31,7 @@ public function get_details($table, string $table_id = ''):array
 { 
 
     // Debug
-    debug::add(4, fmsg("Getting details of data table, {1}", $table), __FILE__, __LINE__);
+    debug::add(4, tr("Getting details of data table, {1}", $table), __FILE__, __LINE__);
 
     // Set variables
     $page = app::_post('page') ?? 1;

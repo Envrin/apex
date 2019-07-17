@@ -51,6 +51,9 @@ public function get_merge_fields():array
 
 /**
  * Get merge variables 
+ *
+ * @param int $userid The userid e-mails being processed against.
+ * @param array $data Any additionla data.
  */
 public function get_merge_vars(int $userid, array $data):array
 { 

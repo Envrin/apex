@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\utils\components;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\components;
 use apex\app\msg\utils\msg_utils;
 use apex\app\interfaces\msg\ListenerInterface;
 use apex\app\interfaces\msg\EventMessageInterface;
@@ -47,7 +47,7 @@ public function listen()
         // Parse message body
         $msg = unserialize($request->body);
         if (!$msg instanceof EventMessageInterface) { 
-            debug::add(1, fmsg("Invalid RPC call made, did not receive a EventMessageInterface object"), __FILE__, __LINE__, 'alert');
+            debug::add(1, tr("Invalid RPC call made, did not receive a EventMessageInterface object"), __FILE__, __LINE__, 'alert');
         return false;
         }
 
@@ -78,7 +78,9 @@ public function listen()
 
 /**
  * Alias for the 'get_listeners()' method above, simply to add full compliance 
- * with PSR-14. 
+ * with PSR-14.
+ *
+ * @param EventMessageInterface $msg The message to get listeners for. 
  */
 public function getListenersForEvent(EventMessageInterface $msg):iterable { return $this->get_listeners($msg); }
 

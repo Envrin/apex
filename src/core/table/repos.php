@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\utils\encrypt;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\encrypt;
 
 
 class repos
@@ -40,6 +40,8 @@ class repos
     public $dbcolumn = 'id';
 /**
  * Get arguments 
+ *
+ * @param $data array The attributes passed in the <afunction> tag.
  */
 public function get_attributes(array $data = array())
 { 

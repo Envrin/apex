@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
-use apex\services\debug;
+use apex\svc\debug;
 use apex\app\msg\utils\msg_utils;
 use apex\app\interfaces\msg\DispatcherInterface;
 use apex\app\interfaces\msg\EventMessageInterface;
@@ -15,7 +15,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 /**
  * Event Dispatcher
  *
- * Service: apex\services\msg
+ * Service: apex\svc\msg
  *
  * Handles all the two-way RPC calls between Apex and RabbitMQ.  Messages sent 
  * here will not be returned until a response has been received from all 
@@ -32,7 +32,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\msg;
+ * use apex\svc\msg;
  * use apex\app\msg\objects\event_message;
  *
  * // Set some message vars
@@ -60,6 +60,8 @@ class dispatcher   extends msg_utils implements DispatcherInterface
 
 /**
  * Construct.  Grab some injected dependencies we need. 
+ *
+ * @param string $channel_name The channel nqme to send messages though, defaults to 'apex'.
  */
 public function __construct(string $channel_name = 'apex')
 { 
@@ -72,12 +74,14 @@ public function __construct(string $channel_name = 'apex')
 /**
  * Dispatch a message via RPC to all available listeners, and wait for 
  * response. 
+ *
+ * @param EventMessageInterface $msg The message to dispatch.
  */
 public function dispatch(EventMessageInterface $msg)
 { 
 
     // Debug
-    debug::add(4, fmsg("Sending RPC command to {1}", $msg->get_routing_key(true)), __FILE__, __LINE__);
+    debug::add(4, tr("Sending RPC command to {1}", $msg->get_routing_key(true)), __FILE__, __LINE__);
 
     // Check for all-in-one server
     if (app::_config('core:server_type') == 'all' || app::_config('core:server_type') == 'app') { 

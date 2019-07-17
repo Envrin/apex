@@ -4,11 +4,12 @@ declare(strict_types = 1);
 namespace apex;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\db;
-use apex\services\redis;
-use DI\ContainerBuilder;
-use apex\services\template;
+use apex\svc\debug;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\view;
+use apex\app\sys\container;
+use apex\app\msg\emailer;
 use apex\app\exceptions\ApexException;
 use GuzzleHttp\Psr7\UploadedFile;
 
@@ -18,7 +19,7 @@ use GuzzleHttp\Psr7\UploadedFile;
  * registry, request and response contents, the response variables, redis 
  * connection, and all other centralized aspects of the application. 
  */
-class app
+class app extends container
 {
 
 
@@ -51,6 +52,7 @@ class app
     private static $uri = 'index';
     private static $uri_original = 'index';
     private static $uri_segments = [];
+    private static $uri_locked = false;
     private static $http_headers = [];
     private static $http_headers_keys = [];
 
@@ -71,11 +73,13 @@ class app
      */
 
     private static $userid = 0;
+    private static $recipient = 'public';
     private static $ip_address = '127.0.0.1';
     private static $user_agent;
     private static $language = 'en';
     private static $timezone = 'PST';
     private static $currency = 'USD';
+    private static $verified_2fa = false;
 
     /**
      * Response variables, such as HTTP status code, content type, contents, etc. 
@@ -95,8 +99,6 @@ class app
     private static $instance = null;
     private $reqtype = 'http';
     private $reqtype_original;
-    private $container;
-    private $services;
 
 /**
  * Initialize the application. 
@@ -120,6 +122,10 @@ public function __construct(string $reqtype = 'http')
 
     // Build container
     $this->build_container($reqtype);
+
+
+    // Load config
+    self::$config = redis::singleton();
 
     // Unpack request
     if ($this->reqtype != 'cli') { 
@@ -179,11 +185,6 @@ private function initialize()
         $installer->run_wizard();
     }
 
-    // Connect to redis, and load configuration variables
-    if (count(self::$config) == 0) { 
-        self::$config = redis::singleton();
-    }
-
 }
 
 /**
@@ -192,8 +193,10 @@ private function initialize()
  * Builds the dependency injection container suing the popular php-di package, 
  * plus retrieves service definitions based on request type, and initializes 
  * the various singletons. 
+ *
+ * @param string $reqtype The type of request (http, cli, test)
  */
-private function build_container(string $reqtype)
+private function build_container_old(string $reqtype)
 { 
 
     // Set request type
@@ -353,7 +356,7 @@ public function assign_service(string $service)
 
     // Ensure service is defined
     if (!isset($this->services[$service])) { 
-        throw new ApexException('error', fmsg("Invalid service trying to be assigned, {1}", $service));
+        throw new ApexException('error', tr("Invalid service trying to be assigned, {1}", $service));
     }
 
     // Set variables
@@ -377,12 +380,21 @@ public function assign_service(string $service)
  * Setup a test request. 
  *
  * Sets the various necessary variables for a test request, such as URI, 
- * request method, POST / GET arrays, and others. 
+ * request method, POST / GET arrays, and others.
+ *
+ * @param string $uri The URI of the http request
+ * @param string $method The method of request (ie. POST or GET).  Defaults to GET.
+ * @param array $post All POST variables of the request.
+ * @param array $get All GET variables of the request.
+ * @param array $cookie All COOKIE variables of the request.
+ *
+ * @return string The resulting HTML code of the request. 
  */
 public function setup_test(string $uri, string $method = 'GET', array $post = [], array $get = [], array $cookie = [])
 { 
 
     // Set URI
+    self::$uri_locked = false;
     self::set_uri($uri);
 
     // Set other input variables
@@ -391,10 +403,11 @@ public function setup_test(string $uri, string $method = 'GET', array $post = []
     self::$get = $get;
     //self::$cookie = $cookie;
     self::$action = self::$post['submit'] ?? '';
+    self::$verified_2fa = false;
 
-    // Rebuild the container
-    template::reset();
-    //$this->build_container('test');
+    // Reset needed objects
+    view::reset();
+    //self::call([emailer::class, 'clear_queue']);
 
 }
 
@@ -476,7 +489,7 @@ public static function update_config_var(string $var, $value)
 { 
 
     // Debug
-    debug::add(5, fmsg("Updating configuration variable {1} to value: {2}", $var, $value), __FILE__, __LINE__);
+    debug::add(5, tr("Updating configuration variable {1} to value: {2}", $var, $value), __FILE__, __LINE__);
 
     redis::hset('config', $var, $value);
     self::$config[$var] = $value;
@@ -489,6 +502,8 @@ public static function update_config_var(string $var, $value)
 
 /**
  * Verify a 2FA request 
+ *
+ * @param array $vars The full vars of the 2FA request from redis.
  */
 public static function verify_2fa(array $vars)
 { 
@@ -496,21 +511,25 @@ public static function verify_2fa(array $vars)
     // Set variables
     self::$userid = (int) $vars['userid'];
     self::$http_controller = $vars['http_controller'];
-    self::$panel = $vars['panel'];
+    self::$area = $vars['area'];
     self::$theme = $vars['theme'];
-    self::$route = $vars['route'];
-    self::$request_method = $vars['request_method'];
+    self::$uri = $vars['uri'];
+    self::$method = $vars['request_method'];
     self::$get = $vars['get'];
     self::$post = $vars['post'];
     self::$verified_2fa = true;
 
     // Handle request
-    self::handle_request();
-
-    // Echo results
-    self::echo_response();
+    self::call(["apex\\core\\controller\\http_requests\\" . $vars['http_controller'], 'process']);
 
 }
+
+/**
+ * Check if verified via 2FA
+ *
+ * @return bool Whether or not the user has been verified via 2FA.
+ */
+public static function is_verified():bool { return self::$verified_2fa; }
 
 /**
  * Increment a counter within the redis database 
@@ -530,7 +549,7 @@ public static function get_counter(string $counter, int $increment = 1):int
  *
  * @param string $reqtype The request type to set
  */
-public function set_reqtype(string $type) { $this->reqtype = $type; }
+public function set_reqtype(string $reqtype) { $this->reqtype = $type; }
 
 /**
  * Reset request type back to its original. 
@@ -547,7 +566,7 @@ public static function set_area(string $area)
 
     // Ensure valid area
     if (!is_dir(SITE_PATH . '/views/tpl/' . $area)) { 
-        throw new apexException('error', fmsg("Invalid area specified, {1}", $area));
+        throw new apexException('error', tr("Invalid area specified, {1}", $area));
     }
     self::$area = $area;
 
@@ -563,7 +582,7 @@ public static function set_theme(string $theme)
 
     // ENsure valid theme directory
     if (!is_dir(SITE_PATH . '/views/themes/' . $theme)) { 
-        throw new ApexException('error', fmsg("Invalid theme specified, {1}", $theme));
+        throw new ApexException('error', tr("Invalid theme specified, {1}", $theme));
     }
     self::$theme = $theme;
 
@@ -576,11 +595,15 @@ public static function set_theme(string $theme)
  * correct template.  Only use this is you need to change the URI for some 
  * reason. 
  *
- * @param string $route The route / URI to set in registry
+ * @param string $uri The URI to set and display next
  * @param bool $prepend_area Whether or not to prepend the area to the URI.  Used for system templates such as 2fa, 500, etc.
+ * @param bool $lock_uri Whether or not to lock the URI from being changed future in the request.
  */
-public static function set_uri(string $uri, $prepend_area = false)
+public static function set_uri(string $uri, bool $prepend_area = false, bool $lock_uri = false)
 { 
+
+    // Return, if locked
+    if (self::$uri_locked === true) { return; }
 
     // Prepend, if needed
     if ($prepend_area === true && self::$area != 'public') { 
@@ -605,6 +628,7 @@ public static function set_uri(string $uri, $prepend_area = false)
         self::$http_controller = 'http';
     }
     self::$uri = strtolower(filter_var(trim($uri, '/'), FILTER_SANITIZE_URL));
+    self::$uri_locked = $lock_uri;
 
 }
 
@@ -616,6 +640,7 @@ public static function set_uri(string $uri, $prepend_area = false)
 public static function set_userid(int $userid)
 { 
     self::$userid = $userid;
+    self::$recipient = self::$area == 'admin' ? 'admin:' . $userid : 'user:' . $userid;
 }
 
 /**
@@ -776,6 +801,11 @@ public static function get_action():string { return self::$action; }
 public static function get_userid():int { return self::$userid; }
 
 /**
+ * Get the recipient.  Used for logs, etc.
+ */
+public static function get_recipient():string { return self::$recipient; }
+
+/**
  * Get the IP address of requesting user 
  *
  * @return string The user's IP address
@@ -812,26 +842,46 @@ public static function get_currency():string { return self::$currency; }
 
 /**
  * Get a $_POST variable 
+ *
+ * @param string $var The key of the variable to retrive.
+ *
+ * @return mixed The value of the variable, null if not exists.
  */
 public static function _post(string $var) { return self::$post[$var] ?? null; }
 
 /**
- * Get a $_GET variable 
+ * Get a $_GET variable
+ * 
+ * @param string $var The key of the variable to retrive.
+ *
+ * @return mixed The value of the variable, null if not exists.
  */
 public static function _get(string $var) { return self::$get[$var] ?? null; }
 
 /**
  * Get a $_COOKIE variable. 
+ *
+ * @param string $var The key of the variable to retrive.
+ *
+ * @return mixed The value of the variable, null if not exists.
  */
 public static function _cookie(string $var) { return self::$cookie[$var] ?? null; }
 
 /**
- * Get a $_SERVER variable 
+ * Get a $_SERVER variable
+ *
+ * @param string $var The key of the variable to retrive.
+ *
+ * @return mixed The value of the variable, null if not exists. 
  */
 public static function _server(string $var) { return self::$server[$var] ?? null; }
 
 /**
- * Get a http header 
+ * Get a http header
+ *
+ * @param string $key The key of the http header to retrive
+ *
+ * @return mixed The value of the variable, null if not exists. 
  */
 public static function _header($key) { 
     $key = strtolower($key);
@@ -839,45 +889,77 @@ public static function _header($key) {
 }
 
 /**
- * Get a http header as single comma delimited line 
+ * Get a http header as single comma delimited line
+ *
+ * @param string $key The key of the http header to retrive
+ *
+ * @return mixed The value of the variable, null if not exists. 
  */
-public static function _header_line($key) { 
+public static function _header_line(string $key) { 
     $key = strtolower($key);
     return isset(self::$http_headers[$key]) ? implode(", ", self::$http_headers[$key]) : '';
 }
 
 /**
  * Get a configuration variable from the 'config' hash of redis 
+ *
+ * @param string $var The key of the variable to retrive.
+ *
+ * @return mixed The value of the variable, null if not exists.
  */
 public static function _config(string $var) { return self::$config[$var] ?? null; }
 
 /**
- * Check whether or not $_POST variable exists. 
+ * Check whether or not $_POST variable exists.
+ *
+ * @param string $var The key of the variable to check whether or not it exists.
+ *
+ * @return bool Whether or not the variable exists.
  */
 public static function has_post(string $var) { return isset(self::$post[$var]) ? true : false; }
 
 /**
  * Check whether or not a $_GET variable exists. 
+ *
+ * @param string $var The key of the variable to check whether or not it exists.
+ *
+ * @return bool Whether or not the variable exists.
  */
 public static function has_get(string $var) { return isset(self::$get[$var]) ? true : false; }
 
 /**
  * Check whether or not a $_COOKIE variable exists. 
+ *
+ * @param string $var The key of the variable to check whether or not it exists.
+ *
+ * @return bool Whether or not the variable exists.
  */
 public static function has_cookie(string $var) { return isset(self::$cookie[$var]) ? true : false; }
 
 /**
- * Check whether or not a $_SERVER variable exists 
+ * Check whether or not a $_SERVER variable exists
+ *
+ * @param string $var The key of the variable to check whether or not it exists.
+ *
+ * @return bool Whether or not the variable exists. 
  */
 public static function has_server(string $var) { return isset(self::$server[$var]) ? true : false; }
 
 /**
  * Check whether or not a configuration variable is defined. 
+ *
+ * @param string $var The key of the variable to check whether or not it exists.
+ *
+ * @return bool Whether or not the variable exists.
  */
 public static function has_config(string $var) { return isset(self::$config[$var]) ? true : false; }
 
 /**
- * Check whether or not a http header exists 
+ * Check whether or not a http header exists
+ *
+ * @param string $key The key of the http header to check
+ *
+ * @return bool Whether or not the variable exists. 
  */
 public static function has_header($key) { 
     $key = strtolower($key);
@@ -938,7 +1020,12 @@ public static function clear_post() { self::$post = array(); }
 public static function clear_get() { self::$get = array(); }
 
 /**
- * Set a new cookie 
+ * Set a new cookie
+ *
+ * @param string $name The name of the cookie.
+ * @param string $value The value of the cookie. 
+ * @param int $expire Expiration date in seconds.
+ * @param string $path The path of the cookie.
  */
 public static function set_cookie(string $name, string $value, int $expire = 0, string $path = '/')
 { 
@@ -973,7 +1060,7 @@ public static function set_res_http_status(int $code)
     self::$res_status = $code;
 
     // Debug
-    debug::add(1, fmsg("Changed HTTP response status to {1}", $code), __FILE__, __LINE__);
+    debug::add(1, tr("Changed HTTP response status to {1}", $code), __FILE__, __LINE__);
 
 }
 
@@ -991,7 +1078,7 @@ public static function set_res_content_type(string $type)
     self::$res_content_type = $type;
 
     // Debug
-    debug::add(1, fmsg("Set response content-type to {1}", $type), __FILE__, __LINE__);
+    debug::add(1, tr("Set response content-type to {1}", $type), __FILE__, __LINE__);
 
 }
 
@@ -1007,7 +1094,7 @@ public static function set_res_header($key, $value) { self::$res_http_headers[$k
  * Set the contents of the response that will be given.  Should be used with 
  * every request. 
  *
- * @param string $content The content of the response that will be given.
+ * @param string $body The content of the response that will be given.
  */
 public static function set_res_body(string $body)
 { 
@@ -1035,11 +1122,13 @@ public static function get_res_status() { return self::$res_status; }
 public static function get_res_content_type() { return self::$res_content_type; }
 
 /**
- * Get a single response HTTP header 
+ * Get a single response HTTP header
+ *
+ * @param string $key The key of the http header to retrieve. 
  *
  * @return string The value of the single HTTP response header
  */
-public static function get_res_header($key) { return self::$res_http_headers[$key] ?? ''; }
+public static function get_res_header(string $key) { return self::$res_http_headers[$key] ?? ''; }
 
 /**
  * Get list of all response HTTP headers 
@@ -1093,7 +1182,7 @@ public static function echo_template(string $uri, bool $prepend_area = false)
 { 
 
     // Debug
-    debug::add(1, fmsg("Forcing non-standard output of template: {1}", $uri), __FILE__, __LINE__);
+    debug::add(1, tr("Forcing non-standard output of template: {1}", $uri), __FILE__, __LINE__);
 
     // Set route
     if ($prepend_area === true && self::$area != 'public') { 
@@ -1102,7 +1191,7 @@ public static function echo_template(string $uri, bool $prepend_area = false)
     self::set_uri($uri);
 
     // Echo template
-    self::set_res_body(template::parse());
+    self::set_res_body(view::parse());
     self::echo_response();
 
     // Finish session
@@ -1113,22 +1202,6 @@ public static function echo_template(string $uri, bool $prepend_area = false)
 
 }
 
-public function get($name) { return $this->container->get($name); }
-
-public function make($name, array $params = []) { return $this->container->make($name, $params); }
-
-public function has($name) { return $this->container->has($name); }
-
-public function injectOn($instance) { return $this->container->injectOn($instance); }
-
-public function call($callable, array $params = []) { 
-    if (!$this->container) { echo "CALL: $callable[1] -- $callable[0]\n"; }
-    return $this->container->call($callable, $params);
-}
-
-public function set($name, $value) { $this->container->set($name, $value); }
-
-public function getKnownEntryNames() { return $this->container->getKnownEntryNames(); }
 
 
 }

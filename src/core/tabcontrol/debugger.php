@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\tabcontrol;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\template;
-use apex\services\redis;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\view;
+use apex\svc\redis;
 use apex\app\utils\hashes;
 use apex\app\interfaces\components\tabcontrol;
 
@@ -33,6 +33,9 @@ class debugger implements tabcontrol
 
 /**
  * Constructor.  Grab some injected dependencies we will need. 
+ *
+ * @param app $app The /src/app.php class.  Injected.
+ * @param hashes $hashes The /app/utils/hashes.php class.  Injected.
  */
 public function __construct(app $app, hashes $hashes)
 { 
@@ -95,14 +98,14 @@ public function process(array $data)
     foreach ($data['sql'] as $query) { array_push($sql, array('query' => $query)); }
 
     // Template variables
-    template::assign('req', $req);
-    template::assign('trace', $data['backtrace']);
-    template::assign('notes', $data['notes']);
-    template::assign('post', $post);
-    template::assign('get', $get);
-    template::assign('cookie', $cookie);
-    template::assign('server', $server);
-    template::assign('sql', $sql);
+    view::assign('req', $req);
+    view::assign('trace', $data['backtrace']);
+    view::assign('notes', $data['notes']);
+    view::assign('post', $post);
+    view::assign('get', $get);
+    view::assign('cookie', $cookie);
+    view::assign('server', $server);
+    view::assign('sql', $sql);
 
 }
 

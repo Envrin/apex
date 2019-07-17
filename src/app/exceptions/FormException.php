@@ -22,7 +22,10 @@ class FormException   extends ApexException
     );
 
 /**
- * Construct 
+ * Construct
+ *
+ * @param string $message The exception message
+ * @param string $field The alias of the form field. 
  */
 public function __construct($message, $field = '')
 { 
@@ -35,7 +38,7 @@ public function __construct($message, $field = '')
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

@@ -2,15 +2,17 @@
 declare(strict_types = 1);
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\log;
-use apex\services\template;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\log;
+use apex\svc\view;
 use apex\app\exceptions\ApexException;
 
 
 /**
  * Handle all exceptions
+ *
+ * @param Exception $e The exception being handled.
  */
 function handle_exception($e)
 {
@@ -31,7 +33,7 @@ function handle_exception($e)
         // Display template
         app::set_res_http_status(504);
         app::set_uri('504', true);
-        echo template::parse();
+        echo view::parse();
 
     // Give standard error
     } else { 
@@ -45,6 +47,11 @@ function handle_exception($e)
 
 /**
  * Error handler
+ *
+ * @param int $errno The error number.
+ * @param string $message The error message
+ * @param string $file The filename where the error occurred.
+ * @param int $line The line number the error occurred on. 
  */
 function error(int $errno, string $message, string $file, int $line) 
 {
@@ -97,12 +104,12 @@ function error(int $errno, string $message, string $file, int $line)
     app::set_uri($tpl_file, true);
 
     // Template variables
-    template::assign('err_message', $message);
-    template::assign('err_file', $file);
-    template::assign('err_line', $line);
+    view::assign('err_message', $message);
+    view::assign('err_file', $file);
+    view::assign('err_line', $line);
 
     // Parse template
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
     app::Echo_response();
 
     // Exit
@@ -114,82 +121,44 @@ function error(int $errno, string $message, string $file, int $line)
 /**
  * Translate text to user's language 
  *
+ * Translate string.
+ *
  * Translates a string of text into the necessary language, depending on the 
  * user's profile preferences.  Also supports placeholders (ie. %s), with the 
  * variables being passed as additional parameters in sequential order. 
+ *
+ * @param iterable $args First element is the contents of the string / message, and rest of the params are the values of the placeholders.
  */
 function tr(...$args):string
 { 
 
-    // Check for text
-    if (!$text = array_shift($args)) { return 'null'; }
+    // Initialize
+    $text = array_shift($args);
+    if (isset($args[0]) && is_array($args[0])) { $args = $args[0]; }
 
-    // Get the correct text
+// Translate text, if available
     $lang = app::get_language();
     if ($lang != 'en' && $row = db::get_row("SELECT * FROM internal_translations WHERE language = %s AND md5hash = %s", $lang, md5($text))) { 
         if ($row['contents'] != '') { $text = base64_decode($row['contents']); }
     }
 
     // Go through args
-    foreach ($args as $value) { 
-        $text = preg_replace("/\%\w/", $value, $text, 1);
-    }
-
-    // Return
-    return $text;
-
-}
-
-/**
- * Format with PSR placeholders 
- *
- * Formats a message with PSR3 supported placeholders such as {1}, {2}, {3}. 
- * First parameter is the message with placeholders, and the rest of the 
- * parameters are the values of the placeholders in sequential order. 
- */
-function fmsg(string $msg, ...$vars)
-{ 
-
-    // Initializ
-    $replace = array();
-    if (isset($vars[0]) && is_array($vars[0])) { $vars = $vars[0]; }
-
-    // Create replace array
     $x=1;
-    foreach ($vars as $key => $var) { 
-        if (is_string($key)) { $replace['{' . $key . '}'] = filter_var($var, FILTER_SANITIZE_STRING); }
-        $replace['{' . $x . '}'] = filter_var($var, FILTER_SANITIZE_STRING);
+    $replace = [];
+    foreach ($args as $key => $value) {
+        if (is_array($value)) { continue; }
+
+        $pos = strpos($text, "%s");
+        if ($pos !== false) {
+            $text = substr_replace($text, $value, $pos, 2);
+        }
+
+        if (is_string($key)) { $replace['{' . $key . '}'] = filter_var($value, FILTER_SANITIZE_STRING); }
+        $replace['{' . $x . '}'] = filter_var($value, FILTER_SANITIZE_STRING);
     $x++; }
 
     // Return
-    return strtr($msg, $replace);
-
-}
-
-/**
- * Format a message with named placeholders 
- *
- * @param string $message The message with placeholders in it
- * @param array $vars Associative array of keys being the placeholder names, with their respective values to replace with
- *
- * @return string The newly formatted message
- */
-function fnames(string $message, array $vars):string
-{ 
-
-    // Translate message
-    $message = tr($message);
-
-    // Go through placeholders
-    foreach ($vars as $key => $value) { 
-        if (is_array($value)) { continue; }
-
-        $key = '{' . $key . '}';
-        $message = str_replace($key, $value, $message);
-    }
-
-    // Return
-    return $message;
+    return strtr($text, $replace);
 
 }
 
@@ -236,6 +205,7 @@ $d = $date == '2019-03-02 06:55:02' ? 1 : 0;
  *
  * @param float $amount The decimal to format.
  * @param string $currency The 3 character ISO currency to format to.
+ * @param bool $include_abbr Whether or not to add the 3 character ISO currency abbreviation.
  *
  * @return string The formatted amount.
  */
@@ -281,8 +251,8 @@ function fmoney(float $amount, string $currency = '', bool $include_abbr = true)
  * resulting amount. 
  *
  * @param float $amount The amount to exchange
- * @param string $currency_from The currency the amount is currently in
- * @param string $currency_to The currency to exchange the funds into
+ * @param string $from_currency The currency the amount is currently in
+ * @param string $to_currency The currency to exchange the funds into
  *
  * @return string The resulting amount after exchange
  */
@@ -301,8 +271,8 @@ function fexchange(float $amount, string $from_currency, string $to_currency)
  * Exchange funds into another currency. 
  *
  * @param float $amount The amount to exchange
- * @param string $currency_from The currency the amount is currently in
- * @param string $currency_to The currency to exchange the funds into
+ * @param string $from_currency The currency the amount is currently in
+ * @param string $to_currency The currency to exchange the funds into
  *
  * @return float The resulting amount after exchange
  */

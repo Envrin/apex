@@ -49,7 +49,7 @@ formatted in YYYY-MM-DD %ts | Timestampe, must be formatted in HH:II:SS %ls | Fo
 the value, and surrounds it with '%' characters.  For example, the value "john" becomes "'%john%'"
 
 
-### <api:app.db.mysql>query(string $sql, array $args)</api>
+### query(string $sql, array $args)
 
 **Description:** Performs any SQL statement against the database, but is generally used for SELECT statements,
 and simply returns the result of the `mysqli_query()` function.
@@ -64,7 +64,7 @@ foreach ($rows as $row) {
 ~~~
 
 
-### <api:app.db.mysql>insert(string $table_name, array $values)</api>
+### insert(string $table_name, array $values)
 
 **Description:** Inserts a new row into the specified database table.
 
@@ -84,7 +84,7 @@ db::insert('blog_posts', array(
 ~~~
 
 
-### <api:app.db.mysql>update(string $table_name, array $values, string $where_sql, array $args)</api>
+### update(string $table_name, array $values, string $where_sql, array $args)
 
 **Description:** Updates one or more rows within the provided table name of the database.
 
@@ -105,7 +105,7 @@ db::update('blog_posts', array(
 ~~~
 
 
-### <api:app.db.mysql>delete(string $table_name, string $where_sql, array $args)</api>
+### delete(string $table_name, string $where_sql, array $args)
 
 **Description:** Deletes rows from the specified table.
 
@@ -123,7 +123,7 @@ db::delete('blog_posts', 'type = %s AND blog_id = %i', $type, $blog_id);
 ~~~
 
 
-### <api:app.db.mysql>array get_row(string $sql, array $args)</api</api>
+### array get_row(string $sql, array $args)</api
 
 **Description:** Get the first row found using the given SQL query, and returns an associative array of the
 values.  Returns false if no row exists.
@@ -139,7 +139,7 @@ print_r($row);
 ~~~
 
 
-###<api:app.db.mysql>`array get_idrow(string $table_name in $id_number)</api>
+###`array get_idrow(string $table_name in $id_number)
 
 **Description:** Similiar to the `get_row()` function, and only returns one row from the database, but just a
 quicker way to look up rows based strictly on the "id" column of the database table if you have it.
@@ -159,7 +159,7 @@ print_r($row);
 ~~~
 
 
-### <api:app.db.mysql>array get_column(string $sql, array $args)</api>
+### array get_column(string $sql, array $args)
 
 **Description:** Returns a one-dimensional array of one specific column within a database table.
 
@@ -171,7 +171,7 @@ print_r($types);
 ~~~
 
 
-### <api:app.db.mysql>array get_hash(string $sql, array $args)</api>
+### array get_hash(string $sql, array $args)
 
 **Description:* Returns an associative array of the two columns defined within the SQL statement.  Useful for
 creating a quick key-value pair from a database table.
@@ -186,7 +186,7 @@ foreach ($groups as $group_id => $name) {
 ~~~
 
 
-### <api:app.db.mysql>string get_field(string $sql, array $args)</api>
+### string get_field(string $sql, array $args)
 
 **Description:** Returns the first column from the first row of the resulting SQL statement.  Useful for
 getting a single field from a single row from the database.
@@ -202,34 +202,34 @@ echo "Name is: $name\n":
 ~~~
 
 
-### <api:app.db.mysql>int insert_id()</api>
+### int insert_id()
 
 **Description:** Simply returns the ID# of the last row inserted into a table with an id column that auto
 increments.
 
 
-### <api:app.db.mysql>array show_tables()</api>
+### array show_tables()
 
 **Description:** Returns a one-dimensional array of all tables within the database.
 
 
-### <api:app.db.mysql>array show_columns(string $table_name, bool $include_types = false)</api>
+### array show_columns(string $table_name, bool $include_types = false)
 
 ** Description:** Returns an one-dimenational array of all columns within the given table provided.  If
 `$include_types` is true, will return an associative array that includes the column type.
 
 
-### <api:app.db.mysql>begin_transaction()</api>
+### begin_transaction()
 
 **Description:** Begins a new database transaction.
 
 
-### <api:app.db.mysql>commit()</api>
+### commit()
 
 **Description:** Submits the currently open database transaction.
 
 
-### <api:app.db.mysql>rollback()</api>
+### rollback()
 
 **Description:** Rollsback the currently open database transaction.
 

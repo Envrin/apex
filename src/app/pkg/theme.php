@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\pkg;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
+use apex\svc\db;
+use apex\svc\debug;
 use apex\app\sys\network;
-use apex\services\utils\io;
+use apex\svc\io;
 use apex\app\exceptions\RepoException;
 use apex\app\exceptions\ThemeException;
 use CurlFile;
@@ -36,7 +36,7 @@ public function create(string $theme_alias, int $repo_id, string $area = 'public
 { 
 
     // Debug
-    debug::add(2, fmsg("Starting create theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Starting create theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Initial check
     if ($theme_alias == '') { 
@@ -76,7 +76,7 @@ public function create(string $theme_alias, int $repo_id, string $area = 'public
     $theme_id = db::insert_id();
 
     // Debug
-    debug::add(1, fmsg("Successfully created new theme with alias {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully created new theme with alias {1}", $theme_alias), __FILE__, __LINE__);
 
     // Return
     return $theme_id;
@@ -92,7 +92,7 @@ public function publish(string $theme_alias)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting to publish theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting to publish theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Get theme
     if (!$row = db::get_row("SELECT * FROM internal_themes WHERE alias = %s", $theme_alias)) { 
@@ -105,7 +105,7 @@ public function publish(string $theme_alias)
     $theme = new $class_name();
 
     // Debug
-    debug::add(4, fmsg("Publishing theme, successfully loaded theme configuration for alias, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Publishing theme, successfully loaded theme configuration for alias, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Set variables
     $access = $theme->access ?? $row['access'];
@@ -144,12 +144,11 @@ public function publish(string $theme_alias)
     );
 
     // Send repo request
-    $app = app::get_instance();
-    $client = $app->make(network::class);
+    $client = app::make(network::class);
     $vars = $client->send_repo_request((int) $row['repo_id'], $theme_alias, 'publish', $request);
 
     // Debug
-    debug::add(1, fmsg("Successfully published theme to repository, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully published theme to repository, {1}", $theme_alias), __FILE__, __LINE__);
 
 
 }
@@ -163,7 +162,7 @@ protected function compile(string $theme_alias)
 { 
 
     // Debug
-    debug::add(4, fmsg("Start compile theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Start compile theme with alias, {1}", $theme_alias), __FILE__, __LINE__);
 
 // Create /public/ directory within theme
     $theme_dir = SITE_PATH . '/views/themes/' . $theme_alias;
@@ -186,7 +185,7 @@ protected function compile(string $theme_alias)
     io::remove_dir("$theme_dir/public");
 
     // Debug
-    debug::add(4, fmsg("Successfully compiled theme, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully compiled theme, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Return
     return $zip_file;
@@ -194,16 +193,16 @@ protected function compile(string $theme_alias)
 }
 
 /**
- * Download and install a theme #param string $theme_alias The alias of the 
- * theme to install 
- *
+ * Download and install a theme 
+ * 
+ * @param string $theme_alias The alias of the theme to install. 
  * @param int $repo_id Optional ID# of the repo to download from.  If unspecified, all repos will be checked.
  */
 public function install(string $theme_alias, int $repo_id = 0)
 { 
 
     // Debug
-    debug::add(2, fmsg("Starting to download and install theme, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Starting to download and install theme, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Download
     list($repo_id, $zip_file, $vars) = $this->download($theme_alias, $repo_id);
@@ -243,7 +242,7 @@ public function install(string $theme_alias, int $repo_id = 0)
     }
 
     // Debug
-    debug::add(1, fmsg("Successfully downloaded and installed theme, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully downloaded and installed theme, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Return
     return true;
@@ -251,20 +250,19 @@ public function install(string $theme_alias, int $repo_id = 0)
 }
 
 /**
- * Download a theme from the repository. #param string $theme_alias The alias 
- * of the theme to install 
- *
+ * Download a theme from the repository. 
+ * 
+ * @param string $theme_alias The alias of the theme to download. 
  * @param int $repo_id Optional ID# of the repo to download from.  If unspecified, all repos will be checked.
  */
 protected function download(string $theme_alias, int $repo_id = 0)
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting to download theme from repository, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to download theme from repository, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Initialize network client
-    $app = app::get_instance();
-    $network = $app->make(network::class);
+    $network = app::make(network::class);
 
     // Get repo, if needed
     if ($repo_id == 0) { 
@@ -291,7 +289,7 @@ throw RepoException('not_exists', $repo_id);
     file_put_contents($zip_file, base64_decode($vars['contents']));
 
     // Debug
-    debug::add(4, fmsg("Successfully downloaded theme, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully downloaded theme, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Return
     return array($repo_id, $zip_file, $vars);
@@ -307,7 +305,7 @@ public function remove(string $theme_alias)
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting removal of theme, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Starting removal of theme, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Ensure theme exists
     if (!$row = db::get_row("SELECT * FROM internal_themes WHERE alias = %s", $theme_alias)) { 
@@ -322,7 +320,7 @@ public function remove(string $theme_alias)
     db::query("DELETE FROM internal_themes WHERE alias = %s", $theme_alias);
 
     // Debug
-    debug::add(1, fmsg("Successfully deleted theme from system, {1}", $theme_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully deleted theme from system, {1}", $theme_alias), __FILE__, __LINE__);
 
     // Return
 return true;

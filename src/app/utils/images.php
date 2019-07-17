@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
+use apex\svc\db;
+use apex\svc\debug;
 use apex\app\utils\forms;
 use apex\app\io\io;
 
@@ -13,7 +13,7 @@ use apex\app\io\io;
 /**
  * Image Handling Library
  *
- * Service: apex\services\utils\images
+ * Service: apex\svc\images
  *
  * Class to handle image storage and manipulation, including 
  * uploading / adding new images, generating thumbnails, 
@@ -25,12 +25,12 @@ use apex\app\io\io;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\images;
+ * use apex\svc\images;
  *
  * // Upload image
  * $product_id = 432;
@@ -49,8 +49,9 @@ class images
  * @param string $filename The filename of the image
  * @param string $contents The contents of the image
  * @param string $type The type of image (eg. user, product, etc.)
- * @param int $recordstring Optional record ID to retrieve the image later
- * @param int $is_default Boolean (1/0) that defines whether or not the image is default for this type (eg. default user avatar)
+ * @param mixed $record_id Optional record ID to retrieve the image later
+ * @param string $size The size of the image, defaults to 'full'.
+ * @param int $is_default int (1/0) that defines whether or not the image is default for this type (eg. default user avatar)
  *
  * @return int The ID# of the new image
  */
@@ -58,7 +59,7 @@ public static function add(string $filename, string $contents, string $type, $re
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting to add image with type: {1}, record_id: {2}, size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to add image with type: {1}, record_id: {2}, size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
 
     // Save image to filesystem
     $tmpfile = tempnam(sys_get_temp_dir(), 'apex');
@@ -93,7 +94,7 @@ public static function add(string $filename, string $contents, string $type, $re
     );
 
     // Debug
-    debug::add(3, fmsg("Added new image to database, type: {1}, record_id: {2}", $type, $record_id), __FILE__, __LINE__);
+    debug::add(3, tr("Added new image to database, type: {1}, record_id: {2}", $type, $record_id), __FILE__, __LINE__);
 
     // Return
     return $image_id;
@@ -114,7 +115,7 @@ public static function upload(string $form_field, string $type, $record_id = '',
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting to upload / add new image of type: {1}, record_id: {2},from form field: {3}", $type, $record_id, $form_field), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to upload / add new image of type: {1}, record_id: {2},from form field: {3}", $type, $record_id, $form_field), __FILE__, __LINE__);
 
     // Get the uploaded file
     if (!list($filename, $mime_type, $contents) = forms::get_uploaded_file($form_field)) { 
@@ -160,6 +161,13 @@ public static function get(string $type, $record_id = '', string $size = 'full',
 
 /**
  * Add a thumbnail 
+ *
+ * @param string $image_type The type of image (product, profile, etc.)
+ * @param mixed $record_id The ID# of the image, unique to the image type.
+ * @param string $size The new size of the thumbnail (eg. thumb, small, tiny)
+ * @param int $thumb_width The width of the thumbnail to generate.
+ * @param int $thumb_height The height of the thumbnail to generate.
+ * @param int $is_default A (1/0) defining whether this is the default image for the image type.
  */
 public static function add_thumbnail(string $image_type, $record_id, string $size, int $thumb_width, int $thumb_height, $is_default = 0)
 { 
@@ -237,7 +245,7 @@ public static function add_thumbnail(string $image_type, $record_id, string $siz
     $thumb_id = self::add($filename, $thumb_contents, $image_type, $record_id, $size, $is_default);
 
     // Debug
-    debug::add(4, fmsg("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
+    debug::add(4, tr("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
 
     // Return
     return $thumb_id;
@@ -246,6 +254,10 @@ public static function add_thumbnail(string $image_type, $record_id, string $siz
 
 /**
  * Display image 
+ * 
+ * @param string $type The type of image
+ * @param mixed $record_id The ID# of the record, unique to the image type.
+ * @param string $size The size of the image to display.
  */
 public static function display(string $type, $record_id = '', string $size = 'full')
 { 

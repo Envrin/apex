@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\app\utils;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\template;
-use apex\services\utils\components;
+use apex\svc\debug;
+use apex\svc\view;
+use apex\svc\components;
 use apex\app\exceptions\ApexException;
 use apex\app\exceptions\ComponentException;
 use apex\app\exceptions\FormException;
@@ -15,7 +15,7 @@ use apex\app\exceptions\FormException;
 /**
  * HTML Forms Library
  *
- * Service: apex\services\utils\forms
+ * Service: apex\svc\forms
  *
  * Handles various form functionality such as easy server-side validation of 
  * form components, obtaining an uploaded file, the value of a checkbox, date 
@@ -27,12 +27,12 @@ use apex\app\exceptions\FormException;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\forms;
+ * use apex\svc\forms;
  *
  * // Validate the users:register form
  * forms::validate_form('users:register');
@@ -62,7 +62,7 @@ public function validate_fields(string $error_type = 'template', array $required
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting to validate various form fields"), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to validate various form fields"), __FILE__, __LINE__);
 
     // Check required fields
     foreach ($required as $var) { 
@@ -70,7 +70,7 @@ public function validate_fields(string $error_type = 'template', array $required
         if ($value == '') { 
             $label = $labels[$var] ?? ucwords(str_replace("_", " ", $var));
 
-            if ($error_type == 'template') { template::add_callout(tr("The form field %s was left blank, and is required", $label), 'error'); }
+            if ($error_type == 'template') { view::add_callout(tr("The form field %s was left blank, and is required", $label), 'error'); }
             else { throw new FormException('field_required', $label); }
         }
     }
@@ -102,7 +102,7 @@ public function validate_fields(string $error_type = 'template', array $required
 
         // Give error if needed
         if ($errmsg != '') { 
-            if ($error_type == 'template') { template::add_callout(tr($errmsg, $label), 'error'); }
+            if ($error_type == 'template') { view::add_callout(tr($errmsg, $label), 'error'); }
             else { throw new ApexException('error', $errmsg, $label); }
         }
     }
@@ -115,7 +115,7 @@ public function validate_fields(string $error_type = 'template', array $required
             $label = $labels[$var] ?? ucwords(str_replace("_", " ", $var));
             $errmsg = tr("The form field %s must be a minimum of %i characters in length.", $label, $length);
 
-            if ($error_type == 'template') { template::add_callout($errmsg, 'error'); }
+            if ($error_type == 'template') { view::add_callout($errmsg, 'error'); }
             else {throw new ApexException('error', $errmsg); }
         }
     }
@@ -129,7 +129,7 @@ public function validate_fields(string $error_type = 'template', array $required
             $label = $labels[$var] ?? ucwords(str_replace("_", " ", $var));
             $errmsg = tr("The form field %s can not exceed a maximum of %i characters.", $label, $length);
 
-            if ($error_type == 'template') { template::add_callout($errmsg, 'error'); }
+            if ($error_type == 'template') { view::add_callout($errmsg, 'error'); }
             else { throw new ApexException('error', $errmsg); }
         }
     }
@@ -152,7 +152,7 @@ public function validate_form(string $form_alias, string $error_type = 'template
 { 
 
     // Debug
-    debug::add(4, fmsg("Starting to validate form component with alias {1}", $form_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to validate form component with alias {1}", $form_alias), __FILE__, __LINE__);
 
     // Check form alias
     if (!list($package, $parent, $alias) = components::check('form', $form_alias)) { 
@@ -199,10 +199,10 @@ public function validate_form(string $form_alias, string $error_type = 'template
     $form->validate($data);
 
     // Debug
-    debug::add(2, fmsg("Completed validating form component with alias {1}", $form_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Completed validating form component with alias {1}", $form_alias), __FILE__, __LINE__);
 
     // Return
-    $result = template::has_errors() === true ? false : true;
+    $result = view::has_errors() === true ? false : true;
     return $result;
 
 }
@@ -216,7 +216,7 @@ public function get_uploaded_file(string $var)
 { 
 
     // Debug
-    debug::add(3, fmsg("Trying to get contents of uploaded file: {1}", $var), __FILE__, __LINE__);
+    debug::add(3, tr("Trying to get contents of uploaded file: {1}", $var), __FILE__, __LINE__);
 
     // Checks
     if (!isset($_FILES[$var])) { return false; }
@@ -232,7 +232,7 @@ public function get_uploaded_file(string $var)
     @unlink($_FILES[$var]['tmp_name']);
 
     // Debug
-    debug::add(3, fmsg("Returning contents of uploaded file: $var", $var), __FILE__, __LINE__);
+    debug::add(3, tr("Returning contents of uploaded file: $var", $var), __FILE__, __LINE__);
 
     // Return
     return array($filename, $mime_type, $contents);

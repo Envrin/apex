@@ -29,6 +29,12 @@ class EncryptException   extends ApexException
 
 /**
  * Construct 
+ *
+ * @param string $message The exception message.
+ * @param string $userid The ID# of the user.
+ * @param string $user_type The type of user (user / admin).
+ * @param string $recipient The encryption recipient
+ * @param string $data_id The ID# of the data record being accessed.
  */
 public function __construct($message, $userid = 0, $user_type = '', $recipient = '', $data_id = 0)
 { 
@@ -47,7 +53,7 @@ public function __construct($message, $userid = 0, $user_type = '', $recipient =
 
     // Get message
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

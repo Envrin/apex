@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\template;
+use apex\svc\view;
 use michelf\markdown;
 use Michelf\MarkdownExtra;
 
@@ -17,6 +17,11 @@ use Michelf\MarkdownExtra;
 class docs
 {
 
+    private $api_classes = [
+        app::class => 'app'
+    ];
+
+    private $replacements = [];
 
 
 /**
@@ -39,26 +44,64 @@ public function process()
         exit;
     }
 
+    // Go through API classes
+    foreach ($this->api_classes as $class => $api_name) { 
+        $obj = app::get_instance();
+        $methods = get_class_methods($obj);
+        foreach ($methods as $method) { 
+            $this->replacements[$method] = [$api_name];
+        }
+    }
+
     // Get MD template
-    $md_code = file_get_contents(SITE_PATH . '/docs/' . $md_file);
+    $lines = file(SITE_PATH . '/docs/' . $md_file);
+    $md_code = '';
+    $in_code = false;
+
+    // Go through lines
+    foreach ($lines as $line) { 
+
+        // Check if in code
+        if (preg_match("/^~~~/", $line)) { 
+            $in_code = $in_code === true ? false : true;
+            $md_code .= $line;
+            continue; 
+        } elseif ($in_code === true) { 
+            $md_code .= $line;
+            continue;
+        }
+
+        // Remove <api> tags
+        $line = preg_replace("/<api(.+?)>/", "", $line);
+        $line = str_replace('</api>', '', $line);
+
+        // Go through replacements
+        foreach ($this->replacements as $key => $dest) { 
+            preg_match_all("/$key\((.*?)\)/", $line, $tag_match, PREG_SET_ORDER);
+            foreach ($tag_match as $match) { 
+
+                // Get method name
+                $method = $dest[1] ?? $key;
+                if (preg_match("/^(\w+?)\:\:(.+)/", $method, $tmp_match)) { $method = $tmp_match[2]; }
+
+                // Replace
+                $url = "https://apex-platform.org/api/classes/apex." . $dest[0] . ".html#method_" . $method;
+                $a_code = "<a href=\"$url\" target=\"_blank\">$match[0]</a>";
+                $line = str_replace($match[0], $a_code, $line);
+            }
+        }
+
+        // Add line to md code
+        $md_code .= $line;
+    }
 
     // Replace <api: ...> tags
     preg_match_all("/<api:(.*?)>(.*?)<\/api>/", $md_code, $tag_match, PREG_SET_ORDER);
     foreach ($tag_match as $match) { 
-
-        // Check for proper method name
-        if (!preg_match("/^(.+?)\(/", $match[2], $method_match)) { 
-            $md_code = str_replace($match[0], $match[2], $md_code);
-            continue;
-        }
-        $method_name = preg_match("/^(\w+?)\s(.*)$/", $method_match[1], $tmp_match) ? $tmp_match[2] : $method_match[1];
-        if (preg_match("/^(.+?)\:\:(.+)/", $method_name, $tmp_match)) { $method_name = $tmp_match[2]; }
-
-        // Get URL
-        $url = "https://apex-platform.org/api/classes/apex." . $match[1] . ".html#method_" . $method_name;
-        $alink = "<a href=\"$url\" target=\"_blank\">$match[2]</a>";
-        $md_code = str_replace($match[0], $alink, $md_code);
+        $md_code = str_replace($match[0], '', $md_code); continue; 
     }
+
+
 
     // Apply markdown formatting
     $page_contents = MarkdownExtra::defaultTransform($md_code);
@@ -70,8 +113,8 @@ public function process()
     $html .= file_get_contents("$theme_dir/footer.tpl");
 
     // Parse HTML
-    template::load_base_variables();
-    $html = template::parse_html($html);
+    view::load_base_variables();
+    $html = view::parse_html($html);
 
     // Display
     echo str_replace("<<PAGE_CONTENTS>>", $page_contents, $html);

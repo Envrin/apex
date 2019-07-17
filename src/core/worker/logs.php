@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core\worker;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 use apex\app\interfaces\msg\EventMessageInterface;
 
 
@@ -16,6 +16,8 @@ class logs
 
 /**
  * Add login history 
+ *
+ * @param EventMessageInterface $msg The message that was dispatched.
  */
 public function add_auth_login(EventMessageInterface $msg) { 
 
@@ -39,6 +41,8 @@ public function add_auth_login(EventMessageInterface $msg) {
 
 /**
  * Add auth history page 
+ * 
+ * @param EventMessageInterface $msg The message that was dispatched.
  */
 public function add_auth_pageview(EventMessageInterface $msg)
 { 

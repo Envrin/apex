@@ -138,12 +138,12 @@ dependency injection container, and are listed below.  Please note, these method
 statically, so you must obtain the actual instance of `$app` to call them.
 
 method | Description ------------- |-------------
-<api:app>get($key)</api> | Get the value of the key from the container.
-<api:app>has($key)</api> | Returns a boolean as to whether or not the container contains the specified key.
-<api:app>set($key, $value)</api> | Set a new value within the container.
-<api:app>make($class_name, array $params = [])</api> | Creates and returns an instance of the specified class.  This instance is not saved within the container, and is only created with dependency injection, then returned.
-<api:app>call([$class_name, $method], array $params = [])</api> | Call a specific method within a class while performing dependency injection directly on the method.  This does not save anything within the container, and only calls the method, but does allow for method / setter injection.
-<api:app>injectOn($object)</api> | Only useful if using annotation injection, and allows you to inject dependencies after an instance of the class has been created.  Never really needed for Apex.
+get($key) | Get the value of the key from the container.
+has($key) | Returns a boolean as to whether or not the container contains the specified key.
+set($key, $value) | Set a new value within the container.
+make($class_name, array $params = []) | Creates and returns an instance of the specified class.  This instance is not saved within the container, and is only created with dependency injection, then returned.
+call([$class_name, $method], array $params = []) | Call a specific method within a class while performing dependency injection directly on the method.  This does not save anything within the container, and only calls the method, but does allow for method / setter injection.
+injectOn($object) | Only useful if using annotation injection, and allows you to inject dependencies after an instance of the class has been created.  Never really needed for Apex.
 
 
 **Example*
@@ -233,7 +233,7 @@ class myclass
 Similiar to constructor injection, but instead of injection only occurring on the `__construct()` method
 during class instanciation, injection will occur directly on the method upon calling it.  Please note, method
 injection only works when calling the method via the container using the
-<api:app>call()</api> method.
+call() method.
 
 **NOTE:** All methods within listeners support method injection.  This is explained more on the [Event
 Listeners](event_listeners.md) page.
@@ -255,7 +255,7 @@ class myclass {
 }
 ~~~
 
-This must then be called via the <api:app>call()</app> method of the container, such as:
+This must then be called via the call()</app> method of the container, such as:
 
 ~~~php
 $app = app::get_instance();

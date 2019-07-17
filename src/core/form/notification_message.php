@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\form;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
+use apex\svc\db;
+use apex\svc\view;
 use apex\core\notification;
 use apex\app\interfaces\components\form;
 
@@ -43,7 +43,7 @@ public function get_fields(array $data = array()):array
     // Get merge fields
     $client = new notification();
     $merge_fields = $client->get_merge_fields($controller);
-    template::assign('merge_variable_options', $merge_fields);
+    view::assign('merge_variable_options', $merge_fields);
 
     // Define form fields
     $form_fields = array(

@@ -10,7 +10,7 @@
          stopOnFailure="false">
     <testsuites>
         <testsuite name="unit">
-            <directory suffix="_test.php">./tests</directory>
+            <directory suffix="_test.php">./tests/users</directory>
         </testsuite>
     </testsuites>
     <filter>
@@ -21,7 +21,7 @@
     <php>
         <server name="apex_admin_username" value="admin"/>
         <server name="apex_admin_password" value="admin"/>
-    <server name="apex_test_username" value="demo2"/>
+    <server name="apex_test_username" value="demo"/>
     <server name="apex_test_password" value="demo"/>
     </php>
 </phpunit>

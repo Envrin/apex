@@ -4,14 +4,17 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\template;
-use apex\app\sys\components;
+use apex\svc\view;
+use apex\svc\components;
+use apex\app\exceptions\ApexException;
+use apex\app\exceptions\ComponentException;
 
-
-class modal   extends \apex\core\controller\http_requests
+/**
+ * Handles viewing of all modals (pop up boxes) 
+ * within the system.
+ */
+class modal  
 {
-
-
 
 
 /**
@@ -28,7 +31,9 @@ public function process()
     app::set_res_content_type('application/json');
 
     // Ensure a proper modal was defined in URI
-    if (!isset(app::get_uri_segments()[0])) { trigger_error("Invalid request", E_USER_ERROR); }
+    if (!isset(app::get_uri_segments()[0])) { 
+        throw new ApexException('error', "Invalid request.  No modal defined.");
+    }
 
     // Get package / alias
     if (!list($package, $parent, $alias) = components::check('modal', app::get_uri_segments()[0])) { 
@@ -36,8 +41,10 @@ public function process()
     }
 
     // Get TPL code
-    $tpl_file = SITE_PATH . '/views/modal/' . $package . '/' . $alias . '.tpl';
-    if (!file_exists($tpl_file)) { trigger_error("The TPL file does not exist for the modal, $parts[0]", E_USER_ERROR); }
+    $tpl_file = SITE_PATH . '/' . components::get_tpl_file('modal', $alias, $package);
+    if (!file_exists($tpl_file)) { 
+        throw new ApexException('error', "The TPL file does not exist for the modal, $parts[0]", E_USER_ERROR); 
+    }
     $tpl_code = file_get_contents($tpl_file);
 
     // Get title
@@ -48,20 +55,22 @@ if (preg_match("/<h1>(.+?)<\/h1>/i", $tpl_code, $match)) {
 
     // Load component
     if (!$client = components::load('modal', $alias, $package)) { 
-        trigger_error("Unable to load modal with alias '$alias' within the package '$package'", E_USER_ERROR);
+        throw new ComponentException('no_load', 'modal', '', $alias, $package);
     }
 
     // Execute show() method, if exists
-    if (method_exists($client, 'show')) { $client->show(); }
+    if (method_exists($client, 'show')) { 
+        components::call('show', 'modal', $alias, $package); 
+    }
 
     // Parse HTML
-    template::initialize();
-    template::load_base_variables();
-    $html = template::parse_html($tpl_code);
+    view::initialize();
+    view::load_base_variables();
+    $html = view::parse_html($tpl_code);
 
     // Set results array
     $results = array(
-        'title' => template::parse_html($title),
+        'title' => view::parse_html($title),
         'body' => $html
     );
 

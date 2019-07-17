@@ -3,14 +3,14 @@
 namespace apex;
 
 use apex\app;
-use apex\services\redis;
+use apex\svc\redis;
 use apex\app\pkg\package;
 
 class pkg_core
 {
 
 // Set package variables
-public $version = '1.1.4';
+public $version = '1.1.5';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
@@ -51,7 +51,6 @@ $this->config = array(
     'session_retain_logs' => 'W2', 
     'password_retries_allowed' => 5, 
     'require_2fa' => 0, 
-    'num_security_questions' => 3, 
     'force_password_reset_time' => '', 
     'nexmo_api_key' => '', 
     'nexmo_api_secret' => '', 
@@ -146,10 +145,11 @@ $this->ext_files = array(
     'public/themes/koupon/*',  
     'public/themes/limitless/*', 
     'public/themes/supradmin/*', 
+    'public/.htaccess', 
     'public/index.php', 
     'src/app.php', 
     'src/app/*', 
-    'src/services/*',  
+    'src/svc/*',  
     'tests/core/*', 
     'views/themes/koupon/*', 
     'views/themes/limitless/*', 

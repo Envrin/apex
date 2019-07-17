@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\htmlfunc;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
-use apex\app\sys\components;
+use apex\svc\db;
+use apex\svc\view;
+use apex\svc\components;
 use apex\app\interfaces\components\htmlfunc;
 
 
@@ -27,7 +27,7 @@ class display_tabcontrol
  *
  * @return string The resulting HTML code, which the <e:function> tag within the template is replaced with.
  */
-public function process(components $components, string $html, array $data = array()):string
+public function process(string $html, array $data = array()):string
 { 
 
     // Perform checks
@@ -36,18 +36,18 @@ public function process(components $components, string $html, array $data = arra
     }
 
     // Get package/  alias
-    if (!list($package, $parent, $alias) = $components->check('tabcontrol', $data['tabcontrol'])) { 
+    if (!list($package, $parent, $alias) = components::check('tabcontrol', $data['tabcontrol'])) { 
         return "<b>ERROR:<?b> The tab control '$data[tabcontrol]' either does not exist, or more than one with the same alias exist and you did not specify the package to use.";
     }
 
     // Load tab control
-    if (!$tabcontrol = $components->load('tabcontrol', $alias, $package, '', $data)) { 
+    if (!$tabcontrol = components::load('tabcontrol', $alias, $package, '', $data)) { 
         return "<b>ERROR: </b> Unable to load the tab control '$alias' from package '$package''.  Component does not exist.";
     }
 
     // Process tab control, if needed
     if (method_exists($tabcontrol, 'process')) { 
-        $tabcontrol->process($data);
+        components::call('process', 'tabcontrol', $alias, $package, '', ['data' => $data]);
     }
 
     // Get tab pages
@@ -59,14 +59,14 @@ $tab_dir = SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias;
     foreach ($tab_pages as $tab_page => $tab_name) { 
 
         // Check if tpl file exists
-        $tpl_file = SITE_PATH . '/' . $components->get_tpl_file('tabpage', $tab_page, $package, $alias);
+        $tpl_file = SITE_PATH . '/' . components::get_tpl_file('tabpage', $tab_page, $package, $alias);
         if (!file_exists($tpl_file)) { continue; }
 
         // Get HTML
         $page_html = file_get_contents($tpl_file);
 
         // Load PHP, if needed
-        if ($page_client = $components->load('tabcontrol', $tab_page, $package, $alias)) { 
+        if ($page_client = components::load('tabcontrol', $tab_page, $package, $alias)) { 
 
             // Process HTML
             if (method_exists($page_client, 'process')) { 
@@ -75,19 +75,23 @@ $tab_dir = SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias;
         }
 
         /// Add to tab html
-        $tab_name = fmsg($tab_name);
+        $tab_name = tr($tab_name);
         $tab_html .= "\t<a:tab_page name=\"$tab_name\">\n\n$page_html\n\t</a:tab_page>\n\n";
     }
 
     // Return
     $tab_html .= "</a:tab_control>\n";
-    return template::parse_html($tab_html);
+    return view::parse_html($tab_html);
 
 }
 
 /**
  * Get tab pages.  Goes through all additional tab pages added by other 
  * packages, and positions them correctly. 
+ *
+ * @param array $tab_pages The current tab pages from the tab control PHP class.
+ * @param string $parent The alias of the tab control.
+ * @param string $package The package of the tab control.
  */
 protected function get_tab_pages(array $tab_pages, string $parent, string $package)
 { 

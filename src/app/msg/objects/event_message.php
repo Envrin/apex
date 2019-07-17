@@ -25,6 +25,9 @@ class event_message implements EventMessageInterface
 
 /**
  * Create new event message 
+ *
+ * @param string $routing_key The routing key to dispatch the message to.
+ * @param mixed $params Iterable of any params you want to pass.
  */
 public function __construct(string $routing_key, ...$params)
 { 

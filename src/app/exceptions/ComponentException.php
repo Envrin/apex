@@ -35,6 +35,13 @@ class ComponentException   extends ApexException
     );
 /**
  * Construct 
+ * 
+ * @param string $message The exception message
+ * @param string $type The type of component.
+ * @param string $comp_alias The full component alias.
+ * @param string $alias The component alias
+ * @param string $package The package alias.
+ * @param string $parent The parent alias.
  */
 public function __construct($message, $type = '', $comp_alias = '', $alias = '', $package = '', $parent = '')
 { 
@@ -65,7 +72,7 @@ public function __construct($message, $type = '', $comp_alias = '', $alias = '',
 
     // Get message
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message,$vars);
+    $this->message = tr($this->message,$vars);
 
 }
 

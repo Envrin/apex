@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\app\db;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
+use apex\svc\db;
+use apex\svc\redis;
 use apex\app\db\mysql;
 
 
@@ -30,9 +30,13 @@ class db_connections
 /**
  * Check database connection 
  *
+ * Get database connection.
+ *
  * Checks to see whether we're connected to the mySQL database, and if so, if 
  * we're connected with the correct mySQL user depending on if it's a read / 
  * write connection. 
+ *
+ * @param string $type The type of connection we need (read or write).
  */
 protected function get_connection(string $type = 'read')
 { 

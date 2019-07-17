@@ -24,8 +24,12 @@ class ServiceException   extends ApexException
 
 /**
  * Construct 
+ *
+ * @param string $message The exception message
+ * @param string $service The service alias being accessed.
+ * @param string $method The method alias being accessed.
  */
-public function __construct($message, $service = '', $method = '')
+public function __construct(string $message, $service = '', $method = '')
 { 
 
     // Set variables
@@ -37,7 +41,7 @@ public function __construct($message, $service = '', $method = '')
     // Get message
     $this->log_level = 'alert';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

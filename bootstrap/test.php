@@ -4,48 +4,36 @@ use apex\app\interfaces\LoggerInterface;
 use apex\app\interfaces\DebuggerInterface;
 use apex\app\interfaces\DBInterface;
 use apex\app\interfaces\msg\DispatcherInterface;
-use apex\app\interfaces\TemplateInterface;
+use apex\app\interfaces\ViewInterface;
 use apex\app\interfaces\AuthInterface;
+use apex\app\msg\emailer;
+use apex\app\sys\components;
+use apex\app\sys\encrypt;
+use apex\app\utils\date;
+use apex\app\utils\forms;
+use apex\app\utils\hashes;
+use apex\app\utils\images;
+use apex\app\utils\geoip;
+use apex\app\io\io;
+
 
 return [
-    'log' => [ 
-        'interface' => LoggerInterface::class, 
-        'class' => apex\app\sys\log::class, 
-        'params' => ['channel_name' => 'apex'], 
-        'autowire' => true
-    ], 
-    'debug' => [
-        'interface' => DebuggerInterface::class, 
-        'class' => apex\app\sys\debug::class, 
-        'autowire' => true
-    ], 
-    'db' => [
-        'interface' => DBInterface::class, 
-        'class' => apex\app\db\mysql::class, 
-        'autowire' => true
-    ], 
-    'msg' => [
-        'interface' => DispatcherInterface::class, 
-        'class' => apex\app\msg\dispatcher::class, 
-    'params' => ['channel_name' => 'apex']
-    ], 
-    'template' => [
-        'interface' => TemplateInterface::class, 
-        'class' => apex\app\web\template::class, 
-        'autowire' => true
-    ], 
-    'auth' => [
-        'interface' => AuthInterface::class, 
-        'class' => apex\app\sys\auth::class
-    ], 
-    'utils/components' => ['class' => apex\app\sys\components::class], 
-    'utils/date' => ['class' => apex\app\utils\date::class], 
-    'utils/encrypt' => ['class' => apex\app\sys\encrypt::class], 
-    'utils/forms' => ['class' => apex\app\utils\forms::class], 
-    'utils/hashes' => ['class' => apex\app\utils\hashes::class], 
-    'utils/images' => ['class' => apex\app\utils\images::class], 
-    'utils/io' => ['class' => apex\app\io\io::class], 
-    'utils/geoip' => ['class' => apex\app\utils\geoip::class] 
+    DBInterface::class => [apex\app\db\mysql::class], 
+    LoggerInterface::class => [apex\app\sys\log::class, ['channel_name' => 'apex']], 
+    DebuggerInterface::class => [apex\app\sys\debug::class], 
+    DispatcherInterface::class => [apex\app\msg\dispatcher::class, ['channel_name' => 'apex']],
+    ViewInterface::class => [apex\app\web\view::class], 
+    AuthInterface::class => [apex\app\sys\auth::class], 
+
+    emailer::class => [apex\app\tests\test_emailer::class], 
+    components::class => [components::class], 
+    date::class => [date::class], 
+    encrypt::class => [encrypt::class], 
+    forms::class => [forms::class], 
+    hashes::class => [hashes::class], 
+    images::class => [images::class], 
+    io::class => [io::class], 
+    geoip::class => [geoip::class]
 ];
 
 

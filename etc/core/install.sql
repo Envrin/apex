@@ -14,7 +14,6 @@ DROP TABLE IF EXISTS encrypt_data;
 DROP TABLE IF EXISTS encrypt_pgp_keys;
 DROP TABLE IF EXISTS auth_history_pages;
 DROP TABLE IF EXISTS auth_history;
-DROP TABLE IF EXISTS auth_security_questions;
 DROP TABLE IF EXISTS auth_allowips;
 DROP TABLE IF EXISTS cms_pages;
 DROP TABLE IF EXISTS cms_menus;
@@ -41,7 +40,7 @@ CREATE TABLE internal_repos (
     is_local TINYINT(1) NOT NULL DEFAULT 0, 
     is_active TINYINT(1) NOT NULL DEFAULT 1, 
     is_ssl TINYINT(1) NOT NULL DEFAULT 1, 
-    host VARCHAR(255) NOT NULL UNIQUE,   
+    host VARCHAR(255) NOT NULL, 
     alias VARCHAR(100) NOT NULL DEFAULT '', 
     date_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     username VARCHAR(255) NOT NULL DEFAULT '', 
@@ -222,14 +221,6 @@ CREATE TABLE admin (
 -- Auth tables
 --------------------------------------------------
 
-CREATE TABLE auth_security_questions ( 
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-    type ENUM('user','admin') NOT NULL DEFAULT 'user', 
-    userid INT NOT NULL, 
-    question VARCHAR(5) NOT NULL, 
-    answer VARCHAR(255) NOT NULL 
-) Engine=InnoDB;
-
 CREATE TABLE auth_allowips ( 
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
     type ENUM('user','admin') NOT NULL DEFAULT 'user', 
@@ -359,6 +350,7 @@ CREATE TABLE notifications_mass_queue (
 CREATE TABLE notifications_login_notices (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
     require_agree TINYINT(1) NOT NULL DEFAULT 0, 
+    type ENUM('modal','full') NOT NULL DEFAULT 'modal', 
     title VARCHAR(255) NOT NULL, 
     condition_vars TEXT NOT NULL, 
     message LONGTEXT NOT NULL

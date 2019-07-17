@@ -28,8 +28,11 @@ class PackageException   extends ApexException
     );
 /**
  * Construct 
+ * 
+ * @param string $message The exceptio message.
+ * @param string $pkg_alias The package alias being affected.
  */
-public function __construct($message, $pkg_alias = '')
+public function __construct(string $message, $pkg_alias = '')
 { 
 
     // Set variables
@@ -40,7 +43,7 @@ public function __construct($message, $pkg_alias = '')
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

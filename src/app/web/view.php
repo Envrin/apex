@@ -4,15 +4,15 @@ declare(strict_types = 1);
 namespace apex\app\web;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\msg;
-use apex\services\redis;
-use apex\services\utils\components;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\msg;
+use apex\svc\redis;
+use apex\svc\components;
 use apex\app\web\html_tags;
 use apex\core\admin;
 use apex\users\user;
-use apex\app\interfaces\TemplateInterface;
+use apex\app\interfaces\ViewInterface;
 use apex\app\msg\objects\event_message;
 
 
@@ -38,11 +38,11 @@ use apex\app\msg\objects\event_message;
  * use apex\app;
  * use apex\utils\template;
  *
- * template::assign('name', 'John Smith');
- * $html = template::parse();
+ * view::assign('name', 'John Smith');
+ * $html = view::parse();
  *
  */
-class template implements TemplateInterface
+class view implements ViewInterface
 {
 
 
@@ -65,7 +65,11 @@ class template implements TemplateInterface
 
 
 /**
- * Constructor 
+ * Constructor
+ * 
+ * @param app $app The main apex\app object
+ * @param html_tags $html_tags The html_tags object
+ * @param string $template_path The URI to display 
  */
 public function __construct(app $app, html_tags $html_tags, string $template_path = '')
 { 
@@ -73,7 +77,7 @@ public function __construct(app $app, html_tags $html_tags, string $template_pat
     // Set variables
     $this->app = $app;
     $this->html_tags = $html_tags;
-    $this->path_is_defined = $template_path == '' ? true : false;
+    $this->path_is_defined = $template_path == '' ? false : true;
 
 }
 
@@ -112,11 +116,11 @@ public function parse():string
 
     // Initialize
     $this->initialize();
-    debug::add(1, fmsg("Begin parsing template, /{1}", $this->template_path), __FILE__, __LINE__);
+    debug::add(1, tr("Begin parsing template, /{1}", $this->template_path), __FILE__, __LINE__);
 
     // Dispatch RPC call
     $this->dispatch_rpc_call();
-    debug::add(4, fmsg("Completed RPC call for template, {1}", $this->template_path), __FILE__, __LINE__);
+    debug::add(4, tr("Completed RPC call for template, {1}", $this->template_path), __FILE__, __LINE__);
 
     // Set template path
     $this->template_path = app::get_area() == 'public' ? 'public/' . app::get_uri() : app::get_uri();
@@ -125,7 +129,7 @@ public function parse():string
     $php_file = SITE_PATH . '/views/php/' . $this->template_path . '.php';
     if (file_exists($php_file)) { 
         require($php_file);
-        debug::add(4, fmsg("Loaded template PHP file for, {1}", $this->template_path), __FILE__, __LINE__);
+        debug::add(4, tr("Loaded template PHP file for, {1}", $this->template_path), __FILE__, __LINE__);
 
         // Grab $config again, in case it was modified
         $this->vars['config'] = app::getall_config();
@@ -147,23 +151,23 @@ public function parse():string
     }
 
     // debug
-    debug::add(4, fmsg("Acquired TPL code for template, {1}", $this->template_path), __FILE__, __LINE__);
+    debug::add(4, tr("Acquired TPL code for template, {1}", $this->template_path), __FILE__, __LINE__);
 
     // Load base variables
     $this->load_base_variables();
-    debug::add(5, fmsg("Loaded base template variables"), __FILE__, __LINE__);
+    debug::add(5, tr("Loaded base template variables"), __FILE__, __LINE__);
 
     // Add layout
     $this->add_layout();
-    debug::add(5, fmsg("Added layout to template, theme: {1}, URI: {2}", app::get_theme(), $this->template_path), __FILE__, __LINE__);
+    debug::add(5, tr("Added layout to template, theme: {1}, URI: {2}", app::get_theme(), $this->template_path), __FILE__, __LINE__);
 
     // Process theme components
     $this->process_theme_components();
-    debug::add(5, fmsg("Completed processing all theme components for template"), __FILE__, __LINE__);
+    debug::add(5, tr("Completed processing all theme components for template"), __FILE__, __LINE__);
 
     // Parse HTML
     $html = $this->parse_html($this->tpl_code);
-    debug::add(4, fmsg("Successfully parsed HTML for template, {1}", $this->template_path), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully parsed HTML for template, {1}", $this->template_path), __FILE__, __LINE__);
 
     // Add system Javascript / HTML
     $html = $this->add_system_javascript($html);
@@ -172,7 +176,7 @@ public function parse():string
     $html = $this->merge_vars($html);
 
     // Debug
-    debug::add(1, fmsg("Successfully parsed template and returning resulting HTML, {1}", $this->template_path), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully parsed template and returning resulting HTML, {1}", $this->template_path), __FILE__, __LINE__);
 
     // Return
     return $html;
@@ -186,7 +190,7 @@ public function parse():string
  * body of the TPL file, but also other things such as the resulting TPL code 
  * from HTML functions and tab controls. 
  *
- * @param string $tpl_code The TPL code to parse.
+ * @param string $html The TPL code to parse.
  *
  * @return string The resulting HTML code.
  */
@@ -201,7 +205,7 @@ public function parse_html(string $html):string
 
     // Callouts
     $html = str_ireplace("<a:callouts>", $html_tags->callouts($this->callouts), $html);
-    debug::add(5, fmsg("Processed template callouts"), __FILE__, __LINE__);
+    debug::add(5, tr("Processed template callouts"), __FILE__, __LINE__);
 
     // Process IF tags
     $html = $this->process_if_tags($html);
@@ -209,19 +213,19 @@ public function parse_html(string $html):string
 
     // Process sections
     $html = $this->process_sections($html);
-    debug::add(5, fmsg("Processed template section tags."), __FILE__, __LINE__);
+    debug::add(5, tr("Processed template section tags."), __FILE__, __LINE__);
 
     // Process HTML functions
     $html = $this->process_function_tags($html);
-    debug::add(5, fmsg("Processed template HTML function tags"), __FILE__, __LINE__);
+    debug::add(5, tr("Processed template HTML function tags"), __FILE__, __LINE__);
 
     // Process page title
     $html = $this->process_page_title($html);
-    debug::add(5, fmsg("Processed template page title"), __FILE__, __LINE__);
+    debug::add(5, tr("Processed template page title"), __FILE__, __LINE__);
 
     // Process nav menus
     $html = $this->process_nav_menu($html);
-    debug::add(5, fmsg("Processed template nav menus"), __FILE__, __LINE__);
+    debug::add(5, tr("Processed template nav menus"), __FILE__, __LINE__);
 
     // Process a: tags
     preg_match_all("/<a:(.+?)>/si", $html, $tag_match, PREG_SET_ORDER);
@@ -251,7 +255,7 @@ public function parse_html(string $html):string
     $html = str_replace(array('~op~','~cp~'), array('(', ')'), $html);
 
     // Debug
-    debug::add(4, fmsg("Successfully finished parsing TPL code of template."), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully finished parsing TPL code of template."), __FILE__, __LINE__);
 
     // Return
     return $html;
@@ -301,7 +305,7 @@ protected function add_layout()
     } else { $layout = 'default'; }
 
     // Debug
-    debug::add(5, fmsg("Determined template layout, {1}", $layout), __FILE__, __LINE__);
+    debug::add(5, tr("Determined template layout, {1}", $layout), __FILE__, __LINE__);
 
     // Check if layout exists
     $layout_file = $this->theme_dir . '/layouts/' . $layout . '.tpl';
@@ -309,9 +313,9 @@ protected function add_layout()
         $layout_html = file_get_contents($layout_file);
     } elseif ($layout != 'default' && file_exists($this->theme_dir . '/layouts/default.tpl')) { 
         $layout_html = file_get_contents($this->theme_dir . '/layouts/default.tpl');
-        debug::add(3, fmsg("Template layout file does not exist, {1}, reverting to default layout", $layout), __FILE__, __LINE__, 'warning');
+        debug::add(3, tr("Template layout file does not exist, {1}, reverting to default layout", $layout), __FILE__, __LINE__, 'warning');
     } else { 
-        debug::add(1, fmsg("No layout file exists for template, and no default layout.  Returning with no layout"), __FILE__, __LINE__, 'warning');
+        debug::add(1, tr("No layout file exists for template, and no default layout.  Returning with no layout"), __FILE__, __LINE__, 'warning');
         return;
     }
 
@@ -342,7 +346,7 @@ protected function get_page_title()
     }
 
     // Debug
-    debug::add(5, fmsg("Retrived template page title, {1}", $title), __FILE__, __LINE__);
+    debug::add(5, tr("Retrived template page title, {1}", $title), __FILE__, __LINE__);
 
 /// Return
     return $title;
@@ -354,6 +358,10 @@ protected function get_page_title()
  *
  * Processes the page title, and adds it into the correct places within the 
  * template with the proper formatting. 
+ *
+ * @param string $html The HTML to replace title within.
+ *
+ * @return string The resulting HTML
  */
 protected function process_page_title(string $html):string
 { 
@@ -376,6 +384,10 @@ protected function process_page_title(string $html):string
  *
  * Parses the <e:nav_menu> as necessary, and replaces with the appropriate 
  * HTML code.  Please refer to documentation for full details. 
+ *
+ * @param string $html The HTML code to parse.
+ *
+ * @return string The resulting HTML code.
  */
 protected function process_nav_menu(string $html):string
 { 
@@ -390,7 +402,7 @@ protected function process_nav_menu(string $html):string
         $tag_html = file_get_contents($this->theme_dir . '/components/nav_menu.tpl');
     } else { 
         $tag_html = '';
-        debug::add(4, fmsg("No /sections/nav_menu.tpl file exists for theme {1}, reverting to default.", app::get_theme()), __FILE__, __LINE__, 'notice');
+        debug::add(4, tr("No /sections/nav_menu.tpl file exists for theme {1}, reverting to default.", app::get_theme()), __FILE__, __LINE__, 'notice');
     }
 
     // Parse tag HTML
@@ -446,6 +458,12 @@ protected function process_nav_menu(string $html):string
  *
  * Protected function that processes a single row from the 'cms_menus' table, 
  * and returns the appropriate HTML for that single menu item. 
+ *
+ * @param string $html The HTML code to use for the menu.
+ * @param array $row The row from the 'cms-_menus' database table.
+ * @param string $submenus The HTML code for any sub menus.
+ *
+ * @return string The resulting HTML code.
  */
 protected function process_menu_row(string $html, array $row, string $submenus = ''):string
 { 
@@ -473,10 +491,13 @@ protected function process_menu_row(string $html, array $row, string $submenus =
 }
 
 /**
- * @Inject
  * Process function HTML tags 
  *
  * Processes all the <e:function> tags within the TPL code, and replaces them 
+ *
+ * @param string $html The HTML code to process.
+ *
+ * @return string The resulting HTML code.
  */
 protected function process_function_tags(string $html):string
 { 
@@ -489,14 +510,14 @@ protected function process_function_tags(string $html):string
         $attr = $this->parse_attr($match[1]);
         if (!isset($attr['alias'])) { 
             $html = str_replace($match[0], "<b>ERROR:</b. No 'alias' attribute exists within the 'function' tag, which is required.", $html);
-            debug::add(3, fmsg("Template encountered a e:function tag without an 'alias' attribute"), __FILE__, __LINE__, 'notice');
+            debug::add(3, tr("Template encountered a e:function tag without an 'alias' attribute"), __FILE__, __LINE__, 'notice');
             continue;
         }
 
         // Get package and alias
         if (!list($package, $parent, $alias) = components::check('htmlfunc', $attr['alias'])) { 
             $html = str_replace($match[0], "The HTML function '$attr[alias]' either does not exists, or exists in more than one package and no specific package was defined.", $html);
-            debug::add(1, fmsg("Template contains invalid e:function tag, the HTML function does not exist, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__, 'notice');
+            debug::add(1, tr("Template contains invalid e:function tag, the HTML function does not exist, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__, 'notice');
             continue;
         }
 
@@ -507,13 +528,13 @@ protected function process_function_tags(string $html):string
         // Call HTML function
         if (!$response = components::call('process', 'htmlfunc', $alias, $package, '', array('html' => $temp_html, 'data' => $attr))) { 
             $html = str_replace($match[0], "<b>ERROR:</b> Unable to load html function with alias '$alias' from package '$package'", $html);
-            debug::add(1, fmsg("Parsing e:function tag within TPL code resulted in 'htmlfunc' component that could not be loaded, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__, 'error');
+            debug::add(1, tr("Parsing e:function tag within TPL code resulted in 'htmlfunc' component that could not be loaded, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__, 'error');
             continue;
         }
 
         // Replace HTML
         $html = str_replace($match[0], $this->parse_html($response), $html);
-        debug::add(5, fmsg("Successfully processed e:function tag within TPL code, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
+        debug::add(5, tr("Successfully processed e:function tag within TPL code, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
     }
 
     // Return
@@ -524,8 +545,11 @@ protected function process_function_tags(string $html):string
 /**
  * Process IF tags 
  *
- * Parses all the <e:if> tags within the TPL code, and returns the appropriate 
- * HTML. 
+ * Parses all the <e:if> tags within the TPL code, and returns the appropriate HTML
+ *
+ * @param string $html The HTML code to process.
+ *
+ * @return string The resulting HTML code.
  */
 protected function process_if_tags(string $html):string
 { 
@@ -544,7 +568,7 @@ protected function process_if_tags(string $html):string
         }
 
         // Check condition
-        debug::add(5, fmsg("Template, checking IF condition: {1}", $match[1]), __FILE__, __LINE__);
+        debug::add(5, tr("Template, checking IF condition: {1}", $match[1]), __FILE__, __LINE__);
         $replace_html = eval( "return " . $match[1] . ";" ) === true ? $if_html : $else_html;
         $html = str_replace($match[0], $replace_html, $html);
     }
@@ -559,6 +583,10 @@ protected function process_if_tags(string $html):string
  *
  * Processes all the <e:section> tags found within the TPL code, which loop 
  * over an array copying the HTML in between the tags for each set of data. 
+ *
+ * @param string $html The HTML code to process.
+ *
+ * @return string The resulting HTML code.
  */
 protected function process_sections(string $html):string
 { 
@@ -573,12 +601,12 @@ protected function process_sections(string $html):string
         // Check if variable exists
         if (!isset($this->vars[$attr['name']])) { 
             $html = str_replace($match[0], "", $html);
-            debug::add(2, fmsg("Template encountered a e:ection tag without a 'name' attribute.  Could not parse in template, /{1}/{2}", app::get_area(), app::get_uri()), __FILE__, __LINE__, 'error');
+            debug::add(2, tr("Template encountered a e:ection tag without a 'name' attribute.  Could not parse in template, /{1}/{2}", app::get_area(), app::get_uri()), __FILE__, __LINE__, 'error');
             continue;
         }
 
         // Debug
-        debug::add(5, fmsg("Processing template e:section tag with name '{1}'", $attr['name']), __FILE__, __LINE__);
+        debug::add(5, tr("Processing template e:section tag with name '{1}'", $attr['name']), __FILE__, __LINE__);
 
         // Get replacement HTML
         $replace_html = '';
@@ -684,7 +712,7 @@ public function load_base_variables()
     // Get profile
     if (app::get_userid() > 0) { 
         $user_class = app::get_area() == 'admin' ? admin::class : user::class;
-        $profile = $this->app->make($user_class, ['id' => app::get_userid()])->load();
+        $profile = app::make($user_class, ['id' => app::get_userid()])->load();
         $this->assign('profile', $profile);
     }
 
@@ -697,6 +725,10 @@ public function load_base_variables()
  * self::assign() method, and replaces all occurences of ~key~ with its 
  * corresponding value within the TPL code. Fully supports arrays with 
  * ~arrayname.key~ merge fields in the TPL code. 
+ *
+ * @param string $html The HTML code to process.
+ *
+ * @return string The resulting HTML code.
  */
 protected function merge_vars(string $html):string
 { 
@@ -726,6 +758,12 @@ protected function merge_vars(string $html):string
  * Retrives the correct HTML code for any other special e: tag. Generally goes 
  * through the /lib/html_tags.php class, unless a specific method exists for 
  * this theme. 
+ *
+ * @param string $tag The name of the HTML tag.
+ * @param array $attr The attributes specified within the HTML tag.
+ * @param string $text Any text in between opening and closing tags.
+ *
+ * @return string The resulting HTML code.
  */
 private function get_html_tag(string $tag, array $attr, string $text = ''):string
 { 
@@ -746,6 +784,10 @@ private function get_html_tag(string $tag, array $attr, string $text = ''):strin
  *
  * Simply parses the attributes of any given HTML tag, and returns them in an 
  * array. 
+ *
+ * @param string $string The string of text to process.
+ *
+ * @return array The attributes contained within passed string.
  */
 public static function parse_attr(string $string):array
 { 
@@ -770,6 +812,9 @@ public static function parse_attr(string $string):array
  * field within the TPL code.  Merge fields are surrounded by tilda marks (eg. 
  * ~name~). ( Supports arrays as well, and values can be access via merge 
  * fields with ~arrayname.variable~ 
+ *
+ * @param string $name The name of the merge variable.
+ * @param mixed $value The value of the merge variable -- string or array. 
  */
 public function assign(string $name, $value)
 { 
@@ -786,7 +831,7 @@ public function assign(string $name, $value)
     }
 
     // Debug
-    debug::add(5, fmsg("Assigned template variable {1} to {2}", $name, $value), __FILE__, __LINE__);
+    debug::add(5, tr("Assigned template variable {1} to {2}", $name, $value), __FILE__, __LINE__);
 
 }
 
@@ -813,6 +858,8 @@ public function add_callout(string $message, string $type = 'success')
 /**
  * Add Javascript ( Adds Javascript, which is later included just above the 
  * </body> tag upon processing.  Rarely used. 
+ *
+ * @param string $js The Javascript to add.
  */
 public function add_javascript(string $js)
 { 
@@ -823,6 +870,8 @@ public function add_javascript(string $js)
  * ( Replace TPL file with system Javascript 
  *
  * Add system Javascript 
+ *
+ * @param string $html The HTML code to process.
  */
 protected function add_system_javascript($html)
 { 

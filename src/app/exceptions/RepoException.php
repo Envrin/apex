@@ -38,6 +38,12 @@ class RepoException   extends ApexException
 
 /**
  * Construct 
+ *
+ * @param string $message The exception message
+ * @param mixed $repo_id The ID# of the repo
+ * @param string $url The repo URL trying to be accessed.
+ * @param string $error_message The error message from the remote repo server.
+ * @param string $method The repo method being performed.
  */
 public function __construct($message, $repo_id = 0, $url = '', $error_message = '', $method = '')
 { 
@@ -53,7 +59,7 @@ public function __construct($message, $repo_id = 0, $url = '', $error_message = 
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

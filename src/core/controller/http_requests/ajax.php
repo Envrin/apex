@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\auth;
-use apex\services\utils\components;
+use apex\svc\auth;
+use apex\svc\components;
 
 
 class ajax
@@ -52,13 +52,15 @@ public function process()
     auth::check_login(false);
 
     // Process the AJAX function
-    $client->process();
+    $response = $client->process();
 
-    // Display response
-    $response = array(
-        'status' => 'ok',
-        'actions' => $client->results
-    );
+    // Set response, if not autosuggest search
+    if ($package != 'core' || $alias != 'search_autosuggest') { 
+        $response = array(
+            'status' => 'ok',
+            'actions' => $client->results
+        );
+    }
 
     // Set the response
     app::set_res_body(json_encode($response));

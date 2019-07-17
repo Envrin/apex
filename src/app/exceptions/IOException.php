@@ -27,6 +27,9 @@ class IOException extends ApexException
     );
 /**
  * Construct 
+ *
+ * @param string $message The exception message.
+ * @param string $file The filename / directory.
  */
 public function __construct($message, $file = '')
 { 
@@ -39,7 +42,7 @@ public function __construct($message, $file = '')
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\msg\objects;
 
 use apex\app;
-use apex\services\debug;
+use apex\svc\debug;
 use apex\app\web\ajax;
 use apex\app\interfaces\msg\WebSocketMessageInterface;
 
@@ -24,6 +24,11 @@ class websocket_message implements WebSocketMessageInterface
 
 /**
  * Define a new web socket message. 
+ *
+ * @param ajax $ajax The Ajax object that contains actions to perform in web browser.
+ * @param array $recipients List of individual recipients to send message to.
+ * @param string $area The area to dispatch message to.
+ * @param string $uri The URI to dispatch message to.
  */
 public function __construct(ajax $ajax, array $recipients = [], string $area = '', string $uri = '')
 { 

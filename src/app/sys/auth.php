@@ -4,15 +4,16 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\msg;
-use apex\services\template;
-use apex\services\redis;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\msg;
+use apex\svc\view;
+use apex\svc\redis;
 use apex\app\interfaces\AuthInterface;
-use apex\app\io\io;
-use apex\app\utils\hashes;
+use apex\svc\io;
+use apex\svc\hashes;
 use apex\app\msg\objects\event_message;
+use apex\app\msg\emailer;
 use apex\core\admin;
 use apex\users\user;
 
@@ -20,7 +21,7 @@ use apex\users\user;
 /**
  * Authentication Library
  *
- * Service: apex\utils\auth
+ * Service: apex\svc\auth
  *
  * Handles all authentication functionality including checking for a valid 
  * session and whether or not a user is authenticated, 2FA requests, invalid / 
@@ -32,12 +33,12 @@ use apex\users\user;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  * 
  * namespace apex;
  * 
  * use apex\app;
- * use apex\services\auth;
+ * use apex\svc\auth;
  *
  * // Auto login a user
  * $userid = 582;
@@ -47,12 +48,6 @@ use apex\users\user;
 class auth implements AuthInterface
 {
 
-
-    // Injected properties
-    private $app;
-    private $io;
-    private $hashes;
-
     // User type properties
     private $user_class;
     private $recipient;
@@ -60,6 +55,7 @@ class auth implements AuthInterface
     private $cookie_name;
     private $user_type;
     private $is_invalid = false;
+    private $session_id;
 
     // Configuration properties
     private $expire_secs;
@@ -69,16 +65,19 @@ class auth implements AuthInterface
 
 
 /**
+ * Construct / initialize
+ */
+public function __construct()
+{
+    $this->initialize();
+}
+
+/**
  * Constructor.  Grab some injected dependencies, and set a few basic 
  * variables. 
  */
-public function __construct(app $app, io $io, hashes $hashes)
+private function initialize()
 { 
-
-    // Injected properties
-    $this->app = $app;
-    $this->io = $io;
-    $this->hashes = $hashes;
 
     // user type variables
     if (app::get_area() == 'admin') { 
@@ -113,10 +112,13 @@ public function __construct(app $app, io $io, hashes $hashes)
 public function check_login(bool $require_login = false)
 { 
 
+    // Initialize
+    $this->initialize();
+
     // Logout / login, if necessary
     if (preg_match("/logout$/", app::get_uri())) { 
         return $this->logout();
-    } elseif (app::get_action() == 'login' && $this->is_invalid === false) { 
+    } elseif (app::get_action() == 'login') { 
         return $this->login();
     }
 
@@ -133,12 +135,12 @@ public function check_login(bool $require_login = false)
     // Update session expiry
     $seconds = isset($row['remember_me']) && $row['remember_me'] == 1 ? 2592000 : $this->expire_secs;
         redis::expire($redis_key, $seconds);
-    if (app::get_uri() != 'admin') { 
+    if (app::get_area() != 'admin') { 
         redis::expire($recipient, 259200);
     }
 
         // Load user profile
-    if (!$profile = $this->app->make($this->user_class, ['id' => (int) $row['userid']])->load()) { 
+    if (!$profile = app::make($this->user_class, ['id' => (int) $row['userid']])->load()) { 
         throw new UserException('not_exists', $row['userid']);
     }
     if ($profile['status'] != 'active') { $this->invalid_login($profile['status']); }
@@ -150,10 +152,12 @@ public function check_login(bool $require_login = false)
     if (isset($profile['currency'])) { app::set_currency($profile['currency']); }
 
         // Add page history
-        self::add_page_history($row['history_id']);
+    if (isset($row['history_id']) && $row['history_id'] > 0) { 
+            self::add_page_history((int) $row['history_id']);
+    }
 
         // Debug and log
-        debug::add(2, fmsg("Successfully authenticated usesr, area: {1}, userid: {2}, username: {3}", app::get_area(), $row['userid'], $profile['username']), __FILE__, __LINE__, 'info');
+        debug::add(2, tr("Successfully authenticated usesr, area: {1}, userid: {2}, username: {3}", app::get_area(), $row['userid'], $profile['username']), __FILE__, __LINE__, 'info');
 
         // Return
         return true;
@@ -170,32 +174,34 @@ private function check_for_session()
     if (!app::has_cookie($this->cookie_name)) { 
         return false;
     }
+    $this->session_id = app::_cookie($this->cookie_name);
 
     // Check redis for session
-    $chk_hash = 'auth:' . hash('sha512', app::_cookie($this->cookie_name));
+    $chk_hash = 'auth:' . hash('sha512', $this->session_id);
     if (!$row = redis::hgetall($chk_hash)) { 
         return false;
     }
 
     // Debug
-    debug::add(3, fmsg("Found authenticated session, userid: {1}, uri: {2}", $row['userid'], app::get_uri()), __FILE__, __LINE__);
+    debug::add(3, tr("Found authenticated session, userid: {1}, uri: {2}", $row['userid'], app::get_uri()), __FILE__, __LINE__);
 
     // Check for pending 2FA request
     if ($row['2fa_status'] == 0 && app::get_area() != 'public') { 
         debug::add(3, "Auth session still requires 2FA authorization", __FILE__, __LINE__);
-        app::echo_template('2fa', true);
+        app::set_uri('2fa', true, true);
+        return false;
     }
 
     // Check IP address
     if (app::get_ip() != $row['ip_address']) { 
-        debug::add(2, fmsg("Authentication error.  Session and current user IP addresses do not match.  Session IP: {1}, Current IP: {2}", $row['ip_address'], app::get_ip()), __FILE__, __LINE__, 'warning');
+        debug::add(2, tr("Authentication error.  Session and current user IP addresses do not match.  Session IP: {1}, Current IP: {2}", $row['ip_address'], app::get_ip()), __FILE__, __LINE__, 'warning');
         $this->invalid_login('invalid');
         return false;
     }
 
     // Check user agent
     if (app::get_user_agent() != $row['user_agent']) { 
-        debug::add(2, fmsg("Authentication error.  Session and current user agents do not match.  Session UA: {1}, Current UA: {2}", $row['user_agent'], app::get_user_agent()), __FILE__, __LINE__, 'warning');
+        debug::add(2, tr("Authentication error.  Session and current user agents do not match.  Session UA: {1}, Current UA: {2}", $row['user_agent'], app::get_user_agent()), __FILE__, __LINE__, 'warning');
         $this->invalid_login('invalid');
         return false;
     }
@@ -212,7 +218,7 @@ public function login()
 { 
 
     // Debug / log
-    debug::add(2, fmsg("Initiating login process, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Initiating login process, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
 
     // Get user ID
     if (app::get_area() == 'admin') { 
@@ -223,16 +229,16 @@ public function login()
 
     // Check username exists
     if (!$userid) { 
-        debug::add(2, fmsg("Login failed, username does not exist, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+        debug::add(2, tr("Login failed, username does not exist, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
         $this->invalid_login('invalid');
         return false;
     }
     $userid = (int) $userid;
 
     // Load profile
-    $user = $this->app->make($this->user_class, ['id' => $userid]);
+    $user = app::make($this->user_class, ['id' => $userid]);
     if (!$profile = $user->load()) { 
-        debug::add(2, fmsg("Invalid login.  Unable to load user profile, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+        debug::add(2, tr("Invalid login.  Unable to load user profile, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
         $this->invalid_login('invalid');
         return false;
     }
@@ -245,11 +251,11 @@ public function login()
 
     // Check password
     if (!password_verify(app::_post('password'), base64_decode($profile['password']))) { 
-        debug::add(2, fmsg("Invalid password during login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+        debug::add(2, tr("Invalid password during login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
 
         // Check # of retries
         if ($this->password_retries_allowed > 0 && $profile['invalid_logins'] >= $this->password_retries_allowed) { 
-            debug::add(2, fmsg("Authentication error, invalid password and user exceeded max retries allowed, deactivating account.  area: {1}, username: {2}, failed_logins: {3}", app::get_area(), app::_post('username'), $profile['invalid_logins']), __FILE__, __LINE__, 'warning');
+            debug::add(2, tr("Authentication error, invalid password and user exceeded max retries allowed, deactivating account.  area: {1}, username: {2}, failed_logins: {3}", app::get_area(), app::_post('username'), $profile['invalid_logins']), __FILE__, __LINE__, 'warning');
             $user->update_status('inactive');
         }
 
@@ -270,28 +276,29 @@ public function login()
 
     // Check if 2FA required
     list($require_2fa, $require_2fa_phone) = array(0, 0);
-    if (app::get_area() == 'admin' || $this->require_2fa == 'optional') { 
+    if (app::get_area() == 'admin' || $this->require_2fa == 'optional') {
         $require_2fa = $profile['require_2fa'];
         $require_2fa_phone = $profile['require_2fa_phone'];
+        if ($require_2fa == 2) { $require_2fa = $new_device === true ? 1 : 0; }
+        if ($require_2fa_phone == 2) { $require_2fa_phone = $new_device === true ? 1 : 0; }
+
     } elseif ($this->require_2fa == 'session') { 
         list($require_2fa, $require_2fa_phone) = array(1, 1);
+
     } elseif ($this->require_2fa == 'new_device' && $new_device === true) { 
         list($require_2fa, $require_2fa_phone) = array(1, 1);
     }
 
     // Check if phone or e-mail 2FA required
-    if ($require_2fa_phone == 1 && $user_row['phone'] != '') { 
+    if ($require_2fa_phone == 1 && $profile['phone'] != '' && $profile['phone_verified'] == 1) { 
         $require_2fa = 0;
     } else { $require_2fa_phone = 0; }
-
-    // Check security question
-    $this->check_security_question($userid, $profile['sec_hash']);
 
     // Check IP address
     $this->check_ip_restrictions($userid);
 
     // Create login session
-    $session_id = $this->create_session($userid);
+    $session_id = $this->create_session($userid, (int) $require_2fa, (int) $require_2fa_phone);
 
     // Return
     return true;
@@ -326,12 +333,12 @@ private function create_session(int $userid, int $require_2fa = 0, int $require_
 
     // Generate session ID
     do { 
-        $session_id = $this->io->generate_random_string(60);
-        $exists = redis::exists('auth:' . hash('sha512', $session_id));
+        $this->session_id = io::generate_random_string(60);
+        $exists = redis::exists('auth:' . hash('sha512', $this->session_id));
     } while ($exists > 0);
 
     // Debug / log
-    debug::add(1, fmsg("Authentication successful, session ID generated, area: {1}, username: {2}, session_id: {3}", app::get_area(), app::_post('username'), $session_id), __FILE__, __LINE__);
+    debug::add(1, tr("Authentication successful, session ID generated, area: {1}, username: {2}, session_id: {3}", app::get_area(), app::_post('username'), $this->session_id), __FILE__, __LINE__);
 
     // Add session to DB
     $remember_me = app::_post('remember_me') ?? 0;
@@ -352,7 +359,7 @@ private function create_session(int $userid, int $require_2fa = 0, int $require_
 
     // Set redis variables
     $seconds = $remember_me == 1 ? 2592000  : $this->expire_secs;
-    $redis_key = 'auth:' . hash('sha512', $session_id);
+    $redis_key = 'auth:' . hash('sha512', $this->session_id);
     $this->recipient = (app::get_area() == 'admin' ? 'admin:' : 'user:') . $userid;
 
     // Add session to redis
@@ -362,30 +369,32 @@ private function create_session(int $userid, int $require_2fa = 0, int $require_
 
     // Set cookie
     $expire = $remember_me == 1 ? (time() + $seconds) : 0;
-    if (!app::set_cookie($this->cookie_name, $session_id, $expire, '/')) { 
+    if (!app::set_cookie($this->cookie_name, $this->session_id, $expire, '/')) { 
         throw new ApexException('alert', "Unable to set login cookie.  Customer support has been notified, and will resolve the issue shortly.  Please try again later.");
     }
 
     // Set user ID
     app::set_userid($userid);
 
+    // Change panel, if needed
+    if (app::get_area() != 'admin') { 
+        $area = app::_config('users:login_method') == 'index' ? 'public' : 'members';
+        $theme = app::_config('users:login_method') == 'index' ? app::_config('core:theme_public') : app::_config('users:theme_members');
+
+        app::set_area($area);
+        app::set_theme($theme);
+    }
+
     // Initiate 2FA, if needed
     if ($require_2fa_phone == 1) { $this->authenticate_2fa_sms(1); }
     elseif ($require_2fa == 1) { $this->authenticate_2fa_email(1); }
 
     // Debug
-    debug::add(1, fmsg("Completed successful login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
-
-    // Change panel, if needed
-    if (app::get_area() != 'admin') { 
-        $uri = app::_config('users:login_method') == 'index' ? '/index' : '/members/index';
-        header("Location: $uri");
-        exit(0);
-    }
+    debug::add(1, tr("Completed successful login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
 
     // Parse template
     app::set_uri('index', true);
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
 
     // Return
     return true;
@@ -412,78 +421,6 @@ public function logout():bool
 }
 
 /**
- * Check secondary security question 
- *
- * Checks user for secondary question.  If the system can not recognize the 
- * user has previously logged in from this browser / computer, will prompt the 
- * user to answer a pre-defined security question. 
- */
-protected function check_security_question(int $userid, string $chk_sec_hash):bool
-{ 
-
-    // Check for cookie
-    $cookie = app::_config('core:cookie_name') . '_' . (app::get_area() == 'admin' ? 'admin' : 'user') . '_auth_sechash';
-    if (app::has_cookie($cookie) && hash('sha512', app::_cookie($cookie)) == $chk_sec_hash) { 
-        debug::add(4, fmsg("Authentication, user is already validated via security question from previous session, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
-        return true;
-    }
-
-    // Check answer, if needed
-    $ask_question = true;
-    $invalid_answer = false;
-    if (app::has_post('answer') && app::has_post('question_id')) { 
-
-        // Check answer
-        $answer = db::get_field("SELECT answer FROM auth_security_questions WHERE type = %s AND userid = %i AND question = %s", $this->user_type, $userid, app::_post('question_id'));
-        if (password_verify(app::_post('answer'), base64_decode($answer)) === true) { 
-            debug::add(2, fmsg("Successfully answered secondary security question, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
-            $ask_question = false;
-        } else { 
-            $invalid_answer = true;
-        }
-    }
-
-    // Ask question, if needed
-    if ($ask_question === true) { 
-
-        // Debug
-        debug::add(3, fmsg("Authentication, secondary security question required.  Displaying form, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
-
-        // Get random question
-        if (!$row = db::get_row("SELECT * FROM auth_security_questions WHERE type = %s AND userid = %i ORDER BY RAND() LIMIT 0,1", $this->user_type, $userid)) { 
-            return true;
-        }
-
-        // Start template
-        app::set_uri('security_question', true);
-        if ($invalid_answer === true) { 
-            template::add_callout(tr("We're sorry, but your answer to the security question was incorrect.  Please try again."), 'error');
-        }
-
-        // Assign template variables
-        template::assign('username', app::_post('username'));
-        template::assign('password', app::_post('password'));
-        template::assign('question_id', $row['question']);
-        template::assign('question', $this->hashes->get_hash_var('core:secondary_security_questions', $row['question']));
-
-        // Parse template
-        app::set_res_body(template::parse());
-        return false;
-    }
-
-    // Set cookie
-    $sec_hash = $this->io->generate_random_string(50);
-    setcookie($cookie, $sec_hash, (time() + 2592000));
-
-    // Update secondary hash indb
-    $this->app->make($this->user_class, ['id' => $userid])->update_sec_auth_hash($sec_hash);
-
-    // Return
-    return true;
-
-}
-
-/**
  * Checks the user's IP address against any IP restrictions that have been 
  * pre-defined and are are in the database. 
  *
@@ -502,11 +439,11 @@ protected function check_ip_restrictions(int $userid):bool
     }
 
     // Debug
-    debug::add(4, fmsg("Authentication, checking IP address restrictions, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+    debug::add(4, tr("Authentication, checking IP address restrictions, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
 
     // Check if IP allowed
     if (!in_array(app::get_ip(), $ips)) { 
-        debug::add(3, fmsg("Authentication error, IP address not allowed, area: {1}, username: {2}, ip_address: {3}", app::get_area(), app::_post('username'), app::get_ip()), __FILE__, __LINE__, 'warning');
+        debug::add(3, tr("Authentication error, IP address not allowed, area: {1}, username: {2}, ip_address: {3}", app::get_area(), app::_post('username'), app::get_ip()), __FILE__, __LINE__, 'warning');
         $this->invalid_login();
     }
 
@@ -527,21 +464,21 @@ public function invalid_login(string $type = 'none')
 { 
 
     // Debug
-    debug::add(2, fmsg("Authentication, invalid login, area: {1}, type: {2}", app::get_area(), $type), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Authentication, invalid login, area: {1}, type: {2}", app::get_area(), $type), __FILE__, __LINE__, 'info');
 
     // Logout
     $this->logout();
     $this->is_invalid = true;
 
     // Add template message
-    if ($type == 'invalid') { template::add_callout(tr("Invalid username or password.  Please double check your login credentials and try again."), 'error'); }
-    elseif ($type == 'expired') { template::add_callout(tr("Your session has expired due to inactivity.  Please login again."), 'error'); }
-    elseif ($type == 'inactive') { template::add_callout(tr("Your account is currently inactive, and not allowed to login.  Please contact customer support for further information."), 'error'); }
-    elseif ($type == 'pending') { template::add_callout(tr("Your account is currently pending, and must first be approved by customer support.  You will receive an e-mail once your account has been activated.", 'error')); }
+    if ($type == 'invalid') { view::add_callout(tr("Invalid username or password.  Please double check your login credentials and try again."), 'error'); }
+    elseif ($type == 'expired') { view::add_callout(tr("Your session has expired due to inactivity.  Please login again."), 'error'); }
+    elseif ($type == 'inactive') { view::add_callout(tr("Your account is currently inactive, and not allowed to login.  Please contact customer support for further information."), 'error'); }
+    elseif ($type == 'pending') { view::add_callout(tr("Your account is currently pending, and must first be approved by customer support.  You will receive an e-mail once your account has been activated.", 'error')); }
 
     // Set template response
     app::set_uri('login', true);
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
 
     // Return
     return false;
@@ -561,7 +498,7 @@ public function check_password(string$username, string$password)
 { 
 
     // Debug
-    debug::add(2, fmsg("Authentication, raw user / pass check, area: {1}, username: {2}", app::get_area(), $username), __FILE__, __LINE__);
+    debug::add(2, tr("Authentication, raw user / pass check, area: {1}, username: {2}", app::get_area(), $username), __FILE__, __LINE__);
 
     // Get user row
     if (!$profile = db::get_row("SELECT * FROM $this->users_table WHERE username = %s", $username)) { 
@@ -589,18 +526,18 @@ public function authenticate_2fa_email(int $is_login = 0)
 { 
 
     // Check if authenticated
-    //if (app::$verified_2fa === true) { return true; }
+    if (app::is_verified() === true) { return true; }
 
     // Generate hash
-    $hash_2fa = strtolower($this->io->generate_random_string(32));
+    $hash_2fa = strtolower(io::generate_random_string(32));
             $hash_2fa_enc = hash('sha512', $hash_2fa);
 
     // Set vars
     $vars = array(
         'is_login' => $is_login,
-        'auth_hash' => hash('sha512', app::$auth_hash),
+        'auth_hash' => hash('sha512', $this->session_id),
         'userid' => app::get_userid(),
-        'http_controller' => app::get_http_controller(),
+        'http_controller' => app::get_area() == 'public' ? 'http' : app::get_area(), 
         'area' => app::get_area(),
         'theme' => app::get_theme(),
         'uri' => app::get_uri(),
@@ -614,13 +551,14 @@ public function authenticate_2fa_email(int $is_login = 0)
     redis::set($key, json_encode($vars));
     redis::expire($key, 1200);
 
-    debug::add(1, fmsg("2FA authentication required.  Exiting, and forcing display of 2fa.tpl template"), __FILE__, __LINE__);
+    debug::add(1, tr("2FA authentication required.  Exiting, and forcing display of 2fa.tpl template"), __FILE__, __LINE__);
 
     // Send e-mails
-    //message::process_emails('system', 0, array('action' => '2fa'), array('2fa_hash' => $hash_2fa));
+    $emailer = app::get(emailer::class);
+    $emailer->process_emails('system', app::get_userid(), array('action' => '2fa'), array('2fa_hash' => $hash_2fa));
 
     // Parse template
-    app::echo_template('2fa', true);
+    app::set_uri('2fa', true, true);
 
     // Return
     return false;
@@ -691,14 +629,16 @@ public function recaptcha()
 
 /**
  * Add page history 
+ *
+ * @param int $history_id The ID# of the history session, logged in the auth session as 'history_id'
  */
-private function add_page_history($history_id)
+private function add_page_history(int $history_id)
 { 
 
     // Get post vars
     $post_vars = app::getall_post() ?? array();
     foreach ($post_vars as $key => $value) { 
-        if (preg_match("/password/", $key)) { $post_vars[$key] = "*****"; }
+        if (preg_match("/password/", (string) $key)) { $post_vars[$key] = "*****"; }
     }
 
     // Set vars

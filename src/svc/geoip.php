@@ -1,9 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace apex\services\utils;
+namespace apex\svc;
 
 use apex\app;
+use apex\app\utils\geoip as service;
 use apex\app\exceptions\ServiceException;
 
 
@@ -14,33 +15,9 @@ use apex\app\exceptions\ServiceException;
 class geoip
 {
 
-    private static $service = 'utils/geoip';
-    private static $app = null;
+    private static $class_name = service::class;
     private static $instance = null;
 
-
-    /**
-     * Set the app instance.
-     */
-    public static function set_app($obj)
-    {
-        self::$app = $obj;
-    }
-
-    /**
-     * Sets / returns the instance for this service / dispatcher.
-     */
-    public static function singleton($object = null)
-{
-
-        // Define instance, if needed
-        if ($object !== null && !self::$instance) { 
-            self::$instance = $object;
-        }
-
-        // Return
-        return self::$instance;
-    }
 
     /**
      * Calls a method of the instance.
@@ -50,8 +27,7 @@ class geoip
 
         // Ensure we have an instance defined
         if (!self::$instance) { 
-            if (!self::$app) { self::$app = app::get_instance(); }
-            self::$app->assign_service(self::$service);
+            self::$instance = app::get(self::$class_name);
         }
 
         // Ensure method exists

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\debug;
-use apex\services\utils\io;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\debug;
+use apex\svc\io;
 use apex\app\pkg\package_config;
 use apex\app\pkg\pkg_component;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -538,6 +538,8 @@ private function complete_install()
 
 /**
 * Give off an installation error
+ *
+* @param string $message The error message.
 */
 private function install_error(string $message) 
 {
@@ -548,6 +550,8 @@ private function install_error(string $message)
 
 /**
 * Get a variable from the readline prompt.
+ * @param string $label The label of the variable.
+ * @param string $default_value The default value if user does not specify a value.
 */
 private function getvar(string $label, string $default_value = '') 
 { 

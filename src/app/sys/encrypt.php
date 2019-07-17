@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\auth;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\auth;
 use apex\app\exceptions\ApexException;
 use apex\app\exceptions\EncryptException;
 
@@ -14,7 +14,7 @@ use apex\app\exceptions\EncryptException;
 /**
  * Encryption Library
  *
- * Service: apex\services\utils\encrypt
+ * Service: apex\svc\encrypt
  *
  * Handles all encryption within Apex including user based two-way AES256 
  * encryption to multiple recipients, basic insecure encryption, RSA key-pair 
@@ -26,12 +26,12 @@ use apex\app\exceptions\EncryptException;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\encrypt;
+ * use apex\svc\encrypt;
  *
  * // Basic encrypt
  * $encrypted = encrypt::encrypt_basic('some plain text', 'mypassword');
@@ -57,7 +57,7 @@ public function generate_rsa_keypair(int $userid, string $type = 'user', string 
 { 
 
     // Debug
-    debug::add(2, fmsg("Start generating RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Start generating RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
 
     // Set config args
     $config = array(
@@ -92,7 +92,7 @@ public function generate_rsa_keypair(int $userid, string $type = 'user', string 
     $key_id = db::insert_id();
 
     // Debug
-    debug::add(1, fmsg("Generated RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Generated RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
 
     // Return
     return (int) $key_id;
@@ -128,7 +128,7 @@ public function change_rsa_password(int $userid, string $type, string $old_passw
     "id = %i", $key_id);
 
     // Debug
-    debug::add(1, fmsg("Updated password on RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Updated password on RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
 
     // Return
     return true;
@@ -160,7 +160,7 @@ public function get_key(int $userid, string $type = 'user', string $key_type = '
     }
 
     // Debug
-    debug::add(5, fmsg("Retrieved RSA encryption key, userid: {1}, user type: {2}, key type: {3}", $userid, $type, $key_type), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieved RSA encryption key, userid: {1}, user type: {2}, key type: {3}", $userid, $type, $key_type), __FILE__, __LINE__);
 
     // Return
     return array($row['id'], $key);
@@ -222,7 +222,7 @@ public function encrypt_user(string $data, array $recipients):int
         );
 
         // Debug
-        debug::add(5, fmsg("Encrypted data via AES256 to recipient: {1}", $recipient), __FILE__, __LINE__);
+        debug::add(5, tr("Encrypted data via AES256 to recipient: {1}", $recipient), __FILE__, __LINE__);
 
     }
 
@@ -308,7 +308,7 @@ public function encrypt_basic(string $data, string $password = ''):string
 /**
  * Decrypts data that was encrypted via the encrypt_basic() function 
  *
- * @[ara, stromg $data The encrypted data to decrypt
+ * @param string $data The encrypted data to decrypt
  * @param string $password Optional decrypption password that was used to encrypt the data.
  */
 public function decrypt_basic(string $data, string $password = '')
@@ -327,7 +327,7 @@ public function decrypt_basic(string $data, string $password = '')
  * Import public PGP key 
  *
  * @param string $type The user type (user / admin).
- * @param int $Userid The ID# of the user.
+ * @param ing $userid The ID# of the user.
  * @param string $public_key The public PGP key
  *
  * @return mixed If unsuccessful, return false.  Otherwise, returns the fingerprint of the PGP key.

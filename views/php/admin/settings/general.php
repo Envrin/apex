@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\views;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
-use apex\services\redis;
-use apex\services\utils\forms;
+use apex\svc\db;
+use apex\svc\view;
+use apex\svc\redis;
+use apex\svc\forms;
 use apex\app\pkg\package_config;
 
 /**
@@ -41,7 +41,7 @@ if (app::get_action() == 'update_general') {
     }
 
     // User message
-    template::add_callout("Successfully updated general settings");
+    view::add_callout("Successfully updated general settings");
 
 // SIte info settings
 } elseif (app::get_action() == 'site_info') { 
@@ -66,7 +66,7 @@ if (app::get_action() == 'update_general') {
     }
 
     // User message
-    template::add_callout("Successfully updated site info settings");
+    view::add_callout("Successfully updated site info settings");
 
 // Security settings
 } elseif (app::get_action() == 'security') { 
@@ -76,7 +76,6 @@ if (app::get_action() == 'update_general') {
         'session_expire_mins', 
         'password_retries_allowed', 
         'require_2fa',  
-        'num_security_questions'
     );
 
     // Update config vars
@@ -89,7 +88,7 @@ if (app::get_action() == 'update_general') {
     app::update_config_var('core:force_password_reset_time', forms::get_date_interval('force_password_reset_time'));
 
     // User message
-    template::add_callout("Successfully updated admin panel security settings");
+    view::add_callout("Successfully updated admin panel security settings");
 
 // Add database
 } elseif (app::get_action() == 'add_database') { 
@@ -105,7 +104,7 @@ if (app::get_action() == 'update_general') {
     redis::rpush('config:db_slaves', json_encode($vars));
 
     // User message
-    template::add_callout("Successfully added new database server");
+    view::add_callout("Successfully added new database server");
 
 // Update database
 } elseif (app::get_action() == 'update_database') { 
@@ -126,7 +125,7 @@ if (app::get_action() == 'update_general') {
     redis::lset('config:db_slaves', $server_id, json_encode($vars));
 
     // User message
-    template::add_callout("Successfully updated database server");
+    view::add_callout("Successfully updated database server");
 
 // Delete databases
 } elseif (app::get_action() == 'delete_database') { 
@@ -149,7 +148,7 @@ if (app::get_action() == 'update_general') {
     }
 
     // User message
-    template::add_callout("Successfully deleted checked database servers");
+    view::add_callout("Successfully deleted checked database servers");
 
 // Add SMTP e-mail server
 } elseif (app::get_action() == 'add_email') { 
@@ -167,7 +166,7 @@ if (app::get_action() == 'update_general') {
     redis::rpush('config:email_servers', json_encode($vars));
 
     // Add message
-    template::add_callout("Successfully added new SMTP e-mail server");
+    view::add_callout("Successfully added new SMTP e-mail server");
 
 // Update e-mail SMTP server
 } elseif (app::get_action() == 'update_email') { 
@@ -185,7 +184,7 @@ if (app::get_action() == 'update_general') {
     redis::lset('config:email_servers', app::_post('server_id'), json_encode($vars));
 
     // User message
-    template::add_callout("Successfully updated e-mail SMTP server");
+    view::add_callout("Successfully updated e-mail SMTP server");
 
 // Delete e-mail SMTP servers
 } elseif (app::get_action() == 'delete_email') {
@@ -209,7 +208,7 @@ if (app::get_action() == 'update_general') {
     }
 
     // User message
-    template::add_callout("Successfully deleted all checked e-mail SMTP servers");
+    view::add_callout("Successfully deleted all checked e-mail SMTP servers");
 
 // Update RabbitMQ info
 } elseif (app::get_action() == 'update_rabbitmq') { 
@@ -226,14 +225,14 @@ if (app::get_action() == 'update_general') {
     redis::hmset('config:rabbitmq', $vars);
 
     // User message
-    template::add_callout("Successuflly updated RabbitMQ connection info");
+    view::add_callout("Successuflly updated RabbitMQ connection info");
 
 // Reset redis
 } elseif (app::get_action() == 'reset_redis') { 
 
     // Check
     if (strtolower(app::_post('redis_reset')) != 'reset') { 
-        template::add_callout("You did not enter RESET in the provided text box", 'error');
+        view::add_callout("You did not enter RESET in the provided text box", 'error');
     } else { 
 
         // Go through packages
@@ -247,7 +246,7 @@ if (app::get_action() == 'update_general') {
         }
 
         // User message
-        template::add_callout("Successfully reset the redis database");
+        view::add_callout("Successfully reset the redis database");
     }
 
 }
@@ -264,5 +263,5 @@ if (!$rabbitmq_vars = redis::hgetall('config:rabbitmq')) {
 }
 
 // Template variables
-template::assign('rabbitmq', $rabbitmq_vars);
+view::assign('rabbitmq', $rabbitmq_vars);
 

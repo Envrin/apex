@@ -7,6 +7,9 @@ namespace apex\app\interfaces\msg;
 use apex\app\web\ajax;
 
 
+/**
+ * Web socket message interface.
+ */
 interface WebSocketMessageInterface
 {
 

@@ -33,6 +33,8 @@ class event_response extends event_message implements EventResponseInterface
     private $exception;
 /**
  * Constructor.  Get the EventMessageInterface, and set necessary properties. 
+ *
+ * @param EventMessageInterface $msg The message that was dispatched.
  */
 public function __construct(EventMessageInterface $msg)
 { 

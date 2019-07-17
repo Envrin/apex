@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core\table;
 
 use apex\app;
-use apex\services\redis;
+use apex\svc\redis;
 use apex\app\interfaces\components\table;
 
 

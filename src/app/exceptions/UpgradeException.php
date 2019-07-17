@@ -24,6 +24,11 @@ class UpgradeException   extends ApexException
     );
 /**
  * Construct 
+ * 
+ * @param string $message The exception message
+ * @param string $upgrade_id The ID# of the upgrade
+ * @param string $package The alias of the package.
+ * @param string $version The upgrade version. 
  */
 public function __construct($message, $upgrade_id = 0, $package = '', $version = '')
 { 
@@ -38,7 +43,7 @@ public function __construct($message, $upgrade_id = 0, $package = '', $version =
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

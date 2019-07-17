@@ -24,7 +24,7 @@ will evenly distribute all outgoing e-mails amongst the SMTP servers listed in t
 ### Send Individual E-Mail
 
 Although not generally required, sending an individual e-mail manually is quite simple with Apex by using the
-<api:app.msg.emailer>emailer::send()</api> method.
+emailer::send() method.
 
 **Example:**
 
@@ -39,7 +39,7 @@ $emailer->send("customer@domain.com", "Customer Name", "support@mydomain.com", "
 ~~~
 
 For full details on this method and its parameters, please visit the
-<api:app.msg.emailer>emailer::send()</api> API page.
+emailer::send() API page.
 
 <a name="define_notifications">
 ### Define Notifications
@@ -56,10 +56,10 @@ notifications into package installation.
 
 
 <a name="process_emails">
-### Processing E-Mails <api:app.msg.emailer>emailer::process_emails()</api>
+### Processing E-Mails emailer::process_emails()
 
 You can trigger any necessary e-mails to be sent via the
-<api:app.msg.emailer>emailer::process_emails()</api> function.  This function will go
+emailer::process_emails() function.  This function will go
 through all notifications of a specific controller, and check the conditional requirements against the
 condition passed, and if they match will automatically send the necessary e-mail messages.
 
@@ -85,7 +85,7 @@ This will go through all notifications created with the controller alias "transa
 arguments they were created with, and for any that match a "status" of "declined", will send the e-mail
 message.  Again, see below for creating your own notification type to get a better understanding of how this
 works.  Also please see the
-<api:app.msg.emailer>emailer::process_emails()</api> method within the API documentation
+emailer::process_emails() method within the API documentation
 for details on parameters.
 
 

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\tests;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\debug;
-use apex\services\msg;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\debug;
+use apex\svc\msg;
 use apex\app\msg\emailer;
 use apex\app\msg\utils\smtp_connections;
 use apex\app\msg\objects\email_message;
@@ -33,7 +33,7 @@ class test_emailer extends emailer
     private $app;
 
     // Properties
-    public $queue = [];
+    private $queue = [];
 
 
 /**
@@ -87,6 +87,21 @@ public function search_queue(string $to_email = '', string $from_email = '', str
     return $results;
 
 }
+
+/**
+ * Get the current queue of messages
+ *
+ * @return array The current queue of messages.
+ */
+public function get_queue() { return $this->queue; }
+
+/**
+ * Clear the queue
+ */
+public function clear_queue() { $this->queue = []; }
+
+
+
 
 }
 

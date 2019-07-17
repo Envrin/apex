@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\app;
-use apex\services\db;
-use apex\services\utils\components;
-use apex\services\utils\forms;
+use apex\svc\db;
+use apex\svc\components;
+use apex\svc\forms;
 use apex\app\web\ajax;
 
 

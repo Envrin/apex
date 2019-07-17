@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace tests\core;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
+use apex\svc\db;
+use apex\svc\debug;
 use apex\app\utils\forms;
 use apex\app\tests\test;
 

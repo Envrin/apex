@@ -43,6 +43,19 @@ class DBException   extends ApexException
     'ts' => 'time',
     'dt' => 'datetime'
     );
+
+/**
+ * Construct
+ * 
+ * @param string $message The exception message.
+ * @param string $sql_query The SQL query
+ * @param string $server_message The message from the mySQL server.
+ * @param string $action The action being performed.
+ * @param string $table_name The table name
+ * @param string $column_name The column name.
+ * @param string $var_type The type of variable, for SQL formatting errors
+ * @param string $value The value being formatted. 
+ */
 public function __construct(string $message, $sql_query = '', $server_message = '', $action = '', $table_name = '', $column_name = '', $var_type = 's', $value = '')
 { 
 
@@ -62,7 +75,7 @@ public function __construct(string $message, $sql_query = '', $server_message = 
 
     // Get message
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
     // Set SQL query
     $this->sql_query = $sql_query == '' ? $this->message : $sql_query;

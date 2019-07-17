@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core\htmlfunc;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\template;
-use apex\services\utils\components;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\view;
+use apex\svc\components;
 use apex\app\web\html_tags;
 use apex\core\admin;
 

@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\db;
-use apex\services\template;
-use apex\services\auth;
+use apex\svc\db;
+use apex\svc\view;
+use apex\svc\auth;
 use apex\core\controller\http_requests;
 
 
@@ -28,8 +28,10 @@ class admin
  * authentication, then passes the request off to the template engine. Also 
  * checks if an administrator exists, and if not, prompts to create the first 
  * administrator. 
+ *
+ * @param app $app The /src/app.php class.  Injected.
  */
-public function process(app $app)
+public function process()
 { 
 
     // Check if admin enabled
@@ -47,10 +49,10 @@ public function process(app $app)
     if (app::get_action() == 'create' && $count == 0) { 
 
         // Create first admin
-        $client = $app->make(\apex\core\admin::class);
+        $client = app::make(\apex\core\admin::class);
         if (!$userid = $client->create()) { 
             app::set_uri('admin/create_first_admin');
-            app::set_res_body(template::parse());
+            app::set_res_body(view::parse());
             return;
         }
 
@@ -60,7 +62,7 @@ public function process(app $app)
     // Display form to create first admin
     } elseif ($count == 0) { 
         app::set_uri('admin/create_first_admin');
-        app::set_res_body(template::parse());
+        app::set_res_body(view::parse());
         return;
     }
 
@@ -70,7 +72,7 @@ public function process(app $app)
     }
 
     // Parse template
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
 
 }
 

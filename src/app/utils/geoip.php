@@ -4,12 +4,12 @@ declare(strict_types = 1);
 namespace apex\app\utils;
 
 use apex\app;
-use apex\services\debug;
+use apex\svc\debug;
 
 /**
  * GeoIP library
  *
- * Service: apex\services\utils\geoip
+ * Service: apex\svc\geoip
  *
  * Small one method class that allows efficient geo lookups of IP addresses.
  *
@@ -19,12 +19,12 @@ use apex\services\debug;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
 
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\geoip;
+ * use apex\svc\geoip;
  *
  * // Lookup user's IP address
  * $ip = geoip::lookup();
@@ -50,7 +50,7 @@ public function lookup(string $ipaddr = ''):array
     if ($ipaddr == '') { $ipaddr = app::get_ip(); }
 
     // Debug
-    debug::add(2, fmsg("Performing GeoIP lookup of IP address: {1}", $ipaddr), __FILE__, __LINE__);
+    debug::add(2, tr("Performing GeoIP lookup of IP address: {1}", $ipaddr), __FILE__, __LINE__);
 
     // Load reader
     $reader = new \MaxMind\Db\Reader(SITE_PATH . '/src/app/utils/maxmind/GeoLite2-City.mmdb');

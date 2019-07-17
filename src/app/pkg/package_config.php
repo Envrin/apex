@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\app\pkg;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\redis;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\redis;
 use apex\app\exceptions\ComponentException;
 use apex\app\exceptions\PackageException;
 use apex\app\pkg\pkg_component;
@@ -39,7 +39,7 @@ public function __construct(string $pkg_alias = '')
     $this->pkg_dir = SITE_PATH . '/etc/' . $pkg_alias;
 
     // Debug
-    debug::add(3, fmsg("Initialized package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Initialized package, {1}", $pkg_alias), __FILE__, __LINE__);
 
 }
 
@@ -85,7 +85,7 @@ public function load()
     }
 
     // Debug
-    debug::add(2, fmsg("loaded package configuration, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("loaded package configuration, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Return
     return $pkg;
@@ -98,12 +98,14 @@ public function load()
  * Goes through the package.php configuration file, and updates the database 
  * as necessary.  Ensures to update existing records as necessary, and delete 
  * records that have been removed from the package.php file. 
+ *
+ * @param mixed $pkg The loaded package configuration.
  */
 public function install_configuration($pkg = '')
 { 
 
     // Debug
-    debug::add(2, fmsg("Starting configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Starting configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Load package, if needed
     if (!is_object($pkg)) { 
@@ -126,7 +128,7 @@ public function install_configuration($pkg = '')
     $this->install_placeholders($pkg);
 
     // Debug
-    debug::add(2, fmsg("Completed configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Completed configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
 }
 
@@ -135,12 +137,14 @@ public function install_configuration($pkg = '')
  *
  * Adds / updates the configuration variables as necessary from the 
  * package.php $this->config() array. 
+ *
+ * @param mixed $pkg The loaded package configuration.
  */
 protected function install_config_vars($pkg)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting install of config vars for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting install of config vars for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Add config vars
     foreach ($pkg->config as $alias => $value) { 
@@ -163,7 +167,7 @@ protected function install_config_vars($pkg)
     }
 
     // Debug
-    debug::add(3, fmsg("Completed install of configuration variables for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed install of configuration variables for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
 }
 
@@ -173,12 +177,14 @@ protected function install_config_vars($pkg)
  * Adds / updates / deletes the hashes within the package.php file's 
  * $this->hash array.  Hashes are used as key-value paris to easily populate 
  * select / radio / checkbox lists. 
+ * 
+ * @param mixed $pkg The loaded package configuration.
  */
 protected function install_hashes($pkg)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Add needed hashes
     foreach ($pkg->hash as $hash_alias => $vars) { 
@@ -212,7 +218,7 @@ protected function install_hashes($pkg)
     }
 
     // Debug
-    debug::add(3, fmsg("Completed hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
 }
 
@@ -220,12 +226,14 @@ protected function install_hashes($pkg)
  * Install menus 
  *
  * Adds / updates all menus within the package.php configuration file. 
+ *
+ * @param mixed $pkg The loaded package configuration.
  */
 protected  function install_menus($pkg)
 { 
 
     // Debug
-    debug::add(3, fmsg("Start menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Start menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Go through menus
     $done = array();
@@ -276,7 +284,7 @@ protected  function install_menus($pkg)
     $this->update_redis_menus();
 
     // Debug
-    debug::add(3, fmsg("Completed menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
 }
 
@@ -295,12 +303,13 @@ protected  function install_menus($pkg)
  * @param string $icon The icon of the menu, if applicab le (eg. fa fa-fw fa-users).
  * @param string $url Only applicable for menus with type 'external', and is the URL destination of the menu.
  * @param int $require_login Whether or not login is required to display this menu.  Used for public area to display different menus on public site depending whether user is logged in or not.
+ * @param int $require_nologin Whether or not to only display this menu when not logged in.
  */
 protected function add_single_menu(string$area, string $parent, string $alias, string $name, string $position = 'bottom', string $type = 'internal', string $icon = '', string $url = '', int $require_login = 0, int $require_nologin = 0)
 { 
 
     // Debug
-    debug::add(3, fmsg("Adding single menu, package: {1}, area: {2}, parent: {3}, alias: {4}", $this->pkg_alias, $area, $parent, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Adding single menu, package: {1}, area: {2}, parent: {3}, alias: {4}", $this->pkg_alias, $area, $parent, $alias), __FILE__, __LINE__);
 
     // Check if menu exists
     if ($menu_id = db::get_field("SELECT id FROM cms_menus WHERE area = %s AND parent = %s AND alias = %s", $area, $parent, $alias)) { 
@@ -347,7 +356,7 @@ protected function add_single_menu(string$area, string $parent, string $alias, s
  * as necessary to make room for the menu as well. 
  *
  * @param string $area The area the menu is in (eg. 'admin', 'public', or 'members')
- * @param string The parent alias of the menu, if it's a sub-menu.
+ * @param string $parent The parent alias of the menu, if it's a sub-menu.
  * @param string $position The position of the menu.  See documentation for details.
  *
  * @return int The 'order_num' of the menu.
@@ -468,12 +477,14 @@ public function update_redis_menus()
  * Installs / updates the boxlists from the package.php configuration file. 
  * These are generally used for settings pages, such as user / financial 
  * settings in the admin panel. 
+ *
+ * @param mixed $pkg The loaded package configuration.
  */
 protected function install_boxlists($pkg)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
     // Go through boxlists
     $done = array();
@@ -517,18 +528,20 @@ protected function install_boxlists($pkg)
     }
 
     // Debug
-    debug::add(3, fmsg("Completed boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
 
 }
 
 /**
  * Install placeholders 
+ *
+ * @param mixed $pkg The loaded package configuration.
  */
 protected function install_placeholders($pkg)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting placeholders install of package {1}", $this->pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(3, tr("Starting placeholders install of package {1}", $this->pkg_alias), __FILE__, __LINE__, 'info');
 
     // Go through placeholders
     $done = array();
@@ -577,7 +590,7 @@ protected function reorder_tabcontrol(string $package, string $alias)
 { 
 
     // Debug
-    debug::add(3, fmsg("Starting re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
 
     // Load tab control
     if (!$tab = components::load('tabcontrol', $alias, $package)) { 
@@ -629,13 +642,15 @@ protected function reorder_tabcontrol(string $package, string $alias)
     }
 
     // Debug
-    debug::add(3, fmsg("Completed re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
 
 }
 
 /**
  * Install notificationsl.  Only executed during initial package install, and 
  * never again. 
+ * 
+ * @param mixed $pkg The loaded package configuration.
  */
 public function install_notifications($pkg)
 { 

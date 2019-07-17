@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 use apex\app\sys\components;
 
 

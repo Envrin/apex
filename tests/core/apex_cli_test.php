@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace tests\core;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\utils\io;
-use apex\services\utils\components;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\io;
+use apex\svc\components;
 use apex\app\sys\apex_cli;
 use apex\app\pkg\package_config;
 use apex\app\tests\test;
@@ -37,6 +37,7 @@ public function setUp():void
     $this->pkg_alias = 'unit_test';
 
 }
+
 
 /**
  * Help 
@@ -1035,7 +1036,7 @@ public function test_change_theme()
     $this->assertequals('utest', app::_config('core:theme_public'));
 
     // Finish up
-    app::update_config_var('core:theme_public', $old_theme);
+    app::update_config_var('core:theme_public', 'koupon');
     $this->send_cli('delete_theme', array('utest'));
 
 }

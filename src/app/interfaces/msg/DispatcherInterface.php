@@ -11,13 +11,14 @@ use apex\app\interfaces\msg\EventMessageinterface;
  */
 interface DispatcherInterface
 {
+
     /**
      * Provide all relevant listeners with an event to process.
      *
-     * @param object $event
+     * @param EventMessageInterface $msg
      *   The object to process.
      *
-     * @return object
+     * @return EventResponseInterface
      *   The Event that was passed, now modified by listeners.
      */
     public function dispatch(EventMessageInterface $msg);

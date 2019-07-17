@@ -4,16 +4,16 @@ declare(strict_types = 1);
 namespace apex\app\sys;
 
 use apex\app;
-use apex\services\redis;
-use apex\services\log;
-use apex\app\utils\date;
+use apex\svc\redis;
+use apex\svc\log;
+use apex\svc\date;
 use apex\app\interfaces\DebuggerInterface;
 
 
 /**
  * Debugger
  * 
- * Service: apex\services\debug
+ * Service: apex\svc\debug
  *
  * Handles logging all debugger line items, and displaying the ( debug results 
  * within the browser when necessary. 
@@ -24,12 +24,12 @@ use apex\app\interfaces\DebuggerInterface;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  *
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\debug;
+ * use apex\svc\debug;
  *
  * // Add debug entry
  * debug::add(2, "Something happened here", __FILE__, __LINE__, 'info');
@@ -54,14 +54,11 @@ class debug implements DebuggerInterface
 /**
  * Constructor 
  */
-public function __construct(date $date)
+public function __construct()
 { 
 
-    // Get variables
-    $this->date = $date;
     $this->start_time = time();
     $this->log_dir = SITE_PATH . '/storage/logs';
-
 
 }
 
@@ -128,9 +125,6 @@ public function add_sql(string $sql_query)
 public function finish_session()
 { 
 
-    // Initialize
-    $app = app::get_instance();
-
     // Check if we're debugging
     if (app::_config('core:debug') < 1 && app::_config('core:mode') != 'devel') { 
         return;
@@ -139,7 +133,7 @@ public function finish_session()
 
     // Set data array
     $data = array(
-        'date' => $this->date->get_logdate(),
+        'date' => date::get_logdate(),
         'start_time' => $this->start_time,
         'end_time' => time(),
         'registry' => array(
@@ -156,10 +150,10 @@ public function finish_session()
             'area' => app::get_area(),
             'action' => app::get_action()
         ),
-        'post' => $app->getall_post(),
-        'get' => $app->getall_get(),
-        'cookie' => $app->getall_cookie(),
-        'server' => $app->getall_server(),
+        'post' => app::getall_post(),
+        'get' => app::getall_get(),
+        'cookie' => app::getall_cookie(),
+        'server' => app::getall_server(),
         'sql' => $this->sql,
         'backtrace' => $this->get_backtrace(),
         'notes' => $this->notes
@@ -167,7 +161,7 @@ public function finish_session()
     $this->data = $data;
 
     // Return if we're not saving
-    if ($app->_config('core:debug') < 1) { return; }
+    if (app::_config('core:debug') < 1) { return; }
 
     // Save json to redis
     redis::set('config:debug_log', json_encode($data));
@@ -175,18 +169,22 @@ public function finish_session()
 
     // Save response output
     if (is_writeable($this->log_dir . '/response.txt')) { 
-        file_put_contents($this->log_dir . '/response.txt', $app->get_response());
+        file_put_contents($this->log_dir . '/response.txt', app::get_response());
     }
 
     // Update config, as needed
     if (app::_config('core:debug') != 2) { 
-        $app->update_config_var('core:debug', '0');
+        app::update_config_var('core:debug', '0');
     }
 
 }
 
 /**
  * Go through and format the backtrace as necessary for the debug session. 
+ *
+ * @param array $stack Optional existing backtrace to format, otherwise gets the backtrace from PHP. 
+ *
+ * @return array The formatted backtrace
  */
 public function get_backtrace(array $stack = array()):array
 { 

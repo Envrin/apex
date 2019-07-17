@@ -5,8 +5,8 @@ namespace apex\app\db;
 
 use apex\app;
 use apex\app\db\db_connections;
+use apex\svc\debug;
 use apex\app\interfaces\DBInterface;
-use apex\app\interfaces\DebuggerInterface as debugger;
 use apex\app\exceptions\DBException;
 
 
@@ -33,14 +33,6 @@ class mysql   extends db_connections implements DBInterface
 
 
 /**
- * Constructor.  Grab some injected dependencies we will need. 
- */
-public function __construct(debugger $debug)
-{ 
-    $this->debug = $debug;
-}
-
-/**
  * Initiates a connection to the database, and returns the resulting 
  * connection. 
  *
@@ -64,7 +56,7 @@ public function connect(string $dbname, string $dbuser, string $dbpass = '', str
     mysqli_query($conn, "SET TIME_ZONE = '+0:00'");
 
     // Debug
-    $this->debug->add(4, fmsg("Connected to database, name: {1} user: {2}", $dbname, $dbuser), __FILE__, __LINE__);
+    debug::add(4, tr("Connected to database, name: {1} user: {2}", $dbname, $dbuser), __FILE__, __LINE__);
 
     // Return
     return $conn;
@@ -137,8 +129,7 @@ public function show_columns(string $table_name, bool $include_types = false):ar
 /**
  * Inserts a new record into the database. 
  *
- * @param string $table The table name to insert a row into.
- * @param array Array of key-value paris of column names, and their values to insert.
+ * @param mixed $args First element is the table name, second an associative array of values to insert.
  */
 public function insert(...$args)
 { 
@@ -177,10 +168,7 @@ public function insert(...$args)
 /**
  * Updates the database via the 'UPDATE' command. 
  *
- * @param string $table_name The table name to update.
- * @param array $data Array of key-value pairs containing the columns to update, and their values.
- * @param string $where_sql The WHERE clause of the update system with placeholders for sanitization.
- * @param array $vars The values of the placeholders within the previous parameter.
+ * @param iterable $args First element is table name, second is associative array of update volumns / values, third is WHERE SQL, and others are placeholders values for where sql.
  */
 public function update(...$args)
 { 
@@ -227,9 +215,7 @@ public function update(...$args)
 /**
  * Delete one or more rows from a table via the DELETE sataement. 
  *
- * @param string $table_name The table name to delete rows from.
- * @param string $where_sql The WHERE clause of the delete statement with placeholders.
- * @param array $vars The values of the placeholders in the previous parameter.
+ * @param mixed $args First element is the table name, second is the WHERE clause, and third and others are values of placeholders.
  */
 public function delete(...$args)
 { 
@@ -255,8 +241,7 @@ public function delete(...$args)
  * Gets a single row from the database, and if the SQL statement matches more 
  * than one row, only returns the first row. 
  *
- * @param string $sql The SELECT SQL statement to execute with placeholders.
- * @param array $vars The values of the placeholders in sequential order.
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  *
  * @return array Array of key-value pairs of the one row retrieved.  False if no row found.
  */
@@ -303,8 +288,7 @@ public function get_idrow($table_name, $id_number)
  * Retrieves a single column from a table, and returns a one-dimensional array 
  * of the values. 
  *
- * @param string $sql The SELECT SQL statement to execute with placeholders.
- * @param array $vars The values of the placeholders in sequential order.
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  *
  * @return array One-dimensional array containing the values of the column.
  */
@@ -328,9 +312,7 @@ public function get_column(...$args)
  *
  * Retrieves two columns from a database (ie. 'id', and some other column), 
  * and returns an array of key-value pairs of the results. 
- *
- * @param string $sql The SELECT SQL statement to execute with placeholders.
- * @param array $vars The values of the placeholders.
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  *
  * @return array Array of key-value pairs of the results.
  */
@@ -353,8 +335,7 @@ public function get_hash(...$args)
  * Gets a single column from a single row, and returns the resulting scalar 
  * variable. 
  *
- * @param string $sql The SELECT SQL statement to execute with placeholders.
- * @param array $vars The values of the placeholders in sequential order.
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  *
  * @return string The value of the column from the first row.  Returns false if no rows matched.
  */
@@ -373,8 +354,7 @@ public function get_field(...$args)
 /**
  * Executes any SQL statement against the database, and returns the result. 
  *
- * @param string $sql The SQL statement to execute with placeholders.
- * @param array $vars The values of the placeholders in sequential order.
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  *
  * @return mixed The result of the query.
  */
@@ -398,8 +378,8 @@ public function query(...$args)
     $result = mysqli_stmt_get_result($this->prepared[$hash]);
 
     // Debug
-    $this->debug->add(3, fmsg("Executed SQL: {1}", $this->raw_sql), __FILE__, __LINE__);
-    $this->debug->add_sql($this->raw_sql);
+    debug::add(3, tr("Executed SQL: {1}", $this->raw_sql), __FILE__, __LINE__);
+    debug::add_sql($this->raw_sql);
 
     // Return
     return $result;
@@ -408,6 +388,8 @@ public function query(...$args)
 
 /**
  * The standard mysqli_fetch_array() function, except with error checking. 
+ *
+ * @param mixed $result the mysqli_result() object.
  */
 public function fetch_array($result)
 { 
@@ -424,6 +406,8 @@ public function fetch_array($result)
 
 /**
  * The standard mysqli_fetch_assoc() function except with error checking. 
+ *
+ * @param mixed $result The mysqli_result object.
  */
 public function fetch_assoc($result)
 { 
@@ -440,6 +424,8 @@ public function fetch_assoc($result)
 
 /**
  * Returns the number of rows affected by the previous SQL statement. 
+ *
+ * @param mixed $result The mysqli result.
  */
 public function num_rows($result)
 { 
@@ -471,6 +457,8 @@ public function insert_id()
  *
  * Formats the SQL by sanitizing the values passed as additional parameters, 
  * and replacing the placeholders within the SQL statement with them. 
+ *
+ * @param mixed $args First element is the SQL statement, other elements are values of the place holders.
  */
 private function format_sql($args)
 { 

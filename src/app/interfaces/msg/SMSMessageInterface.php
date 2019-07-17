@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace apex\app\interfaces\msg;
 
-
+/**
+ * SMS Message interface.
+ */
 interface SMSMessageInterface
 {
 

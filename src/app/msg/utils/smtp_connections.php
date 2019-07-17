@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\app\msg\utils;
 
 use apex\app;
-use apex\services\debug;
-use apex\services\redis;
+use apex\svc\debug;
+use apex\svc\redis;
 
 
 /**

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\exceptions;
 
 use apex\app;
-use apex\services\log;
-use apex\services\debug;
-use apex\services\utils\date;
-use apex\services\template;
+use apex\svc\log;
+use apex\svc\debug;
+use apex\svc\date;
+use apex\svc\view;
 
 
 /**
@@ -47,7 +47,7 @@ public function __construct(string $log_level, string $message, ...$vars)
     }
 
     // FOrmat message
-    $this->message = fmsg($message, ...$vars);
+    $this->message = tr($message, ...$vars);
 
 }
 
@@ -130,12 +130,12 @@ protected function render()
     app::set_uri($tpl_file, true);
 
     // Template variables
-    template::assign('err_message', $this->message);
-    template::assign('err_file', $this->file);
-    template::assign('err_line', $this->line);
+    view::assign('err_message', $this->message);
+    view::assign('err_file', $this->file);
+    view::assign('err_line', $this->line);
 
     // Parse template
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
     app::Echo_response();
 
     // Exit

@@ -4,14 +4,11 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\redis;
+use apex\svc\redis;
 
 
-class auth2fa   extends \apex\core\controller\http_requests
+class auth2fa
 {
-
-
-
 
 /**
  * Process a 2FA request 
@@ -37,7 +34,7 @@ public function process()
     if ($vars['is_login'] == 1) { 
         $redis_key = 'auth:' . $vars['auth_hash'];
         redis::hset($redis_key, '2fa_status', 1);
-        $vars['route'] = 'index';
+        $vars['uri'] = 'members/index';
     }
 
     // Verify the request

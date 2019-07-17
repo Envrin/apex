@@ -26,6 +26,12 @@ class CommException   extends ApexException
     );
 /**
  * Construct 
+ *
+ * @param string $message The exception message
+ * @param string $email The recipient e-mail message
+ * @param string $content_type The content type
+ * @param string $recipient The recipient from the database (eg. user:32)
+ * @param string $notification_id The ID# of the notification.
  */
 public function __construct($message, $email = '', $content_type = '', $recipient = '', $notification_id = 0)
 { 
@@ -41,7 +47,7 @@ public function __construct($message, $email = '', $content_type = '', $recipien
     // Get message
     $this->log_level = 'error';
     $this->message = $this->error_codes[$message] ?? $message;
-    $this->message = fnames($this->message, $vars);
+    $this->message = tr($this->message, $vars);
 
 }
 

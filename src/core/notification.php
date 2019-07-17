@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\core;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\utils\components;
-use apex\services\utils\forms;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\components;
+use apex\svc\forms;
 use apex\app\msg\emailer;
 use apex\app\exceptions\ApexException;
 use apex\app\exceptions\CommException;
@@ -43,7 +43,7 @@ public function get_merge_fields(string $controller):string
 { 
 
     // Debug
-    debug::add(5, fmsg("Obtaining merge fields for notification controller, {1}", $controller), __FILE__, __LINE__);
+    debug::add(5, tr("Obtaining merge fields for notification controller, {1}", $controller), __FILE__, __LINE__);
 
     // Set systems fields
     $fields = array();
@@ -115,7 +115,7 @@ public function get_merge_vars(string $controller, int $userid = 0, array $data 
 { 
 
     // Debug
-    debug::add(5, fmsg("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid), __FILE__, __LINE__);
+    debug::add(5, tr("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid), __FILE__, __LINE__);
 
     // Get install URL
     $url = isset($_SERVER['_HTTPS']) ? 'https://' : 'http://';
@@ -162,13 +162,14 @@ public function get_merge_vars(string $controller, int $userid = 0, array $data 
 /**
  * Get a sender / recipient name and e-mail address. 
  *
- * @param string $sender The sender string (eg. admin:1, user, etc.)
+ * @param string $recipient The sender string (eg. admin:1, user, etc.)
+ * @param int $userid The ID# of the user.
  */
 public function get_recipient(string $recipient, int $userid = 0)
 { 
 
     // Debug
-    debug::add(5, fmsg("Getting e-mail recipient / sender, {1}, userid: {2}", $recipient, $userid), __FILE__, __LINE__);
+    debug::add(5, tr("Getting e-mail recipient / sender, {1}, userid: {2}", $recipient, $userid), __FILE__, __LINE__);
 
     // Initialize
     $name = ''; $email = '';
@@ -181,7 +182,7 @@ public function get_recipient(string $recipient, int $userid = 0)
     // Check for user
     } elseif ($recipient == 'user') { 
 
-        $user = new user($userid);
+    $user = app::make(user::class, ['id' => $userid]);
         $profile = $user->load(false, true);
 
         $name = $profile['full_name'];
@@ -201,10 +202,10 @@ public function get_recipient(string $recipient, int $userid = 0)
  * Send a single notification 
  *
  * @param int $userid The ID# of the user the e-mail is being sent against
- * @param int $notification The ID# of the notification to send
+ * @param int $notification_id The ID# of the notification to send
  * @param array $data The $data array passed to the message::process_emails() function
  */
-public function send($userid, $notification_id, $data)
+public function send($userid, int $notification_id, $data)
 { 
 
     // Get notification
@@ -225,7 +226,7 @@ public function send($userid, $notification_id, $data)
 
     // Change recipient for 2FA
     if ($row['controller'] == 'system' && isset($condition['action']) && $condition['action'] == '2fa') { 
-        $row['recipient'] = 'admin:1';
+        $row['recipient'] = app::get_area() == 'admin' ? 'admin:' . app::get_userid() : 'user';
     }
 
     // Get recipient info
@@ -261,6 +262,8 @@ public function send($userid, $notification_id, $data)
 
 /**
  * is executed when creating a notification within the admin panel. 
+ *
+ * @param array $data The POSTed variables or other variables to create notification with.
  */
 public function create(array $data = array())
 { 
@@ -301,7 +304,7 @@ public function create(array $data = array())
     $notification_id = db::insert_id();
 
     // Debug
-    debug::add(1, fmsg("Created new e-mail notification within settings, subject: {1}", $data['subject']), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Created new e-mail notification within settings, subject: {1}", $data['subject']), __FILE__, __LINE__, 'info');
 
     // Add attachments as needed
     $x=1;
@@ -319,7 +322,7 @@ public function create(array $data = array())
     $x++; }
 
     // Debug
-    debug::add(1, fmsg("Created new e-mail notification with subject, {1}", $data['subject']), __FILE__, __LINE__);
+    debug::add(1, tr("Created new e-mail notification with subject, {1}", $data['subject']), __FILE__, __LINE__);
 
     // Return
     return $notification_id;
@@ -364,18 +367,20 @@ public function edit($notification_id)
     "id = %i", $notification_id);
 
     // Debug
-    debug::add(1, fmsg("Updated e-mail notification with subject, {1}", app::_post('subject')), __FILE__, __LINE__);
+    debug::add(1, tr("Updated e-mail notification with subject, {1}", app::_post('subject')), __FILE__, __LINE__);
 
 }
 
 /**
  * Delete notification 
+ *
+ * @param int $notification_id The ID# of the notification to delete.
  */
-public function delete($notification_id)
+public function delete(int $notification_id)
 { 
 
     db::query("DELETE FROM notifications WHERE id = %i", $notification_id);
-    debug::add(1, fmsg("Deleted e-mail notification, ID: {1}", $notification_id), __FILE__, __LINE__);
+    debug::add(1, tr("Deleted e-mail notification, ID: {1}", $notification_id), __FILE__, __LINE__);
     return true;
 
 }

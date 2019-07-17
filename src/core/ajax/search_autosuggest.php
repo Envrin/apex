@@ -4,9 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\ajax;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 use apex\app\web\ajax;
-use apex\services\utils\components;
+use apex\svc\components;
 
 class search_autosuggest Extends ajax
 {
@@ -33,10 +33,8 @@ public function process()
         array_push($results, array('label' => $label, 'data' => $id));
     }
 
-    // Return
-    header("Content-type: text/json");
-    echo json_encode($results);
-    exit(0);
+    // return
+    return $results;
 
 
 }

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\core\controller\http_requests;
 
 use apex\app;
-use apex\services\template;
+use apex\svc\view;
 use apex\core\controller\http_requests;
 
 
@@ -31,7 +31,7 @@ public function process()
     app::set_area('public');
 
     // Parse template
-    app::set_res_body(template::parse());
+    app::set_res_body(view::parse());
 
 }
 

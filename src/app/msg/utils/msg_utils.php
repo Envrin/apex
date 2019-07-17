@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace apex\app\msg\utils;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\redis;
-use apex\services\utils\components;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\redis;
+use apex\svc\components;
 use apex\app\msg\objects\event_response;
 use apex\app\interfaces\msg\EventMessageInterface;
 use apex\app\interfaces\msg\EventResponseInterface;
@@ -124,8 +124,7 @@ public function dispatch_locally(EventMessageInterface $msg):eventResponseInterf
     $response = new event_response($msg);
 
     // Add message to container
-    $app = app::get_instance();
-    $app->set(EventMessageInterface::class, $msg);
+    app::set(EventMessageInterface::class, $msg);
 
     // Go through workers
     $rows = db::query("SELECT * FROM internal_components WHERE type = 'worker' AND value = %s ORDER BY id", $msg->get_routing_key());
@@ -133,13 +132,13 @@ public function dispatch_locally(EventMessageInterface $msg):eventResponseInterf
 
         // Load component
         if (!$worker = components::load('worker', $row['alias'], $row['package'])) { 
-            debug::add(1, fmsg("Unable to load RPC worker, package: {1}, alias: {2}", $row['package'], $row['alias']), __FILE__, __LINE__, 'critical');
+            debug::add(1, tr("Unable to load RPC worker, package: {1}, alias: {2}", $row['package'], $row['alias']), __FILE__, __LINE__, 'critical');
             continue;
         }
 
         // Execute, if method exists
         if (method_exists($worker, $function_name)) { 
-            debug::add(5, fmsg("Executing single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
+            debug::add(5, tr("Executing single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
 
             // Execute method
             $res = components::call($function_name, 'worker', $row['alias'], $row['package'], '', ['msg' => $msg]);
@@ -148,7 +147,7 @@ public function dispatch_locally(EventMessageInterface $msg):eventResponseInterf
             // Add  response
         $class_name = "apex\\" . $row['package'] . "\\worker\\" . $row['alias'];
             $response->add_response($row['package'], $class_name, $function_name, $res);
-            debug::add(5, fmsg("Completed execution of single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
+            debug::add(5, tr("Completed execution of single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
         }
     }
 

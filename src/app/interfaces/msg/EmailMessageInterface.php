@@ -4,13 +4,16 @@ declare(strict_types = 1);
 namespace apex\app\interfaces\msg;
 
 
+/**
+ * E-Mail Message Interface
+*/
 interface EmailMessageInterface
 {
 
     /**
      * Set to e-mail 
      *
-     *     @param string $email The recipient e-mail address to send to
+     * @param string $email The recipient e-mail address to send to
      */
     public function to_email(string $email);
 
@@ -18,7 +21,7 @@ interface EmailMessageInterface
     /**
      * set from e-mail address 
      *
-     *     @param string $email The e-mail address the e-mail is from.
+     * @param string $email The e-mail address the e-mail is from.
      */
     public function from_email(string $email);
 
@@ -26,7 +29,7 @@ interface EmailMessageInterface
     /**
      * Set recipient name 
      *
-     *     @param string $name The full name of the recipient
+     * @param string $name The full name of the recipient
      */
     public function to_name(string $name);
 
@@ -34,25 +37,31 @@ interface EmailMessageInterface
     /**
      * Set the sender name 
      *
-     *     @param string $name The name of the e-mail sender
+     * @param string $name The name of the e-mail sender
      */
     public function from_name(string $name);
 
 
     /**
      * Set the reply-to e-mail address 
+     *
+     * @param string $email The e-mail address of the reply to.s
      */
     public function reply_to(string $email);
 
 
     /**
-     * Set the CC e-mail address 
+     * Set the CC e-mail address
+     *
+     * @param string $email The e-mail address. 
      */
     public function cc(string $email);
 
 
     /**
-     * Set the BCC e-mail address 
+     * Set the BCC e-mail address
+     *
+     * @param string $email The e-mail address. 
      */
     public function bcc(string $email);
 
@@ -60,7 +69,7 @@ interface EmailMessageInterface
     /**
      * Set the subject of the e-mail 
      *
-     *     @param string $subject The subject of the e-mail address
+     * @param string $subject The subject of the e-mail address
      */
     public function subject(string $subject);
 
@@ -68,7 +77,7 @@ interface EmailMessageInterface
     /**
      * Set the conents of the e-mail message 
      *
-     *     @param string $message The contents of the e-mail message.
+     * @param string $message The contents of the e-mail message.
      */
     public function message(string $message);
 
@@ -76,7 +85,7 @@ interface EmailMessageInterface
     /**
      * Set the content type of the -email message. 
      *
-     *     @param string $content_type The content type
+     * @param string $type The content type
     */
     public function content_type(string $type);
 
@@ -84,8 +93,8 @@ interface EmailMessageInterface
     /**
      * Add a file attachment to the e-mail message 
      *
-     *     @param string $filename The filename of the file attachment.
-     *     @param string $contents The contents of the file attachment.
+     * @param string $filename The filename of the file attachment.
+     * @param string $contents The contents of the file attachment.
      */
     public function add_attachment(string $filename, string $contents);
 

@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace apex\core\cron;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
+use apex\svc\db;
+use apex\svc\debug;
 use apex\app\io\io;
 use apex\app\utils\date;
 use apex\app\interfaces\components\cron;
@@ -79,7 +79,7 @@ private function rotate_log_files()
 
     }
 
-    debug::add(2, fmsg("Successfully completed rotating log files"), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Successfully completed rotating log files"), __FILE__, __LINE__, 'info');
 
 }
 

@@ -81,7 +81,7 @@ message, and change the contents of the one div tag.
 #### `websocket_message()` Object
 
 As you can see from the above example, you create a
-<api:app.msg.objects.websocket_message>web_socket()</api> object, which is then dispatched
+web_socket() object, which is then dispatched
 to the necessary clients.  The constructor of this object allows the following parameters:
 
 Variable | Type | Description -------------member's area), only people on a specific page, or speicifc

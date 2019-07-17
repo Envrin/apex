@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
-use apex\services\redis;
+use apex\svc\redis;
 use apex\app\web\ajax;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
@@ -33,6 +33,8 @@ public function __construct()
 
 /**
  * Queue a new connection to WS server 
+ * 
+ * @param ConnectionInterface $conn The connection that is being opened.
  */
 public function onOpen(ConnectionInterface $conn)
 { 
@@ -41,6 +43,9 @@ public function onOpen(ConnectionInterface $conn)
 
 /**
  * When a message is received from the web browser to the web socket server 
+ *
+ * @param ConnectionInterface $from The connection the message is from.
+ * @param mixed $msg The contents of the message.
  */
 public function onMessage(ConnectionInterface $from, $msg)
 { 
@@ -95,6 +100,8 @@ public function onMessage(ConnectionInterface $from, $msg)
 
 /**
  * Add chat 
+ *
+ * @param string $line The line to add to the chat
  */
 protected function add_chat($line)
 { 
@@ -145,6 +152,9 @@ protected function add_chat($line)
 
 /**
  * Authenticate the user 
+ *
+ * @param string $auth_string The auth string that identifies the user.
+ * @param ConnectionInterface $from The connection auth request is coming from.
  */
 protected function authenticate(string $auth_string, ConnectionInterface $from)
 { 
@@ -183,12 +193,17 @@ protected function authenticate(string $auth_string, ConnectionInterface $from)
 
 /**
  * on close
+ *
+ * @param ConnectionInterface $conn The connection to close.
  */
 public function onClose(ConnectionInterface $conn) {
     $this->clients->detach($conn);
 }
 /**
  * onerror
+ *
+ * @param ConnectionInterface $conn The connection that the error is regarding.
+ * @param Exception $e The exception that occurred.
  */
 public function onError(ConnectionInterface $conn, \Exception $e) {
     echo "An error has occurred: {$e->getMessage()}\n";

@@ -44,10 +44,10 @@ if ($x < 9)
 ~~~
 
 
-## Logging / Debugging with <api:app.sys.debug>debug::add()</api>
+## Logging / Debugging with debug::add()
 
 Both logging and debugging can be handled simultaneously with the single
-<api:app.sys.debug>debug::add()</api> method.  This method fully supports the eight PSR3 log levels, and will add entries to both the debug session and appropriate log file
+debug::add() method.  This method fully supports the eight PSR3 log levels, and will add entries to both the debug session and appropriate log file
 at the same time.
 
 **Parameters**

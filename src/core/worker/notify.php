@@ -20,6 +20,9 @@ class notify
 
 /**
  * Send an e-mail message 
+ *
+ * @param EventMessageInterface $msg The message that was dispatched.
+ * @param emailer $emailer The /app/msg/emailer.php class.  Injected.
  */
 public function send_email(event $msg, emailer $emailer)
 { 
@@ -34,6 +37,8 @@ public function send_email(event $msg, emailer $emailer)
 
 /**
  * Send a SMS message via Nexmo 
+ *
+ * @param EventMessageInterface $msg The message that was dispatched.
  */
 public function send_sms(event $msg)
 { 
@@ -66,8 +71,11 @@ public function send_sms(event $msg)
 
 /**
  * Send Web Socket message 
+ *
+ * @param EventMessageInterface $msg The message that was dispatched.
+ * @param app $app The /src/app.php class.  Injected.
  */
-public function send_ws(event $msg, app $app)
+public function send_ws(event $msg)
 { 
 
     // Initialize
@@ -102,7 +110,7 @@ public function send_ws(event $msg, app $app)
     }
 
     // Get RabbitMQ connection info
-    $msg_utils = $app->make(msg_utils::class);
+    $msg_utils = app::make(msg_utils::class);
     $vars = $msg_utils->get_rabbitmq_connection_info();
 
     // Send message

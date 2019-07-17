@@ -4,17 +4,17 @@ declare(strict_types = 1);
 namespace apex\app\utils;
 
 use apex\app;
-use apex\services\db;
-use apex\services\debug;
-use apex\services\redis;
-use apex\app\sys\components;
+use apex\svc\db;
+use apex\svc\debug;
+use apex\svc\redis;
+use apex\svc\components;
 use apex\app\exceptions\ComponentException;
 
 
 /**
  * Hashes Library
  *
- * Service: apex\services\utils\hashes
+ * Service: apex\svc\hashes
  *
  * Handles the various has operations against the hashes defined within the 
  * $this->hash array within package.php configuration files.  Allows you to 
@@ -26,12 +26,12 @@ use apex\app\exceptions\ComponentException;
  * PHP Example
  * --------------------------------------------------
  * 
- * </php
+ * <?php
  * 
  * namespace apex;
  *
  * use apex\app;
- * use apex\services\utils\hashes;
+ * use apex\svc\hashes;
  * 
  * // Get variables
 s
@@ -41,21 +41,6 @@ s
 class hashes
 {
 
-
-
-
-    // Properties
-    private $app;
-    private $components;
-
-/**
- * Constructor.  Grab some injected dependencies that we need. 
- */
-public function __construct(app $app, components $components)
-{ 
-    $this->app = $app;
-    $this->components = $components;
-}
 
 /**
  * Uses key-value pairs of a hash, and creates the necessary ( HTML code for 
@@ -72,7 +57,7 @@ public function create_options(string $hash_alias, $value = '', string $form_fie
 { 
 
     // Check hash
-    if (!list($package, $parent, $alias) = $this->components->check('hash', $hash_alias)) { 
+    if (!list($package, $parent, $alias) = components::check('hash', $hash_alias)) { 
         throw new ComponentException('not_exists_alias', 'hash', $hash_alias);
     }
 
@@ -86,7 +71,7 @@ public function create_options(string $hash_alias, $value = '', string $form_fie
     $html = '';
     $rows = json_decode(redis::hget('hash', $hash_alias), true);
     foreach ($rows as $hkey => $hvalue) { 
-        $hvalue = fmsg($hvalue);
+        $hvalue = tr($hvalue);
 
         // Select
         if ($form_field == 'select') { 
@@ -105,7 +90,7 @@ public function create_options(string $hash_alias, $value = '', string $form_fie
     }
 
     // Debug
-    debug::add(4, fmsg("Created hash options for the hash: {1}", $hash_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Created hash options for the hash: {1}", $hash_alias), __FILE__, __LINE__);
 
     // Return
     return $html;
@@ -124,7 +109,7 @@ public function get_hash_var(string $hash_alias, $var_alias)
 { 
 
     // Check component
-    if (!list($package, $parent, $alias) = $this->components->check('hash', $hash_alias)) { 
+    if (!list($package, $parent, $alias) = components::check('hash', $hash_alias)) { 
         throw new ComponentException('not_exists_alias', 'hash', $hash_alias);
     }
 
@@ -139,7 +124,7 @@ public function get_hash_var(string $hash_alias, $var_alias)
     if (!isset($vars[$var_alias])) { return false; }
 
     // Debug
-    debug::add(5, fmsg("Retrieved alue of hash ariable from hash: {1}, key: {2}", $hash_alias, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieved alue of hash ariable from hash: {1}, key: {2}", $hash_alias, $alias), __FILE__, __LINE__);
 
     // Return
     return $vars[$var_alias];
@@ -164,7 +149,7 @@ public function parse_data_source(string $data_source, string $value = '', strin
 { 
 
     // Debug
-    debug::add(5, fmsg("Parsing hash data source, {1}", $data_source), __FILE__, __LINE__);
+    debug::add(5, tr("Parsing hash data source, {1}", $data_source), __FILE__, __LINE__);
 
     // Initialize
     $source = explode(":", $data_source);
@@ -252,7 +237,7 @@ public function get_stdvar(string $type, string $abbr, string $column = 'name'):
     } else { $value = ''; }
 
     // Debug
-    debug::add(5, fmsg("Retrieed stdlist ariable of type {1} with abbr {2}", $type, $abbr), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieed stdlist ariable of type {1} with abbr {2}", $type, $abbr), __FILE__, __LINE__);
 
     // Return
     return $value;
