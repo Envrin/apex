@@ -401,7 +401,7 @@ public function boolean(array $attr, string $text = ''):string
 
     // Get HTML
     $html = $this->tags['form.boolean'];
-    $html = str_replace("~name~", $name, $html);
+    $html = str_replace("~name~", $attr['name'], $html);
     $html = str_replace("~chk_yes~", $chk_yes, $html);
     $html = str_replace("~chk_no~", $chk_no, $html);
 

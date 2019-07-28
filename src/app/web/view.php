@@ -560,7 +560,6 @@ protected function process_if_tags(string $html):string
         }
 
         // Check condition
-file_put_contents(SITE_PATH . '/tags.txt', "COND: " . $match[1] . "\n", FILE_APPEND);
         debug::add(5, tr("Template, checking IF condition: {1}", $match[1]));
         $replace_html = eval( "return " . $match[1] . ";" ) === true ? $if_html : $else_html;
         $html = str_replace($match[0], $replace_html, $html);
