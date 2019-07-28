@@ -14,7 +14,6 @@ multiple exception classes available, which you can view within the /src/app/exc
 software.
 
 
-
 #### `throw new ApexException(string $level, string $message, [...$vars])`
 
 **Description:** This allows you to throw a general error anywhere within Apex, which will be logged and
@@ -24,10 +23,10 @@ error, and if executing via CLI / terminal, it will simply render a plain text e
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$level` | string | One of the eight
-supported PSR3 log levels, and if ensure, simply use "error". Can be: `debug, info, warning, notice, error,
-alert, critical, emergency`
-`$message` | string | The error message, which is processes through the global `tr()` function to support placeholders (eg. {1}, {2}, etc.)
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$level` | string | One of the eight supported PSR3 log levels, and if ensure, simply use "error". Can be: `debug, info, warning, notice, error, alert, critical, emergency`
+`$message` | string | The error message, which is processed through the global tr() function to support placeholders (eg. {1}, {2}, etc.)
 `vars` | array | Optional array of variables, which placeholders within the message are replaced with.
 
 **Example**
@@ -52,13 +51,11 @@ at the same time.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$level` | int | Integer between 1 -
-5, defined the minimum debug level to add the entry to the debug session. `$message` | string | The message of
-the log / debug entry. `$file~ | string | The filename where the method was called.  Simply use `__FILE__`
-when calling the method. `$line_number` | int | The line number where the method was called.  Simply use
-`__LINE__` when calling the method. `$log_level` | string | Optional log level of entry, and if defined, will
-also add the entry to the appropritate log file.  Supports the PSR compliant log levels, and can be any of:
-info, warning, notice, error, alert, critical, emergency.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$level` | int | Integer between 1 - 5, defining the minimum debug level to add the entry to the debug session. 
+`$message` | string | The message of the log / debug entry. 
+`$log_level` | string | Optional log level of entry, and if defined, will also add the entry to the appropriate log file.  Supports the PSR compliant log levels, and can be any of: info, warning, notice, error, alert, critical, emergency.
 
 **Example**
 
@@ -66,11 +63,11 @@ info, warning, notice, error, alert, critical, emergency.
 namespace apex;
 
 use apex\app;
-use apex\servers\debug;
+use apex\svc\debug;
 
 // Do something //
 $amount = 15;
-debug::add(3, tr("Did something really cool, resulting amount is {1}", $amount), __FILE__, __LINE__, 'info');
+debug::add(3, tr("Did something really cool, resulting amount is {1}", $amount), 'info');
 ~~~
 
 The above line will add the entry to the debug session assuming the debug level is set to 3 or higher and
@@ -81,12 +78,13 @@ development mode is on, plus will add the entry to the INFO log file.
 
 All logs are stored within the */storage/logs/* directory, which will contain the following files:
 
-File | Description ------------- |------------- access.log | One line for every request to the system, simliar
-to a standard Nginx / Apache access log. messages.log | The main log file which contains entries of all
-entries of all log levels. system.log | Messages given off by the PHP parser itself, and not within the Apex
-software (eg. undefined index, etc.) sql_error.log | Contains all SQL statements that resulted in an error
-from mySQL LEVEL.log | One file for each of the eight supported PSR3 log levels (eg. info.log, alert.log,
-etc.)
+File | Description 
+------------- |------------- 
+access.log | One line for every request to the system, Similar  to a standard Nginx / Apache access log. 
+messages.log | The main log file which contains entries of all log levels combined.
+system.log | Messages given off by the PHP parser itself, and not within the Apex software (eg. undefined index, etc.) 
+sql_error.log | Contains all SQL statements that resulted in an error from mySQL 
+LEVEL.log | One file for each of the eight supported PSR3 log levels (eg. info.log, alert.log, etc.)
 
 
 #### `log::LEVEL(string $message, [array $context = array()])`
@@ -102,7 +100,7 @@ added.
 namespace apex;
 
 use apex\app;
-use apex\services\log;
+use apex\svc\log;
 
 log::info("Here is some info about what's happening");
 
@@ -171,7 +169,6 @@ administration panel, or via the terminal by running:
 The DEBUG_LEVEL can be 0 - 5 and defines how extensive of logging you would like to view within the debugger.
 Generally, a debug level of 3 should be sufficient to pinpoint any errors / bugs.
 
-**Example:** `php apex.php mode devel 3`
 
 
 

@@ -32,7 +32,7 @@ public function dispatch(WebSocketMessageInterface $msg)
 { 
 
     // Debug
-    debug::add(3, tr("Sending message to Web Socket server, area {1}, uri: {2}", $msg->get_area(), $msg->get_uri()), __FILE__, __LINE__);
+    debug::add(3, tr("Sending message to Web Socket server, area {1}, uri: {2}", $msg->get_area(), $msg->get_uri()));
 
     // Send WS message
     $msg = new event_message('core.notify.send_ws', $msg->get_json());

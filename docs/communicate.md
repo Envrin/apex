@@ -14,13 +14,13 @@ explained below.
 
 
 
-<a name="email_servers">
+<a name="email_servers"></a>
 ### E-Mail Servers
 
 Within the *Settings->General* menu of the administration panel you can define multiple SMTP servers.  Apex
 will evenly distribute all outgoing e-mails amongst the SMTP servers listed in this menu.
 
-<a name="send_email">
+<a name="send_email"></a>
 ### Send Individual E-Mail
 
 Although not generally required, sending an individual e-mail manually is quite simple with Apex by using the
@@ -34,14 +34,14 @@ namespace apex;
 use apex\app;
 use apex\app\msg\emailer;
 
-$emailer = new emailer();
+$emailer = app::make(emailer::class);
 $emailer->send("customer@domain.com", "Customer Name", "support@mydomain.com", "My Company", "Your Invoice", "Please find below your invoice for this month....");
 ~~~
 
 For full details on this method and its parameters, please visit the
 emailer::send() API page.
 
-<a name="define_notifications">
+<a name="define_notifications"></a>
 ### Define Notifications
 
 Apex uses a conditional trigger based system for e-mail notifications, and all e-mail messages can be defined
@@ -55,7 +55,7 @@ See below for how to develop your own notification types / controllers, and how 
 notifications into package installation.
 
 
-<a name="process_emails">
+<a name="process_emails"></a>
 ### Processing E-Mails emailer::process_emails()
 
 You can trigger any necessary e-mails to be sent via the
@@ -77,7 +77,7 @@ $transaction_id = 1593;
 $status = 'declined';
 
 // Process notifications
-$emailer = new emailer();
+$emailer = app::make(emailer::class);
 $emailer->process_emails('transaction', $userid, array('status' => $status), array('transaction_id' => $transaction_id));
 ~~~
 
@@ -89,7 +89,7 @@ emailer::process_emails() method within the API documentation
 for details on parameters.
 
 
-<a name="create_controller">
+<a name="create_controller"></a>
 ### Create Notification Controller
 
 There will be times where you need to create your own notification controller, allowing the administrator to
@@ -105,21 +105,17 @@ explains all methods available within this PHP class.
 
 #### Properties
 
-Variable | Type | Required | Description ------------- |------------- |------------- |-------------
-`$display_name` | string | Yes | The display name of the notification type which is displayed in the web
-browser / administration panel. `$fields` | array | Yes | An array of form fields that define the available
-conditional arguments the administrator can select from when defining e-mail notifications.  This is the same
-array as standard "form" components within Apex, and please visit the [HTML Forms](components/form.md) page
-for further information on how to format this array. `$senders` | array | Yes | Array listing the available
-senders that the administrator can choose from when defining notifications for this notification type.  See
-below for more info. `$recipients` | array | Yes | Array listing the available recipients that the
-administrator can choose from when defining notifications for this notification type.  See below for more
-info.
+Variable | Type | Required | Description 
+------------- |------------- |------------- |-------------
+`$display_name` | string | Yes | The display name of the notification type which is displayed in the web browser / administration panel. 
+`$fields` | array | Yes | An array of form fields that define the available conditional arguments the administrator can select from when defining e-mail notifications.  This is the same array as standard "form" components within Apex, and please visit the [HTML Forms](components/form.md) page for further information on how to format this array. 
+`$senders` | array | Yes | Array listing the available senders that the administrator can choose from when defining notifications for this notification type.  See below for more info. 
+`$recipients` | array | Yes | Array listing the available recipients that the administrator can choose from when defining notifications for this notification type.  See below for more info.
 
 #### `$senders / $recipients` arrays
 
 When defining an e-mail notification via the *Settings->Notifications* menu, you will notice there are select
-lists allowing the administrator to choose who the sender and recipient of the e-mail notification area. These
+lists allowing the administrator to choose who the sender and recipient of the e-mail notification are. These
 two arrays define what options are available within those select lits for this notification type.  The keys of
 the array are the database values, while the values of the arrays are what is displayed within the web
 browser.  The keys are generally always "admin" and "user", where when "admin" appears as a key it will be
@@ -157,51 +153,15 @@ key-value pairs in the array, and place `~key~` with the respective value within
 the e-mail message.
 
 
-<a name="default_notifications">
+<a name="default_notifications"></a>
 ### Define Default Notifications
 
 You may also define default e-mail notifications to be created upon package installation, making setup easier
 for the administrator, instead of forcing them to define their own e-mail messages.  For example, upon
 installing the User Management package, there are default e-mail notifications created that are sent to the
-administrator and user upon registration.
+administrator and user upon registration, password reset request, and so on.
 
 You can define default e-mail notifications by modifying the */etc/PACKAGE/package.php* file of the package.
-Simply add a `$this->notifications` array that contians the following variables:
-
-Variable | Type | Description ------------- |------------- |------------- `controller` | string | The alias of
-the notification controller. `sender` | string | The sender of the e-mail message, from the `$senders`
-property of the notification controller.  If set to "admin" will use the first administrator in the database.
-`recipient` | string | The recipient of the e-mail message, from the `$recipients` property of the
-notification controller.  If set to "admin" will use the first administrator in the database. `content_type` |
-string | Optional, and allows you to set the content type of the e-mail message.  Defaults to "text/plain".
-`subject` | string | The subject of the e-mail message. `message` | string | The contents of the e-mail
-message, encoded with BASE64. Simply use the `base64_encode()` PHP function to get this value. `condition` |
-array | Array of key-value pairs that define the condition that must be matched for the e-mail notification to
-be sent.  Check the `$fields` property of the controller PHP class for which variables are available.
-
-
-**Example:**
-
-When your package is installed, if you want a default notification created that is automatically sent to the
-user everytime someone registers, you would add something like the following to the */etc/PACKAGE/package.php*
-file of the package.
-
-~~~php
-$this->notifications = array();
-$this->notifications[] = array(
-    'controller' => 'users',
-    'sender' => 'admin',
-    'recipient' => 'user',
-    'subject' => 'Welcome new member, ~profile-username~',
-    'message' => 'SnVzdCBhIHRlc3QgbWVzc2FnZSwgZ2l2aW5nIGFuIGV4YW1wbGUgb2Ygc2V0dGluZyB1cCBkZWZhdWx0IG5vdGlmaWNhdGlvbnM=',
-    'condition' => array(
-        'action' => 'create'
-    )
-);
-~~~
-
-Every time your package is installed, a new e-mail notification will be created that is automatically sent
-every time a user is created, and can be managed / deleted via the *Settings->Notifications* menu of the
-administration panel.
-
+Simply add a `$this->notifications` array as necessary.  For full information on this 
+array including examples, please visit the [Package Configuration - notifications array](packages_config.md#notifications) page of the documentation.
 

@@ -44,7 +44,7 @@ public function create()
 { 
 
     // Debug
-    debug::add(3, tr("Starting to create new administrator and validate form fields"), __FILE__, __LINE__, 'info');
+    debug::add(3, tr("Starting to create new administrator and validate form fields"), 'info');
 
     // Validate form
     forms::validate_form('core:admin');
@@ -69,7 +69,7 @@ public function create()
     encrypt::generate_rsa_keypair((int) $admin_id, 'admin', app::_post('password'));
 
     /// Debug
-    debug::add(1, tr("Successfully created new administrator account, {1}", app::_post('username')), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Successfully created new administrator account, {1}", app::_post('username')), 'info');
 
     // Return
     return $admin_id;
@@ -90,7 +90,7 @@ public function load()
     }
 
     // Debug
-    debug::add(3, tr("Loaded the administrator, ID# {1}", $this->admin_id), __FILE__, __LINE__);
+    debug::add(3, tr("Loaded the administrator, ID# {1}", $this->admin_id));
 
     // Return
     return $row;
@@ -110,7 +110,7 @@ public function update()
     }
 
     // Debug
-    debug::add(3, tr("Starting to update the administrator profile, ID# {1}", $this->admin_id), __FILE__, __LINE__);
+    debug::add(3, tr("Starting to update the administrator profile, ID# {1}", $this->admin_id));
 
     // Set updates array
     $updates = array();
@@ -127,7 +127,7 @@ public function update()
     db::update('admin', $updates, "id = %i", $this->admin_id);
 
     // Debug
-    debug::add(2, tr("Successfully updated administrator profile, ID# {1}", $this->admin_id), __FILE__, __LINE__);
+    debug::add(2, tr("Successfully updated administrator profile, ID# {1}", $this->admin_id));
 
     // Return
     return true;
@@ -152,7 +152,7 @@ public function update_status(string $status)
     db::update('admin', array('status' => $status), "id = %i", $this->admin_id);
 
     // Debug
-    debug::add(1, tr("Updated administrator status, ID: {1}, status: {2}", $this->admin_id, $status), __FILE__, __LINE__);
+    debug::add(1, tr("Updated administrator status, ID: {1}, status: {2}", $this->admin_id, $status));
 
 }
 
@@ -170,7 +170,7 @@ public function update_sec_auth_hash(string $sec_hash)
     "id = %i", $this->admin_id);
 
     // Debug
-    debug::add(2, tr("Updated the secondary auth hash of administrator, ID: {1}", $this->admin_id), __FILE__, __LINE__);
+    debug::add(2, tr("Updated the secondary auth hash of administrator, ID: {1}", $this->admin_id));
 
     // Return
     return true;
@@ -193,7 +193,7 @@ public function delete()
     db::query("DELETE FROM admin WHERE id = %i", $this->admin_id);
 
     // Debug
-    debug::add(1, tr("Deleted administrator from database, ID: {1}", $this->admin_id), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Deleted administrator from database, ID: {1}", $this->admin_id), 'info');
 
 }
 
@@ -209,7 +209,7 @@ public function create_select_options(int $selected = 0, bool $add_prefix = fals
 { 
 
     // Debug
-    debug::add(5, tr("Creating administrator select options"), __FILE__, __LINE__);
+    debug::add(5, tr("Creating administrator select options"));
 
     // Create admin options
     $options = '';

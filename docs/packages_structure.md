@@ -3,9 +3,9 @@
 
 This page will explain the basic structure of packages, including how to develop and publish them.  You can
 easily develop packages that consist of any functionality you desire, then have the freedom to instantly
-install, remove and upgrade those packages on systems throughout the internet, and have them sikmply work
+install, remove and upgrade those packages on systems throughout the internet, and have them simply work
 right out of the box.  You can list and sell packages on our marketplace, open source them by publishing them
-our public repository, or even start your own private repository and keep them private for your commercial
+to our public repository, or even start your own private repository and keep them private for your commercial
 clients.
 
 
@@ -23,29 +23,27 @@ for development.
 
 Each package contains a few sub-directories as described in the below table.
 
-Directory | Description ------------- |------------- /etc/PACKAGE_ALIAS | Configuration of the package,
-including install / remove SQL code. /src/PACKAGE_ALIAS | PHP code of the package, including all libraries and
-components. /tests/PACKAGE_ALIAS | Unit tests for the package.
+Directory | Description 
+------------- |------------- 
+/etc/PACKAGE_ALIAS | Configuration of the package, including install / remove SQL code. 
+/src/PACKAGE_ALIAS | PHP code of the package, including all libraries and components. 
+/tests/PACKAGE_ALIAS | Unit tests for the package.
 
 
 #### /etc/PACKAGE_ALIAS Directory
 
-
 This directory holds configuration and installation details on each package.  Below lists all files within
 this directory:
 
-File | Description ------------- |------------- components.json | Will only exist once the package has been
-published, and is a JSON file containing information on all components included within the package.
-package.php | The main package configuration file, and defines things such as configuration variables, hashes,
-and menus that are included in the package.  Full details on this package are found in a below section on this
-page. install.sql | Optional, and if exists, all SQL code included within this file will be executed against
-the database upon installation. install_after.sql | Optional, and if exists, all SQL within this file will be
-executed against the database at the very end of package installation, meaning after all components have been
-installed. | reset.sql | Optional, and if exists, all SQL code within will be executed when the package is
-reset from within the administration panel.  This is meant to clear all database from the package, and reset
-it to just after it was installed. remove.sql | Optional, and if exists, all SQL code within this file will be
-executed against the database upon removal of the package.  Should drop all database tables created during
-installation. /upgrades/ | Directory that ontains details on all upgrade points created against this package.
+File | Description 
+------------- |------------- 
+components.json | Will only exist once the package has been published, and is a JSON file containing information on all components included within the package.
+package.php | The main package configuration file, and defines things such as configuration variables, hashes, and menus that are included in the package.  Full details on this package are found in a below section on this page. 
+install.sql | Optional, and if exists, all SQL code included within this file will be executed against the database upon installation. 
+install_after.sql | Optional, and if exists, all SQL within this file will be executed against the database at the very end of package installation, meaning after all components have been installed. 
+reset.sql | Optional, and if exists, all SQL code within will be executed when the package is reset from within the administration panel.  This is meant to clear all database from the package, and reset it to just after it was installed. 
+remove.sql | Optional, and if exists, all SQL code within this file will be executed against the database upon removal of the package.  Should drop all database tables created during installation. 
+/upgrades/ | Directory that ontains details on all upgrade points created against this package.
 
 
 #### package.php Configuration File
@@ -71,8 +69,10 @@ php apex.php create view admin/casino/bets casino
 The above commands would add the components, and create the necessary blank files for you to develop.  For
 details on all supported components, and how to create / delete them, please visit the following links:
 
+
 * [CLI Commands - Create / Delete Components](cli.md#component)
 * [List of Components](packages.md#components)
+
 
 ### Publish Package
 

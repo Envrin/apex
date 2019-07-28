@@ -32,7 +32,7 @@ use apex\app\interfaces\DebuggerInterface;
  * use apex\svc\debug;
  *
  * // Add debug entry
- * debug::add(2, "Something happened here", __FILE__, __LINE__, 'info');
+ * debug::add(2, "Something happened here", 'info');
  *
  */
 class debug implements DebuggerInterface
@@ -67,16 +67,19 @@ public function __construct()
  *
  * @param int $level Number beterrn 1 -53 defining the level of entry.
  * @param string $message The message to add
- * @param string $file File number (__FILE__)
- * @param int $line_number The line number of call (__LINE__)
  * @param string $log_level Optional, and will add appropriate log item via logger if not debug.
  * @param int $is_system Defaults to 0, and used by internal error handlers to specify this as coming from PHP interpreter.
  */
-public function add(int $level, string $message, string $file = '', int $line_number = 0, $log_level = 'debug', $is_system = 0)
+public function add(int $level, string $message, $log_level = 'debug', $is_system = 0)
 { 
 
     // Check if DEBUG_LEVEL defined
     if (!app::_config('core:debug_level')) { return; }
+
+    // Get caller file and line number
+    $trace = debug_backtrace();
+    $file = trim(str_replace(SITE_PATH, '', $trace[0]['file']), '/') ?? '';
+    $line_number = $trace[0]['line'] ?? 0;
 
     // Add log
     if ($log_level != 'debug') { 

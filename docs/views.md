@@ -33,7 +33,7 @@ executed to handle any specific actions for that individual view.
 ### Create Views
 
 You must create all views via the apex.php script to ensure they are properly assigned to the correct package,
-and included with the package when publishing to a repository.  To createa a new view, within terminal type:
+and included with the package when publishing to a repository.  To create a new view, within terminal type:
 
 `php apex.php create view URI PACKAGE`
 

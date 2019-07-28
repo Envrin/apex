@@ -50,7 +50,7 @@ public function lookup(string $ipaddr = ''):array
     if ($ipaddr == '') { $ipaddr = app::get_ip(); }
 
     // Debug
-    debug::add(2, tr("Performing GeoIP lookup of IP address: {1}", $ipaddr), __FILE__, __LINE__);
+    debug::add(2, tr("Performing GeoIP lookup of IP address: {1}", $ipaddr));
 
     // Load reader
     $reader = new \MaxMind\Db\Reader(SITE_PATH . '/src/app/utils/maxmind/GeoLite2-City.mmdb');

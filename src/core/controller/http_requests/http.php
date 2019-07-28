@@ -5,6 +5,7 @@ namespace apex\core\controller\http_requests;
 
 use apex\app;
 use apex\svc\view;
+use apex\svc\auth;
 use apex\core\controller\http_requests;
 
 
@@ -29,6 +30,9 @@ public function process()
     // Set theme
     app::set_theme(app::_config('core:theme_public'));
     app::set_area('public');
+
+    // Check login
+    auth::check_login(false);
 
     // Parse template
     app::set_res_body(view::parse());

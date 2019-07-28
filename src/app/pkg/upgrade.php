@@ -56,7 +56,7 @@ public function create(string $pkg_alias, string $version = '')
     }
 
     // Debug
-    debug::add(3, tr("Starting create upgrade point for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting create upgrade point for package, {1}", $pkg_alias));
 
     // Get version, if one not defined
     if ($version == '') { 
@@ -90,13 +90,13 @@ public function create(string $pkg_alias, string $version = '')
     file_put_contents("$this->upgrade_dir/upgrade.php", $conf);
 
     // Debug
-    debug::add(4, tr("Successfully added new upgrade point to database for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully added new upgrade point to database for package, {1}", $pkg_alias));
 
     // Create file hash
     $this->create_file_hash((int) $upgrade_id);
 
     // Debug
-    debug::add(1, tr("Successfully created new upgrade point for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully created new upgrade point for package, {1}", $pkg_alias));
 
     // Return
     return $upgrade_id;
@@ -126,7 +126,7 @@ public function create_file_hash(int $upgrade_id)
     $pkg = $pkg_client->load();
 
     // Debug
-    debug::add(4, tr("Starting to create file hash for upgrade for package, {1}", $package), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to create file hash for upgrade for package, {1}", $package));
 
     // Delete existing hashes
     db::query("DELETE FROM internal_file_hashes WHERE upgrade_id = %i", $upgrade_id);
@@ -162,7 +162,7 @@ public function create_file_hash(int $upgrade_id)
     file_put_contents("$this->upgrade_dir/components.json", json_encode($comps));
 
     // Debug
-    debug::add(3, tr("Successfully compiled file hash for upgrade point of package, {1}", $package), __FILE__, __LINE__);
+    debug::add(3, tr("Successfully compiled file hash for upgrade point of package, {1}", $package));
 
 }
 
@@ -213,7 +213,7 @@ public function compile($upgrade_id)
     }
 
     // Debug
-    debug::add(4, tr("Compiling upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);
+    debug::add(4, tr("Compiling upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']));
 
     // Load package
     $pkg_client = new package_config($upgrade['package']);
@@ -257,7 +257,7 @@ public function compile($upgrade_id)
     file_put_contents("$this->upgrade_dir/components.json", json_encode($this->components));
 
     // Debug
-    debug::add(5, tr("Compiling upgrade, went through all existing components, package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);
+    debug::add(5, tr("Compiling upgrade, went through all existing components, package {1}, version {2}", $upgrade['package'], $upgrade['version']));
 
     // Get previous components
     $etc_dir = SITE_PATH . '/etc/' . $upgrade['package'] . '/upgrades/' . $upgrade['version'];
@@ -307,7 +307,7 @@ public function compile($upgrade_id)
     io::remove_dir($this->upgrade_dir);
 
     // Debug
-    debug::add(4, tr("Successfully compiled upgrade, and archived it at {1}", $archive_file), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully compiled upgrade, and archived it at {1}", $archive_file));
 
     // Return
     return $archive_file;
@@ -326,7 +326,7 @@ protected function compile_component(array $row)
 { 
 
     // Debug
-    debug::add(5, tr("Compiling single component for upgrade, type: {1}, package: {2}, parent: {3}, alias: {4}", $row['type'], $row['package'], $row['parent'], $row['alias']), __FILE__, __LINE__);
+    debug::add(5, tr("Compiling single component for upgrade, type: {1}, package: {2}, parent: {3}, alias: {4}", $row['type'], $row['package'], $row['parent'], $row['alias']));
 
     // Get PHP file
     $php_file = components::get_file($row['type'], $row['alias'], $row['package'], $row['parent']);
@@ -416,7 +416,7 @@ public function publish(int $upgrade_id)
     }
 
     // Debug
-    debug::add(2, tr("Starting to publish upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);
+    debug::add(2, tr("Starting to publish upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']));
 
     // Compile upgrade
     $archive_file = $this->compile($upgrade_id);
@@ -445,7 +445,7 @@ public function publish(int $upgrade_id)
     }
 
     // Debug
-    debug::add(1, tr("Successfully published upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully published upgrade for package {1}, version {2}", $upgrade['package'], $upgrade['version']));
 
     // Return
     return true;
@@ -474,7 +474,7 @@ public function install(string $pkg_alias)
     );
 
     // Debug
-    debug::add(3, tr("Contacting repository, and requesting available upgrades for package {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Contacting repository, and requesting available upgrades for package {1}", $pkg_alias));
 
     // Send request to repo
     $client = new network();
@@ -495,7 +495,7 @@ public function install(string $pkg_alias)
     }
 
     // Debug
-    debug::add(1, tr("Successfully upgraded package {1} to version {2}", $pkg_alias, $new_version), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully upgraded package {1} to version {2}", $pkg_alias, $new_version));
 
     // Return
     return $new_version;
@@ -513,7 +513,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
 { 
 
     // Debug
-    debug::add(3, tr("Starting to upgrade package {1} to version {2} from zip file", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(3, tr("Starting to upgrade package {1} to version {2} from zip file", $pkg_alias, $version));
 
     // Unpack zip file
     $this->upgrade_dir = sys_get_temp_dir() . '/apex_upgrade_' . $pkg_alias . '_' . $version;
@@ -533,7 +533,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
     $upgrade = new $class_name();
 
     // Debug
-    debug::add(4, tr("Installing upgrade, loaded upgrade class file, package {1}, version {2}", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(4, tr("Installing upgrade, loaded upgrade class file, package {1}, version {2}", $pkg_alias, $version));
 
     // Run install SQL, if needed
     if (file_exists("$this->upgrade_dir/install.sql")) { 
@@ -578,7 +578,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
     }
 
     // Debug
-    debug::add(4, tr("Installing upgrade, copied over all files as necessary for package {1}, version {2}", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(4, tr("Installing upgrade, copied over all files as necessary for package {1}, version {2}", $pkg_alias, $version));
 
     // Go through components
     $components = json_decode(file_get_contents("$this->upgrade_dir/components.json"), true);
@@ -609,7 +609,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
     }
 
     // Debug
-    debug::add(4, tr("Installing upgrade, successfully created / deleted all necessary components for package {1}, version {2}", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(4, tr("Installing upgrade, successfully created / deleted all necessary components for package {1}, version {2}", $pkg_alias, $version));
 
     // Copy over new package files
     $etc_dir = SITE_PATH . '/etc/' . $pkg_alias;
@@ -658,7 +658,7 @@ protected function install_from_zip(string $pkg_alias, string $version, string $
     if (file_exists($zip_file)) { @unlink($zip_file); }
 
     // Debug
-    debug::add(3, tr("Successfully installed single upgrade for package {1}, version {2}", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(3, tr("Successfully installed single upgrade for package {1}, version {2}", $pkg_alias, $version));
 
     // Return
     return true;
@@ -682,7 +682,7 @@ public function rollback(string $pkg_alias, string $version)
     $current_version = $row['version'];
 
     // Debug
-    debug::add(1, tr("Starting to rollback package {1} from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Starting to rollback package {1} from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), 'info');
 
     // Go through upgrades
     $rows = db::query("SELECT * FROM internal_upgrades WHERE package = %s AND status = 'installed' ORDER BY id DESC");
@@ -697,7 +697,7 @@ public function rollback(string $pkg_alias, string $version)
         $this->rollback_single($pkg_alias, $row['version']);
     }
 
-    debug::add(1, tr("Successfully performed rollback to package {1}, from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Successfully performed rollback to package {1}, from version {2} to version {3}", $pkg_alias, $current_version, $prev_version), 'info');
 
 }
 
@@ -717,7 +717,7 @@ protected function rollback_single(string $pkg_alias, string $version)
     }
 
     // Debug
-    debug::add(3, tr("Starting single rollback for package {1}, version {2}", $pkg_alias, version), __FILE__, __LINE__);
+    debug::add(3, tr("Starting single rollback for package {1}, version {2}", $pkg_alias, version));
 
     // Get changes
     $toc = json_decode(file_get_contents("$rollback_dir/changes.json"), true);
@@ -759,7 +759,7 @@ protected function rollback_single(string $pkg_alias, string $version)
     db::query("DELETE FROM internal_upgrades WHERE package = %s AND version = %s AND status = 'installed'", $pkg_alias, $version);
 
     // Debug
-    debug::add(3, tr("Completed single rollback on package {1} to version {2}", $pkg_alias, $version), __FILE__, __LINE__);
+    debug::add(3, tr("Completed single rollback on package {1} to version {2}", $pkg_alias, $version));
 
 }
 

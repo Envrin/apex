@@ -11,14 +11,14 @@ use apex\app\exceptions\ApexException;
  * Handles all user exceptions, such as user does not exist, unable to create 
  * / update / delete user, etc. 
  */
-class Userxception   extends ApexException
+class UserException   extends ApexException
 {
 
 
 
     // Properties
     private $error_codes = array(
-    'not_exists' => "No user exists within the system with the ID# {id}"
+        'not_exists' => "No user exists within the system with the ID# {id}"
     );
 /**
  * Construct 

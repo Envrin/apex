@@ -21,7 +21,46 @@ class docs
         app::class => 'app'
     ];
 
-    private $replacements = [];
+    private $replacements = [
+        'tr' => ['app.sys.functions', 'tr', 'files/'],
+        'fdate' => ['app.sys.functions', 'fdate', 'files/'],   
+        'fmoney' => ['app.sys.functions', 'fmoney', 'files/'], 
+        'exchange_money' => ['app.sys.functions', 'exchange_money', 'files/'],  
+        'check_package' => ['app.sys.functions', 'check_package', 'files/'], 
+        'assign' => ['app.web.view', 'assign'], 
+        'add_callout' => ['app.web.view', 'add_callout'], 
+        'parse' => ['app.web.view', 'parse'], 
+        'authenticate_2fa' => ['app.sys.auth', 'authenticate_2fa'], 
+        'authenticate_2fa_email' => ['app.sys.auth', 'authenticate_2fa_email'], 
+        'authenticate_2fa_sms' => ['app.sys.auth', 'authenticate_2fa_sms'], 
+        'recaptcha' => ['app.sys.auth', 'recaptcha'], 
+        'dispatch_notification' => ['app.msg.alerts', 'dispatch_notification'], 
+        'dispatch_message' => ['app.msg.alerts', 'dispatch_message'], 
+        'emailer::send' => ['app.msg.emailer', 'send'], 
+        'emailer::process_emails' => ['app.msg.emailer', 'process_emails'], 
+        'db::query', ['app.db.mysql', 'query'], 
+        'db::insert' => ['app.db.mysql', 'insert'], 
+        'db::update' => ['app.db.mysql', 'update'], 
+        'db::delete' => ['app.db.mysql', 'delete'], 
+        'db::get_row' => ['app.db.mysql', 'get_row'], 
+        'db::get_hash' => ['app.db.mysql', 'get_hash'], 
+        'db::get_column' => ['app.db.mysql', 'get_column'], 
+        'db::get_field' => ['app.db.mysql', 'get_field'], 
+        'db::get_idrow' => ['app.db.mysql', 'get_idrow'], 
+        'db::insert_id' => ['app.db.mysql', 'insert_id'], 
+        'db::show_tables' => ['app.db.mysql', 'show_tables'], 
+        'db::show_columns' => ['app.db.mysql', 'show_columns'], 
+        'db::begin_transaction' => ['app.db.mysql', 'begin_transaction'], 
+        'db::commit' => ['app.db.mysql', 'commit'], 
+        'db::rollback' => ['app.db.mysql', 'rollback'], 
+        'debug::add' => ['app.sys.debug', 'add'], 
+        "\\\$this->http_request" => ['app.tests.tst', 'http_request'], 
+        "\\\$this->invoke_method" => ['app.tests.test', 'invoke_method'], 
+        'emailer::search_queue' => ['app.tests.test_emailer', 'search_queue'], 
+        'emailer::get_queue' => ['app.tests.test_emailer', 'get_queue'], 
+        'emailer::clear_queue' => ['app.tests.test_emailer', 'clear_queue']
+    ];
+
 
 
 /**
@@ -46,12 +85,19 @@ public function process()
 
     // Go through API classes
     foreach ($this->api_classes as $class => $api_name) { 
-        $obj = app::get_instance();
+        if (!$obj = app::get($class)) { continue; }
         $methods = get_class_methods($obj);
+
         foreach ($methods as $method) { 
-            $this->replacements[$method] = [$api_name];
+
+            if ($class == app::class && in_array($method, array('get','hash','set','make','call'))) { 
+                $this->replacements[$method] = ['app.sys.container', $method];
+            } else { 
+                $this->replacements[$method] = [$api_name];
+            }
         }
     }
+    unset($this->replacements['__construct']);
 
     // Get MD template
     $lines = file(SITE_PATH . '/docs/' . $md_file);
@@ -85,7 +131,8 @@ public function process()
                 if (preg_match("/^(\w+?)\:\:(.+)/", $method, $tmp_match)) { $method = $tmp_match[2]; }
 
                 // Replace
-                $url = "https://apex-platform.org/api/classes/apex." . $dest[0] . ".html#method_" . $method;
+                $uri_type = $dest[2] ?? 'classes/apex.';
+                $url = "https://apex-platform.org/api/" . $uri_type . $dest[0] . ".html#method_" . $method;
                 $a_code = "<a href=\"$url\" target=\"_blank\">$match[0]</a>";
                 $line = str_replace($match[0], $a_code, $line);
             }

@@ -157,7 +157,7 @@ public function check_login(bool $require_login = false)
     }
 
         // Debug and log
-        debug::add(2, tr("Successfully authenticated usesr, area: {1}, userid: {2}, username: {3}", app::get_area(), $row['userid'], $profile['username']), __FILE__, __LINE__, 'info');
+        debug::add(2, tr("Successfully authenticated usesr, area: {1}, userid: {2}, username: {3}", app::get_area(), $row['userid'], $profile['username']), 'info');
 
         // Return
         return true;
@@ -183,25 +183,25 @@ private function check_for_session()
     }
 
     // Debug
-    debug::add(3, tr("Found authenticated session, userid: {1}, uri: {2}", $row['userid'], app::get_uri()), __FILE__, __LINE__);
+    debug::add(3, tr("Found authenticated session, userid: {1}, uri: {2}", $row['userid'], app::get_uri()));
 
     // Check for pending 2FA request
     if ($row['2fa_status'] == 0 && app::get_area() != 'public') { 
-        debug::add(3, "Auth session still requires 2FA authorization", __FILE__, __LINE__);
+        debug::add(3, "Auth session still requires 2FA authorization");
         app::set_uri('2fa', true, true);
         return false;
     }
 
     // Check IP address
     if (app::get_ip() != $row['ip_address']) { 
-        debug::add(2, tr("Authentication error.  Session and current user IP addresses do not match.  Session IP: {1}, Current IP: {2}", $row['ip_address'], app::get_ip()), __FILE__, __LINE__, 'warning');
+        debug::add(2, tr("Authentication error.  Session and current user IP addresses do not match.  Session IP: {1}, Current IP: {2}", $row['ip_address'], app::get_ip()), 'warning');
         $this->invalid_login('invalid');
         return false;
     }
 
     // Check user agent
     if (app::get_user_agent() != $row['user_agent']) { 
-        debug::add(2, tr("Authentication error.  Session and current user agents do not match.  Session UA: {1}, Current UA: {2}", $row['user_agent'], app::get_user_agent()), __FILE__, __LINE__, 'warning');
+        debug::add(2, tr("Authentication error.  Session and current user agents do not match.  Session UA: {1}, Current UA: {2}", $row['user_agent'], app::get_user_agent()), 'warning');
         $this->invalid_login('invalid');
         return false;
     }
@@ -218,7 +218,7 @@ public function login()
 { 
 
     // Debug / log
-    debug::add(2, tr("Initiating login process, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Initiating login process, area: {1}, username: {2}", app::get_area(), app::_post('username')), 'info');
 
     // Get user ID
     if (app::get_area() == 'admin') { 
@@ -229,7 +229,7 @@ public function login()
 
     // Check username exists
     if (!$userid) { 
-        debug::add(2, tr("Login failed, username does not exist, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+        debug::add(2, tr("Login failed, username does not exist, area: {1}, username: {2}", app::get_area(), app::_post('username')));
         $this->invalid_login('invalid');
         return false;
     }
@@ -238,7 +238,7 @@ public function login()
     // Load profile
     $user = app::make($this->user_class, ['id' => $userid]);
     if (!$profile = $user->load()) { 
-        debug::add(2, tr("Invalid login.  Unable to load user profile, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+        debug::add(2, tr("Invalid login.  Unable to load user profile, area: {1}, username: {2}", app::get_area(), app::_post('username')));
         $this->invalid_login('invalid');
         return false;
     }
@@ -251,11 +251,12 @@ public function login()
 
     // Check password
     if (!password_verify(app::_post('password'), base64_decode($profile['password']))) { 
-        debug::add(2, tr("Invalid password during login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+
+        debug::add(2, tr("Invalid password during login, area: {1}, username: {2}", app::get_area(), app::_post('username')));
 
         // Check # of retries
         if ($this->password_retries_allowed > 0 && $profile['invalid_logins'] >= $this->password_retries_allowed) { 
-            debug::add(2, tr("Authentication error, invalid password and user exceeded max retries allowed, deactivating account.  area: {1}, username: {2}, failed_logins: {3}", app::get_area(), app::_post('username'), $profile['invalid_logins']), __FILE__, __LINE__, 'warning');
+            debug::add(2, tr("Authentication error, invalid password and user exceeded max retries allowed, deactivating account.  area: {1}, username: {2}, failed_logins: {3}", app::get_area(), app::_post('username'), $profile['invalid_logins']), 'warning');
             $user->update_status('inactive');
         }
 
@@ -295,7 +296,7 @@ public function login()
     } else { $require_2fa_phone = 0; }
 
     // Check IP address
-    $this->check_ip_restrictions($userid);
+    //$this->check_ip_restrictions($userid);
 
     // Create login session
     $session_id = $this->create_session($userid, (int) $require_2fa, (int) $require_2fa_phone);
@@ -338,7 +339,7 @@ private function create_session(int $userid, int $require_2fa = 0, int $require_
     } while ($exists > 0);
 
     // Debug / log
-    debug::add(1, tr("Authentication successful, session ID generated, area: {1}, username: {2}, session_id: {3}", app::get_area(), app::_post('username'), $this->session_id), __FILE__, __LINE__);
+    debug::add(1, tr("Authentication successful, session ID generated, area: {1}, username: {2}, session_id: {3}", app::get_area(), app::_post('username'), $this->session_id));
 
     // Add session to DB
     $remember_me = app::_post('remember_me') ?? 0;
@@ -390,7 +391,7 @@ private function create_session(int $userid, int $require_2fa = 0, int $require_
     elseif ($require_2fa == 1) { $this->authenticate_2fa_email(1); }
 
     // Debug
-    debug::add(1, tr("Completed successful login, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Completed successful login, area: {1}, username: {2}", app::get_area(), app::_post('username')), 'info');
 
     // Parse template
     app::set_uri('index', true);
@@ -439,11 +440,11 @@ protected function check_ip_restrictions(int $userid):bool
     }
 
     // Debug
-    debug::add(4, tr("Authentication, checking IP address restrictions, area: {1}, username: {2}", app::get_area(), app::_post('username')), __FILE__, __LINE__);
+    debug::add(4, tr("Authentication, checking IP address restrictions, area: {1}, username: {2}", app::get_area(), app::_post('username')));
 
     // Check if IP allowed
     if (!in_array(app::get_ip(), $ips)) { 
-        debug::add(3, tr("Authentication error, IP address not allowed, area: {1}, username: {2}, ip_address: {3}", app::get_area(), app::_post('username'), app::get_ip()), __FILE__, __LINE__, 'warning');
+        debug::add(3, tr("Authentication error, IP address not allowed, area: {1}, username: {2}, ip_address: {3}", app::get_area(), app::_post('username'), app::get_ip()), 'warning');
         $this->invalid_login();
     }
 
@@ -464,7 +465,7 @@ public function invalid_login(string $type = 'none')
 { 
 
     // Debug
-    debug::add(2, tr("Authentication, invalid login, area: {1}, type: {2}", app::get_area(), $type), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Authentication, invalid login, area: {1}, type: {2}", app::get_area(), $type), 'info');
 
     // Logout
     $this->logout();
@@ -477,7 +478,8 @@ public function invalid_login(string $type = 'none')
     elseif ($type == 'pending') { view::add_callout(tr("Your account is currently pending, and must first be approved by customer support.  You will receive an e-mail once your account has been activated.", 'error')); }
 
     // Set template response
-    app::set_uri('login', true);
+    if (app::get_area() != 'admin') { app::set_area('public'); }
+    app::set_uri('login', true, true);
     app::set_res_body(view::parse());
 
     // Return
@@ -498,7 +500,7 @@ public function check_password(string$username, string$password)
 { 
 
     // Debug
-    debug::add(2, tr("Authentication, raw user / pass check, area: {1}, username: {2}", app::get_area(), $username), __FILE__, __LINE__);
+    debug::add(2, tr("Authentication, raw user / pass check, area: {1}, username: {2}", app::get_area(), $username));
 
     // Get user row
     if (!$profile = db::get_row("SELECT * FROM $this->users_table WHERE username = %s", $username)) { 
@@ -551,7 +553,7 @@ public function authenticate_2fa_email(int $is_login = 0)
     redis::set($key, json_encode($vars));
     redis::expire($key, 1200);
 
-    debug::add(1, tr("2FA authentication required.  Exiting, and forcing display of 2fa.tpl template"), __FILE__, __LINE__);
+    debug::add(1, tr("2FA authentication required.  Exiting, and forcing display of 2fa.tpl template"));
 
     // Send e-mails
     $emailer = app::get(emailer::class);

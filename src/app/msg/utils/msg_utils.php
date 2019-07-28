@@ -40,7 +40,7 @@ final public function get_rabbitmq_connection()
     }
 
     // Debug
-    debug::add(5, "Starting connection to RabbitMQ", __FILE__, __LINE__);
+    debug::add(5, "Starting connection to RabbitMQ");
 
     // Get connection information
     $vars = $this->get_rabbitmq_connection_info();
@@ -51,7 +51,7 @@ final public function get_rabbitmq_connection()
     }
 
     // Debug
-    debug::add(5, "Successfully established connection to RabbitMQ", __FILE__, __LINE__);
+    debug::add(5, "Successfully established connection to RabbitMQ");
 
     // Return
     $this->rabbitmq_conn = $connection;
@@ -132,13 +132,13 @@ public function dispatch_locally(EventMessageInterface $msg):eventResponseInterf
 
         // Load component
         if (!$worker = components::load('worker', $row['alias'], $row['package'])) { 
-            debug::add(1, tr("Unable to load RPC worker, package: {1}, alias: {2}", $row['package'], $row['alias']), __FILE__, __LINE__, 'critical');
+            debug::add(1, tr("Unable to load RPC worker, package: {1}, alias: {2}", $row['package'], $row['alias']), 'critical');
             continue;
         }
 
         // Execute, if method exists
         if (method_exists($worker, $function_name)) { 
-            debug::add(5, tr("Executing single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
+            debug::add(5, tr("Executing single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']));
 
             // Execute method
             $res = components::call($function_name, 'worker', $row['alias'], $row['package'], '', ['msg' => $msg]);
@@ -147,7 +147,7 @@ public function dispatch_locally(EventMessageInterface $msg):eventResponseInterf
             // Add  response
         $class_name = "apex\\" . $row['package'] . "\\worker\\" . $row['alias'];
             $response->add_response($row['package'], $class_name, $function_name, $res);
-            debug::add(5, tr("Completed execution of single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']), __FILE__, __LINE__);
+            debug::add(5, tr("Completed execution of single RPC call to routing key: {1} for the package: {2}", $msg->get_routing_key(true), $row['package']));
         }
     }
 

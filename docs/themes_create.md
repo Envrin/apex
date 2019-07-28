@@ -1,8 +1,8 @@
 
 # Create and Publish Themes
 
-All functionality to create, publish, install and remove themes is performed via the apex.php script, located
-within the installation directory.  The commands availalbe are explained below.
+All functionality to create, publish, install and remove themes is performed via the apex.php script (or "apex" pchar archive), located
+within the installation directory.  The commands available are explained below.
 
 
 ### `Create_theme THEME_ALIAS`
@@ -12,20 +12,17 @@ theme "mycooltheme", within terminal change to the installation directory, and t
 
 `php apex.php create_theme mycooltheme`
 
-This will create new directories at /themes/mycooltheme, and /public/themes/mycooltheme, where you can start
-placing all relevant theme files.  There will also be a file at /themes/mycooltheme/theme.php with several
+This will create new directories at /views/themes/mycooltheme, and /public/themes/mycooltheme, where you can start
+placing all relevant theme files.  There will also be a file at /views/themes/mycooltheme/theme.php with several
 variables that you need to modify, as explained in the below table.
 
-Variable | Description ------------- |------------- `$area` | The type of theme, must be either "public" or
-"members" defining whether the theme is for the public web site or specifically for the member's area.  If
-it's used for both (ie. user gets redirected to home page upon login, and there is no member's area), then use
-"public". `$access` | Can be either "public" or "private", and only define "private" if it's a custom theme
-for a single or handful of clients. `$name, $description` | The full name and description of the ttheme.
+Variable | Description 
+------------- |------------- 
+`$area` | The type of theme, must be either "public" or "members" defining whether the theme is for the public web site or specifically for the member's area.  If it's used for both (ie. user gets redirected to home page upon login, and there is no member's area), then use "public". 
+`$access` | Can be either "public" or "private", and only define "private" if it's a custom theme for a single or handful of clients. 
+`$name, $description` | The full name and description of the theme.
 `$author_name, $author_email, $author_url` | Your name, e-mail address and URL to your website / protfolio.
-`$envato_item_id, $envato_username, $envato_url` | Define these if you're a designer who sells on ThemeForest,
-and this theme is listed on ThemeForest. The URL is the full URL to your theme on ThemeForest.  Be defining
-these variables, anyone wishing to download your theme will first need to purchase it via ThemeForest, and
-specify the purchase code upon downloading into Apex, which is verified via Enato's API.
+`$envato_item_id, $envato_username, $envato_url` | Define these if you're a designer who sells on ThemeForest, and this theme is listed on ThemeForest. The URL is the full URL to your theme on ThemeForest.  Be defining these variables, anyone wishing to download your theme will first need to purchase it via ThemeForest, and specify the purchase code upon downloading into Apex, which is verified via Enato's API.
 
 
 ### `change_theme AREA THEME_ALIAS`

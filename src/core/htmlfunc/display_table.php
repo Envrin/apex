@@ -47,7 +47,7 @@ public function process(components $components, tables $utils, string $html, arr
 
     // Set variables
     $id = $data['id'] ?? 'tbl_' . str_replace(":", "_", $data['table']);
-    $has_search = $table->has_search ?? false;
+    $has_search = isset($table->has_search) && $table->has_search == 1 ? 1 : 0;
     $sortable = $table->sortable ?? array();
     $form_field = $table->form_field ?? 'none';
     $form_name = $table->form_name ?? $alias;
@@ -66,40 +66,31 @@ public function process(components $components, tables $utils, string $html, arr
 
     // Get table details
     $details = $utils->get_details($table, $id);
+    $delete_button = $table->delete_button ?? '';
 
-    // Get total columns
-    $total_columns = count($table->columns);
-    if ($form_field == 'radio' || $form_field == 'checkbox') { $total_columns++; }
+    // Get pagination attributes
+    if ($details['has_pages'] === true) { 
+        $pagination_attr = "has_pagination=\"1\" start=\"$details[start]\" page=\"$details[page]\" start_page=\"$details[start_page]\" end_page=\"$details[end_page]\" total=\"$details[total]\" rows_per_page=\"$details[rows_per_page]\" total_pages=\"$details[total_pages]\"";
+    } else { $pagination_attr = ''; }
 
     // Start data table
-    $tpl_code = "<a:data_table id=\"$id\"><thead>\n";
-
-    // Add search bar to TPL code, if needed
-    if ($has_search === true) { 
-        $tpl_code .= "<tr>\n\t<td colspan=\"$total_columns\" align=\"right\">\n";
-        $tpl_code .= "\t\t<a:table_search_bar table=\"$data[table]\" id=\"$id\" ajaxdata=\"$ajaxdata\">\n";
-        $tpl_code .= "\t</td>\n</tr>";
-    }
+    $tpl_code = "<a:data_table id=\"$id\" has_search=\"$has_search\" ajax_data=\"$ajaxdata\" form_name=\"$form_name\" delete_button=\"$delete_button\" $pagination_attr><thead>\n";
 
     // Add header column for radio / checkbox
     $tpl_code .= "<tr>\n";
     if ($form_field == 'checkbox') { 
-        $tpl_code .= "\t<th><input type=\"checkbox\" name=\"check_all\" value=\"1\" onclick=\"tbl_check_all(this, '$id');\"></th>\n";
+        $tpl_code .= "\t<a:th><input type=\"checkbox\" name=\"check_all\" value=\"1\" onclick=\"tbl_check_all(this, '$id');\"></a:th>\n";
         if (!preg_match("/\[\]$/", $form_name)) { $form_name .= '[]'; }
     } elseif ($form_field == 'radio') { 
-        $tpl_code .= "\t<th>&nbsp;</th>\n";
+        $tpl_code .= "\t<a:th>&nbsp;</a:th>\n";
     }
 
     // Add header columns
-    foreach ($table->columns as $alias => $name) { 
-        if (in_array($alias, $sortable)) { 
-            $sort_asc = "<a href=\"javascript:ajax_send('core/sort_table', '" . $ajaxdata . "&sort_col=" . $alias . "&sort_dir=asc', 'none');\" border=\"0\"><i class=\"fa fa-sort-asc\"></i></a> ";
-            $sort_desc = " <a href=\"javascript:ajax_send('core/sort_table', '" . $ajaxdata . "&sort_col=" . $alias . "&sort_dir=desc', 'none');\" border=\"0\"><i class=\"fa fa-sort-desc\"></i></a>";
-        } else { list($sort_asc, $sort_desc) = array('', ''); }
-
-        $tpl_code .= "\t<th>" . $sort_asc . $name . $sort_desc . "</th>\n";
+    foreach ($table->columns as $alias => $name) {
+        $can_sort = in_array($alias, $sortable) ? 1 : 0;
+        $tpl_code .= "\t<a:th can_sort=\"$can_sort\" alias=\"$alias\">$name</a:th>\n";
     }
-    $tpl_code .= "</tr></thead><tbody id=\"" . $id . "_tbody\">\n\n";
+    $tpl_code .= "</thead><tbody>\n";
 
     // Go through table rows
     foreach ($details['rows'] as $row) { 
@@ -119,17 +110,6 @@ public function process(components $components, tables $utils, string $html, arr
     }
 
     // Finish table
-    $tpl_code .= "</tbody><tfoot><tr><td colspan=\"$total_columns\" align=\"right\">\n";
-
-    // Delete button
-    if (isset($table->delete_button) && $table->delete_button != '') { 
-        $tpl_code .= "\t<a href=\"javascript:ajax_confirm('Are you sure you want to delete the checked records?', 'core/delete_rows', '$ajaxdata', '$form_name');\" class=\"btn btn-primary btn-md\" style=\"float: left;\">$table->delete_button</a>\n\n";
-    }
-
-    // Add pagination links
-    if ($details['has_pages'] === true) { 
-        $tpl_code .= "\t<a:pagination start=\"$details[start]\" page=\"$details[page]\" start_page=\"$details[start_page]\" end_page=\"$details[end_page]\" total=\"$details[total]\" rows_per_page=\"$details[rows_per_page]\" total_pages=\"$details[total_pages]\" id=\"$id\" ajaxdata=\"$ajaxdata\">\n\n";
-    }
     $tpl_code .= "</tr></tfoot></a:data_table>\n\n";
 
     // Return

@@ -65,7 +65,7 @@ public function check(string $type, string $alias)
     }
 
     // Debug
-    debug::add(5, tr("Checking if component exists, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Checking if component exists, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Check package
     if ($package == '') { 
@@ -100,12 +100,12 @@ public function load(string $type, string $alias, string $package = '', string $
 { 
 
     // Debug
-    debug::add(5, tr("Starting load component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Starting load component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Check if class exists
     $class_name = $this->get_class_name($type, $alias, $package, $parent);
     if (!app::has($class_name)) { 
-        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
+        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), 'warning');
         return false;
     }
 
@@ -115,7 +115,7 @@ public function load(string $type, string $alias, string $package = '', string $
     }
 
     // Debug
-    debug::add(5, tr("Loaded component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Loaded component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Return
     return $object;
@@ -140,7 +140,7 @@ public function call(string $function_name, string $type, string $alias, string 
     // Check if class exists
     $class_name = $this->get_class_name($type, $alias, $package, $parent);
     if (!app::has($class_name)) { 
-        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__, 'warning');
+        debug::add(4, tr("Component PHP file does not exist, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), 'warning');
         return false;
     }
 
@@ -190,7 +190,7 @@ public function get_file(string $type, string $alias, string $package, string $p
 { 
 
     // Debug
-    debug::add(5, tr("Getting PHP component file, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Getting PHP component file, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Ensure valid components type
     if (!in_array($type, COMPONENT_TYPES)) { 
@@ -218,7 +218,7 @@ public function get_file(string $type, string $alias, string $package, string $p
     $php_file .= $alias . '.php';
 
     // Debug
-    debug::add(5, tr("Got PHP component file, {1}", $php_file), __FILE__, __LINE__);
+    debug::add(5, tr("Got PHP component file, {1}", $php_file));
 
     // Return
     return $php_file;

@@ -56,7 +56,7 @@ public function connect(string $dbname, string $dbuser, string $dbpass = '', str
     mysqli_query($conn, "SET TIME_ZONE = '+0:00'");
 
     // Debug
-    debug::add(4, tr("Connected to database, name: {1} user: {2}", $dbname, $dbuser), __FILE__, __LINE__);
+    debug::add(4, tr("Connected to database, name: {1} user: {2}", $dbname, $dbuser));
 
     // Return
     return $conn;
@@ -378,7 +378,7 @@ public function query(...$args)
     $result = mysqli_stmt_get_result($this->prepared[$hash]);
 
     // Debug
-    debug::add(3, tr("Executed SQL: {1}", $this->raw_sql), __FILE__, __LINE__);
+    debug::add(3, tr("Executed SQL: {1}", $this->raw_sql));
     debug::add_sql($this->raw_sql);
 
     // Return
@@ -483,8 +483,8 @@ private function format_sql($args)
         // Check data type
         $is_valid = true;
         if ($match[1] == 'i' && $value != '0' && !filter_var($value, FILTER_VALIDATE_INT)) { $is_valid = false; }
-        elseif ($match[1] == 'd' && $value != '' && !preg_match("/^[0-9]+(\.[0-9]{1,})?$/", $value)) { $is_valid = false; }
-        elseif ($match[1] == 'b' && $value != 0 && $value != 1) { $is_valid = false; }
+        elseif ($match[1] == 'd' && $value != '' && !preg_match("/^[0-9]+(\.[0-9]{1,})?$/", (string) $value)) { $is_valid = false; }
+        elseif ($match[1] == 'b' && $value != '0' && !filter_var($value, FILTER_VALIDATE_INT)) { $is_valid = false; }
         elseif ($match[1] == 'e' && !filter_var($value, FILTER_VALIDATE_EMAIL)) { $is_valid = false; }
         elseif ($match[1] == 'url' && !filter_var($value, FILTER_VALIDATE_URL)) { $is_valid = false; }
         elseif ($match[1] == 'ds') { 

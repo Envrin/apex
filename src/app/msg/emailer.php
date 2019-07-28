@@ -144,7 +144,7 @@ public function process_emails(string $controller, int $userid = 0, array $condi
 { 
 
     // Debug
-    debug::add(3, tr("Checking e-mail notifications for controller {1}, user ID# {2}", $controller, $userid), __FILE__, __LINE__);
+    debug::add(3, tr("Checking e-mail notifications for controller {1}, user ID# {2}", $controller, $userid));
 
     // Check for notifications
     $controller_alias = $controller;
@@ -191,7 +191,7 @@ public function send(string $to_email, string $to_name, string $from_email, stri
 { 
 
     // Debug
-    debug::add(4, tr("Sending e-mail message to {1} from {2} with subject: {3}", $to_email, $from_email, $subject), __FILE__, __LINE__);
+    debug::add(4, tr("Sending e-mail message to {1} from {2} with subject: {3}", $to_email, $from_email, $subject));
 
     // Create e-mail message
     $msg = new email_message();

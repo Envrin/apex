@@ -3,27 +3,28 @@
 
 If you are a web designer who sells via the Envato / ThemeForest marketplace, increase your theme sales by
 integrating your themes into Apex!  It's absolutely free of charge, and only requires minimal work to
-integrate each theme.  Apex fully integrates with Envta via their API, allowing you to integrate your themes
+integrate each theme.  Apex fully integrates with Envato via their API, allowing you to integrate your themes
 into Apex, which will then be listed in each user's Maintenance->Theme Manager menu of the admin panel as an
 available theme.
 
 When a user decides to use your theme, they will be required to purchase it via ThemeForest.  Upon purchase,
 they will obtain their license key with purchase code, which they must enter upon downloading the theme from
-the Apex repository, which is verified as a valid purchase via Envato's API.
+the Apex repository, which is verified as a valid purchase via Envato's API before the download is allowed.
 
 ### Get Apex Account
 
-First, you need to quickly e-mail us at [support@envrin.com](mailto:support@envrin.com), and simply request an
-Apex designer account.  Simply provide us with your Envata username, and an Envato API key, which is required
-in order to verify purchases from users.
+First you need to visit the [Apex Registration Form](https://apex-platform.org/register), and signup for a free account.  Next do an 
+[installation](install.md) of Apex on your local server, and in termins update the repository with:
+
+`php apex.php update_repo apex-platform.org`
+
+When prompted, enter the username and password you created your Apex account with.  That's it, you are now ready to 
+publish themes to the Apex public repository.
 
 
 ### Integrate Your Themes!
 
-Integrating your themes is very simple.  First, install a copy of Apex on your local computer or server by
-following the [Installation Guide](install.md).
-
-Once installed, choose a theme you would like to integrate, and create it within Apex. For example, if
+Integrating your themes is very simple, and once you have Apex locally installed, choose a theme you would like to integrate, and create it within Apex. For example, if
 creating the theme named "mycooltheme", at the prompt you would type:
 
 ~~~

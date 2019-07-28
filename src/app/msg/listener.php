@@ -47,7 +47,7 @@ public function listen()
         // Parse message body
         $msg = unserialize($request->body);
         if (!$msg instanceof EventMessageInterface) { 
-            debug::add(1, tr("Invalid RPC call made, did not receive a EventMessageInterface object"), __FILE__, __LINE__, 'alert');
+            debug::add(1, tr("Invalid RPC call made, did not receive a EventMessageInterface object"), 'alert');
         return false;
         }
 

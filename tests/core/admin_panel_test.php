@@ -346,8 +346,6 @@ public function test_create_admin(array $vars, string $error_type = '', string $
         db::query("DELETE FROM admin WHERE username = 'unit_test'");
     }
 
-
-
     // Send request
     $html = $this->http_request('/admin/settings/admin', 'POST', $vars);
 
@@ -376,14 +374,9 @@ public function provider_create_admin()
         'phone_country' => '1',
         'phone' => '5551234567',
     'require_2fa' => '0',
+        'require_2fa_phone' => 0, 
         'language' => 'en',
         'timezone' => 'PST',
-        'question1' => 'q1',
-        'question2' => 'q2',
-        'question3' => 'q3',
-        'answer1' => 'unit1',
-        'answer2' => 'unit2',
-        'answer3' => 'unit3',
         'submit' => 'create'
     );
 
@@ -395,8 +388,6 @@ public function provider_create_admin()
         array($vars, 'blank', 'email'),
         array($vars, 'blank', 'language'),
         array($vars, 'blank', 'timezone'),
-        array($vars, 'blank', 'question1'),
-        array($vars, 'blank', 'answer1'),
         array($vars, 'alphanum', 'username'),
         array($vars, 'email', 'email'),
         array($vars, '', '')
@@ -409,10 +400,8 @@ public function provider_create_admin()
     $results[3][0]['email'] = '';
     $results[4][0]['language'] = '';
     $results[5][0]['timezone'] = '';
-    $results[6][0]['question1'] = '';
-    $results[7][0]['answer1'] = '';
-    $results[8][0]['username'] = 'dkg$*d Agiu4%g';
-    $results[9][0]['email'] = 'testing_email';
+    $results[6][0]['username'] = 'dkg$*d Agiu4%g';
+    $results[7][0]['email'] = 'testing_email';
 
     // Return
     return $results;

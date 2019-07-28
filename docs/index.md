@@ -23,7 +23,7 @@ Donations gratefully accepted.  Bitcoin address:  3JnYmUHhz1CKz9vgxX55qmBnzVRPir
     2. [Request Routing (http / cli)](routing.md)
     3. [Services Container](services.md)
     4. [Dependency Injection](di.md)
-    5 [Global Functions](global_functions.md)
+    5. [Global Functions](global_functions.md)
 4. [Packages and Components](packages.md)
 5. [Repositories](repos.md)
 6. [`apex` CLI Commands](cli.md)

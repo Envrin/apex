@@ -9,20 +9,20 @@ to RabbitMQ, which then evenly distributes the messages to the back-end applicat
 
 This way, if the online operation ever becomes burdened due to high volume, you can simply add more back-end
 application servers which will immediately begin helping handle the load since all resource intensive
-operations are distributed evently amongst them.  If desired, you may learn more about RabbitMQ by visiting
+operations are distributed evenly amongst them.  If desired, you may learn more about RabbitMQ by visiting
 the [RabbitMQ PHP Tutorial](https://www.rabbitmq.com/tutorials/tutorial-one-php.html) site.
 
 
 ### Dispatching Messages
 
-All processed that may become burdensome with high volume should be performed via event dispatchers /
+All processes that may become burdensome with high volume should be performed via event dispatchers /
 listeners.  Dispatching messages is very simple, and for example:
 
 ~~~
 namespace apex;
 
 use apex\app;
-use apex\services\msg;
+use apex\svc\msg;
 use apex\app\msg\objects\event_message;
 
 // Define some message, can be anything -- variable, array, object, etc.
@@ -48,20 +48,20 @@ target="_blank">event messages</a> that implement the `EventMessageInterface`.  
 get relayed to the correct listeners, and allow you to pass any data you wish.  When defining an event
 message, you need both, the routing key and data you would like to send.
 
-The routing key is a string comprised of three segments, separated by periods.  First first two segments will
+The routing key is a string comprised of three segments, separated by periods.  First two segments will
 be pre-defined and specify which package and listener alias to route the message to, and the third segment is
 the method to execute.  For example, the routing key "users.profile.created" will execute the "created" method
 of any listeners assigned to "users.profile".  Refer to the documentation of the packages you are integrating
 with for which routing keys are available.
 
-The data sent can be anything you wish -- variable, array, object, etc.  For another example of creaitng an
+The data sent can be anything you wish -- variable, array, object, etc.  For another example of creating an
 event message:
 
 ~~~php
 namespace apex;
 
 use apex\app;
-use apex\services\msg;
+use apex\svc\msg;
 use apex\app\msg\objects\event_message;
 
 $data =

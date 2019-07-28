@@ -39,7 +39,7 @@ public function __construct(string $pkg_alias = '')
     $this->pkg_dir = SITE_PATH . '/etc/' . $pkg_alias;
 
     // Debug
-    debug::add(3, tr("Initialized package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Initialized package, {1}", $pkg_alias));
 
 }
 
@@ -85,7 +85,7 @@ public function load()
     }
 
     // Debug
-    debug::add(2, tr("loaded package configuration, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("loaded package configuration, {1}", $this->pkg_alias));
 
     // Return
     return $pkg;
@@ -105,7 +105,7 @@ public function install_configuration($pkg = '')
 { 
 
     // Debug
-    debug::add(2, tr("Starting configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Starting configuration install / scan of package, {1}", $this->pkg_alias));
 
     // Load package, if needed
     if (!is_object($pkg)) { 
@@ -128,7 +128,7 @@ public function install_configuration($pkg = '')
     $this->install_placeholders($pkg);
 
     // Debug
-    debug::add(2, tr("Completed configuration install / scan of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Completed configuration install / scan of package, {1}", $this->pkg_alias));
 
 }
 
@@ -144,7 +144,7 @@ protected function install_config_vars($pkg)
 { 
 
     // Debug
-    debug::add(3, tr("Starting install of config vars for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting install of config vars for package, {1}", $this->pkg_alias));
 
     // Add config vars
     foreach ($pkg->config as $alias => $value) { 
@@ -167,7 +167,7 @@ protected function install_config_vars($pkg)
     }
 
     // Debug
-    debug::add(3, tr("Completed install of configuration variables for package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed install of configuration variables for package, {1}", $this->pkg_alias));
 
 }
 
@@ -184,7 +184,7 @@ protected function install_hashes($pkg)
 { 
 
     // Debug
-    debug::add(3, tr("Starting hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting hashes install of package, {1}", $this->pkg_alias));
 
     // Add needed hashes
     foreach ($pkg->hash as $hash_alias => $vars) { 
@@ -218,7 +218,7 @@ protected function install_hashes($pkg)
     }
 
     // Debug
-    debug::add(3, tr("Completed hashes install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed hashes install of package, {1}", $this->pkg_alias));
 
 }
 
@@ -233,7 +233,7 @@ protected  function install_menus($pkg)
 { 
 
     // Debug
-    debug::add(3, tr("Start menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Start menus install of package, {1}", $this->pkg_alias));
 
     // Go through menus
     $done = array();
@@ -284,7 +284,7 @@ protected  function install_menus($pkg)
     $this->update_redis_menus();
 
     // Debug
-    debug::add(3, tr("Completed menus install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed menus install of package, {1}", $this->pkg_alias));
 
 }
 
@@ -309,7 +309,7 @@ protected function add_single_menu(string$area, string $parent, string $alias, s
 { 
 
     // Debug
-    debug::add(3, tr("Adding single menu, package: {1}, area: {2}, parent: {3}, alias: {4}", $this->pkg_alias, $area, $parent, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Adding single menu, package: {1}, area: {2}, parent: {3}, alias: {4}", $this->pkg_alias, $area, $parent, $alias));
 
     // Check if menu exists
     if ($menu_id = db::get_field("SELECT id FROM cms_menus WHERE area = %s AND parent = %s AND alias = %s", $area, $parent, $alias)) { 
@@ -484,7 +484,7 @@ protected function install_boxlists($pkg)
 { 
 
     // Debug
-    debug::add(3, tr("Starting boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting boxlists install of package, {1}", $this->pkg_alias));
 
     // Go through boxlists
     $done = array();
@@ -528,7 +528,7 @@ protected function install_boxlists($pkg)
     }
 
     // Debug
-    debug::add(3, tr("Completed boxlists install of package, {1}", $this->pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed boxlists install of package, {1}", $this->pkg_alias));
 
 }
 
@@ -541,7 +541,7 @@ protected function install_placeholders($pkg)
 { 
 
     // Debug
-    debug::add(3, tr("Starting placeholders install of package {1}", $this->pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(3, tr("Starting placeholders install of package {1}", $this->pkg_alias), 'info');
 
     // Go through placeholders
     $done = array();
@@ -590,7 +590,7 @@ protected function reorder_tabcontrol(string $package, string $alias)
 { 
 
     // Debug
-    debug::add(3, tr("Starting re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting re-order of tab control, package: {1}, alias: {2}", $package, $alias));
 
     // Load tab control
     if (!$tab = components::load('tabcontrol', $alias, $package)) { 
@@ -642,7 +642,7 @@ protected function reorder_tabcontrol(string $package, string $alias)
     }
 
     // Debug
-    debug::add(3, tr("Completed re-order of tab control, package: {1}, alias: {2}", $package, $alias), __FILE__, __LINE__);
+    debug::add(3, tr("Completed re-order of tab control, package: {1}, alias: {2}", $package, $alias));
 
 }
 

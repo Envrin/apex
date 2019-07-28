@@ -90,7 +90,7 @@ public function create_options(string $hash_alias, $value = '', string $form_fie
     }
 
     // Debug
-    debug::add(4, tr("Created hash options for the hash: {1}", $hash_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Created hash options for the hash: {1}", $hash_alias));
 
     // Return
     return $html;
@@ -124,7 +124,7 @@ public function get_hash_var(string $hash_alias, $var_alias)
     if (!isset($vars[$var_alias])) { return false; }
 
     // Debug
-    debug::add(5, tr("Retrieved alue of hash ariable from hash: {1}, key: {2}", $hash_alias, $alias), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieved alue of hash ariable from hash: {1}, key: {2}", $hash_alias, $alias));
 
     // Return
     return $vars[$var_alias];
@@ -149,7 +149,7 @@ public function parse_data_source(string $data_source, string $value = '', strin
 { 
 
     // Debug
-    debug::add(5, tr("Parsing hash data source, {1}", $data_source), __FILE__, __LINE__);
+    debug::add(5, tr("Parsing hash data source, {1}", $data_source));
 
     // Initialize
     $source = explode(":", $data_source);
@@ -237,7 +237,7 @@ public function get_stdvar(string $type, string $abbr, string $column = 'name'):
     } else { $value = ''; }
 
     // Debug
-    debug::add(5, tr("Retrieed stdlist ariable of type {1} with abbr {2}", $type, $abbr), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieed stdlist ariable of type {1} with abbr {2}", $type, $abbr));
 
     // Return
     return $value;

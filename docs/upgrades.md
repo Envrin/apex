@@ -23,10 +23,11 @@ SHA1 hash.  These hashes are used later when publishing the package to determine
 After creating an upgrade point, a new directory will be created at /etc/PACKAGE/upgrades/VERSION.  This
 directory contains a few pertinent files, which are explained below.
 
-File | Description ------------- |------------- upgrade.php | Allows you to define PHP code to be executed
-upon installation / rollback of the upgrade. install.sql | Any SQL code within this file is executed against
-the database upon installation of the upgrade. rollback.sql | Any SQL code within this file is executed
-against the database if / when the upgrade is rolled back.
+File | Description 
+------------- |------------- 
+upgrade.php | Allows you to define PHP code to be executed upon installation  / rollback of the upgrade. 
+install.sql | Any SQL code within this file is executed against the database upon installation of the upgrade. 
+rollback.sql | Any SQL code within this file is executed against the database if / when the upgrade is rolled back.
 
 
 ### Publish Upgrade
@@ -44,8 +45,8 @@ upgrade is now instantly available to all Apex systems with the package installe
 ### Installing Upgrades
 
 Installing upgrades couldn't be easier.  If desired, you can always view a list of installed packages that
-have new upgrades available via the Maintenance-&gt;Package Manager menu of the administration panel.  To
-install avilalbe upgrades, simply open up terminal and type:
+have new upgrades available via the Maintenance->Package Manager menu of the administration panel.  To
+install available upgrades, simply open up terminal and type:
 
 `php apex.php upgrade`
 
@@ -57,7 +58,7 @@ system.
 
 If ever needed, upgrades can be easily rolled back on an individual system.  Within terminal, simply type:
 
-`php apex.php rollback`
+`php apex.php rollback PACKAGE`
 
 You will be prompted to select which version you would like to rollback to.  The system will then revert to
 the exact same codebase as before the upgrade was installed.

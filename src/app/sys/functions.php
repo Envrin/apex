@@ -27,7 +27,7 @@ function handle_exception($e)
     } elseif ($e instanceof PhpAmqpLib\Exception\AMQPTimeoutException || $e instanceof WebSocket\ConnectionException) { 
 
         // Log error
-        debug::add(1, "The internal RPC / web socket server is down.  Please start by using the init script at /bootstrap/apex.", __FILE__, __LINE__, 'emergency');
+        debug::add(1, "The internal RPC / web socket server is down.  Please start by using the init script at /bootstrap/apex.", 'emergency');
         debug::finish_session();
 
         // Display template

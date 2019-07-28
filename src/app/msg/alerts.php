@@ -44,7 +44,7 @@ public function dispatch_notification(string $recipient, string $message, string
 { 
 
     // Debug
-    debug::add(3, tr("Adding notification / alert via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
+    debug::add(3, tr("Adding notification / alert via Web Socket to recipient: {1}", $recipient));
 
     // Set vars
     $vars = array(
@@ -97,7 +97,7 @@ public function dispatch_message(string $recipient, string $from, string $messag
 { 
 
     // Debug
-    debug::add(3, tr("Adding dropdown notification via Web Socket to recipient: {1}", $recipient), __FILE__, __LINE__);
+    debug::add(3, tr("Adding dropdown notification via Web Socket to recipient: {1}", $recipient));
 
     // Set vars
     $vars = array(

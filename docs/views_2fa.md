@@ -7,7 +7,7 @@ request they were previously at will continue, including all POSTed form fields.
 operations such as sending / withdrawing funds, etc.
 
 
-### `auth::authenticate_2fa()`
+### auth::authenticate_2fa()
 
 This is a general purpose 2FA authentication method, will check both global and user settings, then
 authenticate as necessary depending on the settings.  Generally, this is the only function you need to use to
@@ -19,7 +19,7 @@ ensure a user is authenticated via 2FA.
 namespace apex;
 
 use apex\app;
-use apex\services\auth;
+use apex\svc\auth;
 
 // Withdraw funds
 if (app::get_action() == 'withdraw') {
@@ -27,17 +27,19 @@ if (app::get_action() == 'withdraw') {
     // Make sure we're authenticated
     auth::authenticate_2fa();
 
-    // We knew we're authenticated via 2FA, go ahead and withdraw funds.
+    // We know we're authenticated via 2FA, go ahead and withdraw funds.
 
 }
 ~~~
 
-### `auth::authenticate_2fa_email()`
 
-This function can be used to force 2FA authentication via e-mail regardless of global or user settings.
+### auth::authenticate_2fa_email()
+
+This function can be used to force 2FA authentication via e-mail regardless of global or user settings.  It will display a 
+template stating an e-mail has been sent to them, and will not continue with the process until the link within the e-mail has been clicked on.
 
 
-### `auth::authenticate_2fa_sms()`
+### auth::authenticate_2fa_sms()
 
 This function can be used to force authentication via SMS regardless of global or user settings.  This will
 send a 6 digit code via SMS with the Nexmo API to the user's phone number, and display a template requireing

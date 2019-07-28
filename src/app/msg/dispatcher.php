@@ -81,7 +81,7 @@ public function dispatch(EventMessageInterface $msg)
 { 
 
     // Debug
-    debug::add(4, tr("Sending RPC command to {1}", $msg->get_routing_key(true)), __FILE__, __LINE__);
+    debug::add(4, tr("Sending RPC command to {1}", $msg->get_routing_key(true)));
 
     // Check for all-in-one server
     if (app::_config('core:server_type') == 'all' || app::_config('core:server_type') == 'app') { 

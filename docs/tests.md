@@ -7,7 +7,18 @@ with phpUnit, please take a look at the below two links to help familiarize your
 * [Getting Started with phpUnit](https://phpunit.de/getting-started/phpunit-7.html)
 * [phpUnit Assertions](https://phpunit.readthedocs.io/en/8.0/assertions.html)
 
+Below contains links to the seconds within this page:
 
+1. <a href="#creating_tests">Creating / Executing Test Classes</a>
+2. <a href="#http_request">http_request($uri, $method, $post, $get, $cookie)</a>
+3. <a href="#invoke_method">invoke_method($object, $method, $params)</a>
+4. <a href="#auto_login">auto_login()</a>
+5. <a href="#testing_emails">Testing E-Mail messages</a>
+6. <a href="#custom_assertions">Custom Assertions</a>
+
+
+
+<a name="creating_tests"></a>
 ### Creating / Executing Test Classes
 
 Create a new test class by simply opening up terminal, change to the installation directory, and type: `php
@@ -19,7 +30,8 @@ methods which will be executed by phpUnit.  You can then automatically run the u
 `./vendor/bin/phpunit`
 
 
-### `string $this->http_request($uri, [$method = 'GET'], [array $post = array()], [array $get = array()], [array $cookie = array()])`
+<a name="http_request"></a>
+### string $this->http_request($uri, [$method = 'GET'], [array $post = array()], [array $get = array()], [array $cookie = array()])
 
 **Description:** A very useful method you will probably find yourself using often while writing your unit
 tests.  This will emulate a HTTP request to any page within the software, and return the response.  Useful to
@@ -27,12 +39,13 @@ allow the unit tests to emulate a human being going through the online operation
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$uri` | string | The URI which to
-request (eg. /register, /admin/settings/mypackage, etc.) `$method` | string | Should always be either GET or
-POST, and is the request method of the request. Defaults to GET. `$post` | array | Array containing any
-variables you would like POSTed to the request. `$get` | array | Array of any GET values you would like
-included within the request (ie. the query string) `$cookie` | array | Optional array of any cookie key-value
-pairs you would like included within the request.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$uri` | string | The URI which to request (eg. /register, /admin/settings/mypackage, etc.) 
+`$method` | string | Should always be either GET or POST, and is the request method of the request. Defaults to GET. 
+`$post` | array | Array containing any variables you would like POSTed to the request. 
+`$get` | array | Array of any GET values you would like included within the request (ie. the query string) 
+`$cookie` | array | Optional array of any cookie key-value pairs you would like included within the request.
 
 
 **Example**
@@ -72,16 +85,18 @@ The above example will send a POST request to /login on the system, emulating a 
 login form.
 
 
-
-### `mixed $this->invoke_methoe($object, string $method, array $params = array())`
+<a name="invoke_method"></a>
+### mixed $this->invoke_methoe($object, string $method, array $params = array())
 
 **Description:** Allows you to access protected / private methods within your classes for testing purposes.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$object` | object | An instance of
-the object where the method resides. `$method` | string | The name of the method to call. `$params` | array |
-Optional name based array of params.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$object` | object | An instance of the object where the method resides. 
+`$method` | string | The name of the method to call. 
+`$params` | array | Optional name based array of params to pass to the method.
 
 **Example**
 
@@ -96,6 +111,37 @@ function test_sometest()
 ~~~
 
 
+
+<a name="auto_login"></a>
+### auth::auto_login(int $userid)
+
+**Description:** Useful to auto-login a user to the administration panel or member's area for testing purposes.  If logging into the 
+administration panel, you must first set the area to "admin" via the app::set_area($area) method.  You only need to login 
+once per-session, as the authenticated session will remain within all tests once first initiated.
+
+**Example**
+
+~~~php
+function test_something()
+{
+
+    // Login admin ID# 1
+    app::set_area('admi');
+    auth::auto_login(1);
+
+    // Do the tests ///
+}
+~~~
+
+
+<a name="testing_emails"></a>
+### Testing E-Mail Messages
+
+While executing unit tests, Apex will store all outgoing e-mail messages in a queue, allowing you to easily lookup and test 
+to ensure e-mail messages were sent out and formatted properly.  For full information, please visit the [Testing E-Mail Messages](tests_emails.md) page.
+
+
+<a name="custom_assertions"></a>
 ### Custom Assertions
 
 On top of all the standard assertions provided by phpUnit, Apex also offers various additional assertions to
@@ -119,32 +165,22 @@ function test_sometest()
 The below table lists all custom assertions available to your unit tests within Apex.
 
 
-Method | Description ------------- |------------- `assertPageTitle($title)` | Checks the page title of the
-last test request sent to see if it matches `$title`.  The inverse is `assertNotPageTitle`.
-`assertPageTitleContains($text)` | Checks if the page title contains the specified `$text`.  Inverse is
-`assertPageTitleNotContains`. `assertPageContains($text)` | Checks if the page contents anywhere contains
-`$text`. Inverse is `assertPageNotContains`. `assertHasCallout($type, $message)` | Checks if the most recent
-page requested contains a user message / callout with the type of `$type~ (success, error, or info) and
-contains the text in `$message`.  The inverse is `assertNotHasCallout` `assertHasFormError($type,
-$field_name)` | Checks if the page has a form validation error given by the `forms::validate_form()` method of
-the specified type (blank, email, alphanum) on the specified form field.  Inverse of this method is
-`assertNotHasFormError`. `assertHasHeading($hnum, $text)` | Checks if the page contains a
-<hX> tag with the specified text.  Inverse of this method is `assertNotHasHeading`.
-`assertHasSubmit($value, $label)` | Checks if the last requested page contains a submit button with the
-specified value and label.  The inverse of this method is `assertNotHasSubmit`. `assertHasTable($table_alias)`
-| Checks if the page contains a HTML table component with the alias in Apex format (ie. PACKAGE:ALIAS) that is
-displayed via the `<e:function>` tag.  Inverse of this method is `assertNotHasTable`.
-`assertHasTableField($table_alias, $col_num, $value)` | Checks if the specified HTML tab has a row containing
-the specified value in the specified column number.  Inverse of this method is `assertNotHasTableField`.
-`assertHasDBRow($sql)` | Checks if one row exists in the mySQL database with the specified SQL query.  Inverse
-of this method is `assertNotHasDBRow`. `assertHasDBField($sql, $column, $value)` | Retrives one row from the
-database with the specified SQL statement, and checks if the specified column name matches the value.  The
-inverse of this method is `aasertNotHasDBField`. `assertHasFormField($name)` | Checkes if the last page
-requested contains a form field with the specified name.  The inverse of this method is
-`assertNotHasFormField` `assertStringContains($string, $text)` | Checks if the provided string contains the
-specified text.  Inverse of this method is `assertStringNotContains`. `assertFileContains($filename, $text)` |
-Checks if the specified file contains the specified text within its contents.  Inverse of this method is
-`assertFileNotContains`.
+Method | Description ------------- |
+------------- 
+`assertPageTitle($title)` | Checks the page title of the last test request sent to see if it matches `$title`.  The inverse is `assertNotPageTitle`.
+`assertPageTitleContains($text)` | Checks if the page title contains the specified `$text`.  Inverse is `assertPageTitleNotContains`. 
+`assertPageContains($text)` | Checks if the page contents anywhere contains `$text`. Inverse is `assertPageNotContains`. 
+`assertHasCallout($type, $message)` | Checks if the most recent page requested contains a user message / callout with the type of `$type~ (success, error, or info) and contains the text in `$message`.  The inverse is `assertNotHasCallout` 
+`assertHasFormError($type, $field_name)` | Checks if the page has a form validation error given by the `forms::validate_form()` method of the specified type (blank, email, alphanum) on the specified form field.  Inverse of this method is `assertNotHasFormError`. 
+`assertHasHeading($hnum, $text)` | Checks if the page contains a <hX> tag with the specified text.  Inverse of this method is `assertNotHasHeading`.
+`assertHasSubmit($value, $label)` | Checks if the last requested page contains a submit button with the specified value and label.  The inverse of this method is `assertNotHasSubmit`. 
+`assertHasTable($table_alias)` | Checks if the page contains a HTML table component with the alias in Apex format (ie. PACKAGE:ALIAS) that is displayed via the `ae:function>` tag.  Inverse of this method is `assertNotHasTable`.
+`assertHasTableField($table_alias, $col_num, $value)` | Checks if the specified HTML tab has a row containing the specified value in the specified column number.  Inverse of this method is `assertNotHasTableField`.
+`assertHasDBRow($sql)` | Checks if one row exists in the mySQL database with the specified SQL query.  Inverse of this method is `assertNotHasDBRow`. 
+`assertHasDBField($sql, $column, $value)` | Retrives one row from the database with the specified SQL statement, and checks if the specified column name matches the value.  The inverse of this method is `aasertNotHasDBField`. 
+`assertHasFormField($name)` | Checkes if the last page requested contains a form field with the specified name.  The inverse of this method is `assertNotHasFormField` 
+`assertStringContains($string, $text)` | Checks if the provided string contains the specified text.  Inverse of this method is `assertStringNotContains`. 
+`assertFileContains($filename, $text)` | Checks if the specified file contains the specified text within its contents.  Inverse of this method is `assertFileNotContains`.
 
 
 

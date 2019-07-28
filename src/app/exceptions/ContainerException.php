@@ -47,6 +47,7 @@ public function __construct(string $message, string $name = '', string $type = '
     $this->message = $this->error_codes[$message] ?? $message;
     $this->message = tr($this->message, $vars);
 
+
 }
 
 

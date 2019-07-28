@@ -70,7 +70,7 @@ $ajax->set_text('some_div', "A message of some kind");
 $msg = new websocket_message($ajax, 'members');
 
 // Dispatch the message
-$client = new websocket();
+$client = app::make(web_socket::class);
 $client->dispatch($msg);
 ~~~
 
@@ -84,21 +84,15 @@ As you can see from the above example, you create a
 web_socket() object, which is then dispatched
 to the necessary clients.  The constructor of this object allows the following parameters:
 
-Variable | Type | Description -------------member's area), only people on a specific page, or speicifc
-individuals that are logged in or on the public site and not authenticated. |-------------member's area), only
-people on a specific page, or speicifc individuals that are logged in or on the public site and not
-authenticated. |-------------member's area), only people on a specific page, or speicifc individuals that are
-logged in or on the public site and not authenticated. `$ajax` | Ajax Object | Object from the `apex\ajax`
-class, located at `/lib/ajax.php`. `$recipients` | array | An array of specific individuals to send the
-message to, formatted in either `user:XX` or `admin:XX`, where `XX` is the ID# of the user or administrator.
-For example, `user:841` will send the message to user ID# 841, assuming they are logged in and active on the
-site. `area` | string | If defined, will only send messages to users currently viewing the specified area
-(admin, members, or public). `uri` | string | If defined, will only send the message to users with the
-specific page opened, relative to the area (eg. `area` = admin, and `$route` = users/create will only sent to
-people viewing the Users->Create New User menu of the administration panel)
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$ajax` | Ajax Object | Object from the `apex\ajax` class, located at `/src/app/web/ajax.php`. 
+`$recipients` | array | An array of specific individuals to send the message to, formatted in either `user:XX` or `admin:XX`, where `XX` is the ID# of the user or administrator. For example, `user:841` will send the message to user ID# 841, assuming they are logged in and active on the site. 
+`area` | string | If defined, will only send messages to users currently viewing the specified area (admin, members, or public). 
+`uri` | string | If defined, will only send the message to users with the specific page opened, relative to the area (eg. `area` = admin, and `$route` = users/create will only sent to people viewing the Users->Create New User menu of the administration panel)
 
 
-### `message::add_dropdown_alert(string $recipient, string $message, string $url)`
+### alerts::dispatch_notification(string $recipient, string $message, string $url)
 
 **Description:**Both the administration panel and member's area contain a drop-down list available via an icon
 in the top right corner of the screen.  This function allows you to add an additional alert into that
@@ -106,10 +100,11 @@ drop-down list in real-time.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$recipient` | string | The user to
-add the alert to, formatted in either `user:XX` or `admin:XX` where `XX` is the ID# of the user /
-administrator. `message` | string | The message to add into the dropdown list item. `$url` | string | The URL
-(relative or absolute) to link to dropdown list item to.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$recipient` | string | The user to add the alert to, formatted in either `user:XX` or `admin:XX` where `XX` is the ID# of the user / administrator. 
+`message` | string | The message to add into the dropdown list item. 
+`$url` | string | The URL (relative or absolute) to link to dropdown list item to.
 
 **Example**
 
@@ -118,13 +113,16 @@ namespace apex;
 
 use apex\message;
 
+use apex\app;
+use apex\app\msg\alerts;
+
 // Add alert to user IDID# 53
-message::add_dropdown_alert('user:53', "An import alert just came in for you...", "members/some_menu?action=592831");
+$clients = app::make(alerts::class);
+$client->dispatch_notification('user:53', "An important alert just came in for you...", "members/some_menu?action=592831");
 ~~~
 
 
-
-### `message::add_dropdown_message(string $message, string $from, string $message, string $url)`
+### alerts::dispatch_message(string $recipient, string $from, string $message, string $url)
 
 **Description:** Similar to adding a new dropdown alert as explained above, but adds the dropdown item to a
 different list that is available within the administration panel and member's area just to the right of the
@@ -132,22 +130,25 @@ alerts dropdown list.  This is meant for actual messages, e-mails, private messa
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$recipient` | string | The user to
-add the message to, formatted in either `user:XX` or `admin:XX` where `XX` is the ID# of the user /
-administrator. `$from` | string | Who the message is from, can be any string / name you wish. `message` |
-string | The message to add into the dropdown list item. `$url` | string | The URL (relative or absolute) to
-link to dropdown list item to.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$recipient` | string | The user to add the message to, formatted in either `user:XX` or `admin:XX` where `XX` is the ID# of the user / administrator. 
+`$from` | string | Who the message is from, can be any string / name you wish. 
+`message` | string | The message to add into the dropdown list item. 
+`$url` | string | The URL (relative or absolute) to link to dropdown list item to.
 
 **Example**
 
 ~~~php
 namespace apex;
 
-use apex\message;
+use apex\app;
+use apex\app\msg\alerts;
 
 
 // Add message to administrator with ID# 1
-message:add_dropdown_message('admin:1', "John Smith (jsmith)", "Could use some help with getting this to work...", "admin/support/view_ticket?id=4239");
+$client = app::make(alerts::class);
+$client->dispatch_message('admin:1', "John Smith (jsmith)", "Could use some help with getting this to work...", "admin/support/view_ticket?id=4239");
 ~~~
 
 

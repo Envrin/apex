@@ -22,7 +22,7 @@ declare(strict_types = 1);
 namespace apex\casino\worker;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 use apex\app\msg\objects\event_message as event;
 
 
@@ -58,7 +58,7 @@ servers.  For example:
 namespace apex;
 
 use apex\app;
-use apex\services\msg;
+use apex\svc\msg;
 use apex\app\msg\objects\event_message;
 
 // Place new bet
@@ -103,7 +103,7 @@ declare(strict_types = 1);
 namespace apex\casino\worker;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 use apex\app\msg\objects\event_message as event;
 
 
@@ -123,10 +123,6 @@ class users {
 ~~~
 
 That's it.  Now every time a new user is registered, that above method will be executed.
-
-
-
-
 
 
 

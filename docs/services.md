@@ -1,23 +1,16 @@
 
 # Services Container
 
-Apex utilizes depenency injection via the popular [php-di](https://php-di.org/) package, and through that
-implements a central services container providing you with easy access to all necessary components.  It's all
-very straight forward, as explained below.
-
-
-### Service Classes
-
-There are various small PHP classes available within the */src/services/* directory, which allow various
+There are various small PHP classes available within the */src/svc/* directory, which allow various
 important components / libraries of Apex to be statically accessed.  For example:
 
 ~~~php
 namespace apex;
 
 use apex\app;
-use apex\services\db;
-use apex\services\redis;
-use apex\services\debug;
+use apex\svc\db;
+use apex\svc\redis;
+use apex\svc\debug;
 
 function some_method()
 {
@@ -38,13 +31,13 @@ function some_method()
 ~~~
 
 In the above example it appears we are accessing the methods statically, but in reality we are not.  All three
-classes were created by and retrieved from the container, using the classes defined within the bootstrap
+classes were created by and retrieved from the dependency injection container, using the classes defined within the bootstrap
 configuration file (see below).  The small service classes simply relay the calls to the proper PHP classes
 non-statically, providing for greater simplicity and accessibility, while still utilizing the power and
 flexibility of dependancy injection.
 
 
-### Services Available
+## Services Available
 
 The below table lists all services available within the main Apex platform.  Please note, installed packages
 may offer additional services other than those listed below.
@@ -70,7 +63,7 @@ Service | Description
 [io](https://apex-platform.org/api/classes/apex.app.io.io.html) | Various methods allowing for easy manipulation and parsing of files and directories including zip archives.
 
 
-### Bootstrap Configuration Files
+## Bootstrap Configuration Files
 
 The */bootstrap/* directory contains one PHP configuration file for each of the different request types (http,
 cli, test), and defines the exact PHP classes to load for each service.  For example, if you wanted to switch
@@ -80,7 +73,7 @@ instead of sending the e-mail messages via SMTP, it returns them to the unit tes
 
 Please take a look at the existing configuration files to see how they are formatted, but they are quite
 straight forward.  They simply return one associative array, the keys being the interface / class name (key
-within the container), and the value being an array defining the PHP class to load.  The values can be:
+within the container), and the value being an array defining the PHP class to load.
 
 
 

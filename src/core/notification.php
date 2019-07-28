@@ -43,7 +43,7 @@ public function get_merge_fields(string $controller):string
 { 
 
     // Debug
-    debug::add(5, tr("Obtaining merge fields for notification controller, {1}", $controller), __FILE__, __LINE__);
+    debug::add(5, tr("Obtaining merge fields for notification controller, {1}", $controller));
 
     // Set systems fields
     $fields = array();
@@ -115,7 +115,7 @@ public function get_merge_vars(string $controller, int $userid = 0, array $data 
 { 
 
     // Debug
-    debug::add(5, tr("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid), __FILE__, __LINE__);
+    debug::add(5, tr("Obtaining merge ariables for e-mail notification controller {1}, userid: {2}", $controller, $userid));
 
     // Get install URL
     $url = isset($_SERVER['_HTTPS']) ? 'https://' : 'http://';
@@ -169,7 +169,7 @@ public function get_recipient(string $recipient, int $userid = 0)
 { 
 
     // Debug
-    debug::add(5, tr("Getting e-mail recipient / sender, {1}, userid: {2}", $recipient, $userid), __FILE__, __LINE__);
+    debug::add(5, tr("Getting e-mail recipient / sender, {1}, userid: {2}", $recipient, $userid));
 
     // Initialize
     $name = ''; $email = '';
@@ -304,7 +304,7 @@ public function create(array $data = array())
     $notification_id = db::insert_id();
 
     // Debug
-    debug::add(1, tr("Created new e-mail notification within settings, subject: {1}", $data['subject']), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Created new e-mail notification within settings, subject: {1}", $data['subject']), 'info');
 
     // Add attachments as needed
     $x=1;
@@ -322,7 +322,7 @@ public function create(array $data = array())
     $x++; }
 
     // Debug
-    debug::add(1, tr("Created new e-mail notification with subject, {1}", $data['subject']), __FILE__, __LINE__);
+    debug::add(1, tr("Created new e-mail notification with subject, {1}", $data['subject']));
 
     // Return
     return $notification_id;
@@ -367,7 +367,7 @@ public function edit($notification_id)
     "id = %i", $notification_id);
 
     // Debug
-    debug::add(1, tr("Updated e-mail notification with subject, {1}", app::_post('subject')), __FILE__, __LINE__);
+    debug::add(1, tr("Updated e-mail notification with subject, {1}", app::_post('subject')));
 
 }
 
@@ -380,7 +380,7 @@ public function delete(int $notification_id)
 { 
 
     db::query("DELETE FROM notifications WHERE id = %i", $notification_id);
-    debug::add(1, tr("Deleted e-mail notification, ID: {1}", $notification_id), __FILE__, __LINE__);
+    debug::add(1, tr("Deleted e-mail notification, ID: {1}", $notification_id));
     return true;
 
 }

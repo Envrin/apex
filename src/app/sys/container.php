@@ -156,6 +156,28 @@ public static function make(string $name, array $params = [])
 }
 
 /**
+ * Make and set item into container.
+ *
+ * @param string $class_name The class name of the object to make.
+ * @param array $params Optional name based params to use during object creation.
+ *
+ * @return mixed The newly created object.
+ */
+public static function makeset(string $class_name, array $params = [])
+{
+
+    // Make the object
+    $object = self::make($class_name, $params);
+
+    // Set the item
+    self::set($class_name, $object);
+
+    // Return
+    return $object;
+
+}
+
+/**
  * Call specific method within a class.
  *
  * @param array $callable First element is class name, second element the method name.

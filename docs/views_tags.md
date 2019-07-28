@@ -2,7 +2,7 @@
 # Views - Special HTML Tags
 
 Views support various special HTML tags that help provide efficient and streamlined development.  All special
-HTMl tags are prefixed with `<a:`, such as for example, `<e:textbox ... >`.  Below explains all special HTML
+HTMl tags are prefixed with `<a:`, such as for example, `<a:textbox ... >`.  Below explains all special HTML
 tags that are supported.
 
 1. <a href="#form">`<a:form>`</a>
@@ -11,10 +11,9 @@ tags that are supported.
 4. <a href="#section">`<a:section>`</a>
 5. <a href="#tab_control">`<a:tab_control>`</a>
 6. <a href="#data_table">`<a:data_table>`</a>
-7. <a href="#theme_tags">Theme Tags</a>
 
 
-<a name="form">
+<a name="form"></a>
 ### `<a:form>`
 
 **Description:** Replaced with a `<form>` tag, the action being the current view displayed, and method being
@@ -22,14 +21,17 @@ tags that are supported.
 
 **Attributes**
 
-Attribute | Required | Description ------------- |------------- |------------- action | No | Only needed if
-you need the form to point to a different view than the one being displayed, and is the URI relative to the
-software. method | No | Defaults to POST, but change to GET if necessary. enctype | No | Defaults to
-"application/x-www-form". class | No | Defaults to "form-inline" id | no | Defaults to "frm_main". file_upload
-| No | If set to 1, changes the `enctype` attribute to "multipart/form-data" to allow for file uploads.
+Attribute | Required | Description 
+------------- |------------- |------------- 
+action | No | Only needed if you need the form to point to a different view than the one being displayed, and is the URI relative to the software. 
+method | No | Defaults to POST, but change to GET if necessary. 
+enctype | No | Defaults to "application/x-www-form". 
+class | No | Defaults to "form-inline" 
+id | no | Defaults to "frm_main". 
+file_upload | No | If set to 1, changes the `enctype` attribute to "multipart/form-data" to allow for file uploads.
 
 
-<a name="box">
+<a name="box"></a>
 ### `<a:box> ... </a:box>` / `<a:box_header> ... </a:box_header>`
 
 **Description:** Standard box / panel as used in Bootstrap themes.  Used to separate page sections.  Used with
@@ -47,7 +49,8 @@ the `<a:box_header title="..."> ... </a:box_header>` tags as the title / header 
 </a:box>
 ~~~
 
-<a name="if">
+
+<a name="if"></a>
 ### `<a:if condition> ... <a:else> ... </e:if>`
 
 **Description:** Allows for conditional HTML to be displayed / hidden as necessary.  The condition can be any
@@ -63,12 +66,12 @@ PHP code you would like, and it will be checked as to whether or not the conditi
 </a:if>
 ~~~
 
-<a name="section">
+
+<a name="section"></a>
 ### `<a:section name="array_name"> ... </a:section>`
 
-
-**Description:** Will loop through the associative array assigned to the template via the `template::assign()`
-function, and will copy the contents between the tags for every array within the array.  For example:
+**Description:** Will loop through the associative array assigned to the view via the view::assign()
+method, and will copy the contents between the tags for every array within the array.  For example:
 
 **Example HTML**
 
@@ -89,7 +92,7 @@ function, and will copy the contents between the tags for every array within the
 namespace apex;
 
 use apex\app;
-use apex\services\template;
+use apex\svc\view;
 
 $posts = array(
     array(
@@ -104,11 +107,12 @@ $posts = array(
 );
 
 // Assign template variable
-template::assign('posts', $posts);
+view::assign('posts', $posts);
 ~~~
 
 
-<a name="tab_control">
+
+<a name="tab_control"></a>
 ### `<a:tab_control> ... </a:tab_control>`
 
 **Description:** Allows you to manually create tab controls within the TPL code.
@@ -121,11 +125,11 @@ template::assign('posts', $posts);
     <a:tab_page name="General">
         <h3>General">
         ... contents of tab page ...
-        </a:tab_page>
+    </a:tab_page>
 
     <a:tab_page name="orders">
         <h3>Orders</h3>
-            ... contents of the tab page ...
+        ... contents of the tab page ...
     </a:tab_page>
 
     <a:tab_page name="Referalls">
@@ -137,33 +141,17 @@ template::assign('posts', $posts);
 ~~~
 
 
-<a name="data_table">
-### `ae:data_table> ... </a:data_table>`
+<a name="data_table"></a>
+### `<a:data_table> ... </a:data_table>`
 
 **Description:** A standard data table with header columns, and striped backround colored rows.  Generally
 never needed, as data tables are usually displayed via the `a<function>` tag.
 
 **Attributes**
 
-Attribute | Required | Description ------------- |------------- |------------- class | No | The CSS class name
-of the data table.  Defaults to "table table-bordered table-striped table-hover". id | No | The ID# of the
-table element.
-
-
-<a name="theme_tags">
-### Theme Tags
-
-The below table lists various HTML tags that are only needed during theme development, and not for individual
-views.
-
-Tag | Description ------------- |------------- `<a:callouts>` | Replaced with the callouts (ie. success /
-error messages) that are displayed on the top of the page.  You only need this tag when implementing themes,
-not individual views. `<e:page_title>` | The title of the current page being displayed.  Apex will first check
-the database to see if a page title has been specifically defined for the page, and if not, will check the TPL
-code if any `<h1> ... </h1>` tags exist and use that, and otherwise will just default to the site name
-configuration variable. `<a:nav_menu>` | The navigation menu of the area being displayed (administration
-panel, member area, public web site), and uses the HTML tags located within the
-`/views/themes/ALIAS/components/nav_menu.tpl` file of the theme being used.  Please refer to these
-*nav_menu.tpl* files to see proper formatting.
+Attribute | Required | Description 
+------------- |------------- |------------- 
+class | No | The CSS class name of the data table.  Defaults to "table table-bordered table-striped table-hover". 
+id | No | The ID# of the table element.
 
 

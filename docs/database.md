@@ -13,7 +13,7 @@ accessed statically providing easy and efficient access.
 namespace apex;
 
 use apex\app;
-use apex\services\db;
+use apex\svc\db;
 
 $value = 'john';
 $rows = db::query("SELECT * FROM table_name WHERE some_column = %s", $value);
@@ -43,13 +43,21 @@ column must be an integer.  The actual values are then passed as additional para
 are properly checked and sanitized before being sent to the mySQL database engine.  The below table lists all
 available placeholders:
 
-Placeholder | Description ------------- |------------- %s | String %i | Integer, no decimal points %d |
-Decimal %b | Boolean, only allowed values are 1 / 0 %e | E-mail address %url | URL %ds | Date stamp, must be
-formatted in YYYY-MM-DD %ts | Timestampe, must be formatted in HH:II:SS %ls | For the LIKE operand.  Sanitizes
-the value, and surrounds it with '%' characters.  For example, the value "john" becomes "'%john%'"
+Placeholder | Description 
+------------- |------------- 
+%s | String 
+%i | Integer, no decimal points 
+%d | Decimal 
+%b | Boolean, only allowed values are 1 / 0 
+%e | E-mail address 
+%url | URL 
+%ds | Date stamp, must be
+formatted in YYYY-MM-DD 
+%ts | Timestampe, must be formatted in HH:II:SS 
+%ls | For the LIKE operand.  Sanitizes the value, and surrounds it with '%' characters.  For example, the value "john" becomes "'%john%'"
 
 
-### query(string $sql, array $args)
+### db::query(string $sql, array $args)
 
 **Description:** Performs any SQL statement against the database, but is generally used for SELECT statements,
 and simply returns the result of the `mysqli_query()` function.
@@ -64,15 +72,16 @@ foreach ($rows as $row) {
 ~~~
 
 
-### insert(string $table_name, array $values)
+### db::insert(string $table_name, array $values)
 
 **Description:** Inserts a new row into the specified database table.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$table_name` | string | The table
-name to insert a record into. `$values` | array | Array of key-value pairs that denote the column names and
-the values to insert.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$table_name` | string | The table name to insert a record into. 
+`$values` | array | Array of key-value pairs that denote the column names and the values to insert.
 
 ** Example**
 
@@ -84,16 +93,18 @@ db::insert('blog_posts', array(
 ~~~
 
 
-### update(string $table_name, array $values, string $where_sql, array $args)
+### db::update(string $table_name, array $values, string $where_sql, array $args)
 
 **Description:** Updates one or more rows within the provided table name of the database.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$table_name` | string | The table
-name to update rows within. `$values` | array | Key-value pairs of the column names and values to update them
-to. `$where_sql~ | string | Optional, and the WHERE clause within the SQL statement (eg. "id = %i") `$args` |
-array | A one dimensional array of values to fill the placeholders within the `$hwere_sql` clause.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$table_name` | string | The table name to update rows within. 
+`$values` | array | Key-value pairs of the column names and values to update them to. 
+`$where_sql~ | string | Optional, and the WHERE clause within the SQL statement (eg. "id = %i") 
+`$args` | array | A one dimensional array of values to fill the placeholders within the `$hwere_sql` clause.
 
 ** Example**
 
@@ -105,16 +116,17 @@ db::update('blog_posts', array(
 ~~~
 
 
-### delete(string $table_name, string $where_sql, array $args)
+### db::delete(string $table_name, string $where_sql, array $args)
 
 **Description:** Deletes rows from the specified table.
 
 **Parameters**
 
-Variable | Type | Description ------------- |------------- |------------- `$table_name` | string | The table
-name to delete rows from. `$where_sql` | string | There WHERE caluse within the SQL statement (eg. "type =
-%s") `$args` | array | One-dimensional array of values to replace the placeholders within the `$where_sql`
-clause.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$table_name` | string | The table name to delete rows from. 
+`$where_sql` | string | There WHERE clause within the SQL statement (eg. "type = %s") 
+`$args` | array | One-dimensional array of values to replace the placeholders within the `$where_sql` clause.
 
 **Example**
 
@@ -123,7 +135,7 @@ db::delete('blog_posts', 'type = %s AND blog_id = %i', $type, $blog_id);
 ~~~
 
 
-### array get_row(string $sql, array $args)</api
+### array db::get_row(string $sql, array $args)</api
 
 **Description:** Get the first row found using the given SQL query, and returns an associative array of the
 values.  Returns false if no row exists.
@@ -139,14 +151,15 @@ print_r($row);
 ~~~
 
 
-###`array get_idrow(string $table_name in $id_number)
+###`array db::get_idrow(string $table_name in $id_number)
 
 **Description:** Similiar to the `get_row()` function, and only returns one row from the database, but just a
 quicker way to look up rows based strictly on the "id" column of the database table if you have it.
 
-Variable | Type | Description ------------- |------------- |------------- `$table_name` | string | The table
-name to retrive the row from. `$id_number` | int | The ID# of the record to retrive, must match the "id"
-column of the database table.  Returns false if not row exists.
+Variable | Type | Description 
+------------- |------------- |------------- 
+`$table_name` | string | The table name to retrive the row from. 
+`$id_number` | int | The ID# of the record to retrive, must match the "id" column of the database table.  Returns false if not row exists.
 
 **Example**
 
@@ -159,7 +172,7 @@ print_r($row);
 ~~~
 
 
-### array get_column(string $sql, array $args)
+### array db::get_column(string $sql, array $args)
 
 **Description:** Returns a one-dimensional array of one specific column within a database table.
 
@@ -171,7 +184,7 @@ print_r($types);
 ~~~
 
 
-### array get_hash(string $sql, array $args)
+### array db::get_hash(string $sql, array $args)
 
 **Description:* Returns an associative array of the two columns defined within the SQL statement.  Useful for
 creating a quick key-value pair from a database table.
@@ -186,7 +199,7 @@ foreach ($groups as $group_id => $name) {
 ~~~
 
 
-### string get_field(string $sql, array $args)
+### string db::get_field(string $sql, array $args)
 
 **Description:** Returns the first column from the first row of the resulting SQL statement.  Useful for
 getting a single field from a single row from the database.
@@ -202,34 +215,34 @@ echo "Name is: $name\n":
 ~~~
 
 
-### int insert_id()
+### int db::insert_id()
 
 **Description:** Simply returns the ID# of the last row inserted into a table with an id column that auto
 increments.
 
 
-### array show_tables()
+### array db::show_tables()
 
 **Description:** Returns a one-dimensional array of all tables within the database.
 
 
-### array show_columns(string $table_name, bool $include_types = false)
+### array db::show_columns(string $table_name, bool $include_types = false)
 
 ** Description:** Returns an one-dimenational array of all columns within the given table provided.  If
 `$include_types` is true, will return an associative array that includes the column type.
 
 
-### begin_transaction()
+### db::begin_transaction()
 
 **Description:** Begins a new database transaction.
 
 
-### commit()
+### db::commit()
 
 **Description:** Submits the currently open database transaction.
 
 
-### rollback()
+### db::rollback()
 
 **Description:** Rollsback the currently open database transaction.
 

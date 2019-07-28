@@ -46,7 +46,7 @@ final protected function add(string $action, array $vars)
     array_push($this->results, $vars);
 
     // Debug
-    debug::add(5, tr("AJAX action added: {1}, variables: {2}", $action, serialize($vars)), __FILE__, __LINE__);
+    debug::add(5, tr("AJAX action added: {1}, variables: {2}", $action, serialize($vars)));
 
 }
 

@@ -62,7 +62,7 @@ public function validate_fields(string $error_type = 'template', array $required
 { 
 
     // Debug
-    debug::add(4, tr("Starting to validate various form fields"), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to validate various form fields"));
 
     // Check required fields
     foreach ($required as $var) { 
@@ -135,7 +135,7 @@ public function validate_fields(string $error_type = 'template', array $required
     }
 
     // Debug
-    debug::add(4, "Completed validating all various form fields", __FILE__, __LINE__);
+    debug::add(4, "Completed validating all various form fields");
 
 
 }
@@ -152,7 +152,7 @@ public function validate_form(string $form_alias, string $error_type = 'template
 { 
 
     // Debug
-    debug::add(4, tr("Starting to validate form component with alias {1}", $form_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to validate form component with alias {1}", $form_alias));
 
     // Check form alias
     if (!list($package, $parent, $alias) = components::check('form', $form_alias)) { 
@@ -199,7 +199,7 @@ public function validate_form(string $form_alias, string $error_type = 'template
     $form->validate($data);
 
     // Debug
-    debug::add(2, tr("Completed validating form component with alias {1}", $form_alias), __FILE__, __LINE__);
+    debug::add(2, tr("Completed validating form component with alias {1}", $form_alias));
 
     // Return
     $result = view::has_errors() === true ? false : true;
@@ -216,7 +216,7 @@ public function get_uploaded_file(string $var)
 { 
 
     // Debug
-    debug::add(3, tr("Trying to get contents of uploaded file: {1}", $var), __FILE__, __LINE__);
+    debug::add(3, tr("Trying to get contents of uploaded file: {1}", $var));
 
     // Checks
     if (!isset($_FILES[$var])) { return false; }
@@ -232,7 +232,7 @@ public function get_uploaded_file(string $var)
     @unlink($_FILES[$var]['tmp_name']);
 
     // Debug
-    debug::add(3, tr("Returning contents of uploaded file: $var", $var), __FILE__, __LINE__);
+    debug::add(3, tr("Returning contents of uploaded file: $var", $var));
 
     // Return
     return array($filename, $mime_type, $contents);

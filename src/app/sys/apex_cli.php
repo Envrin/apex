@@ -114,7 +114,7 @@ public function help($vars)
     $response .= str_pad('update_rabbitmq', 40) . "Update connection information for RabbitMQ\n\n\n";
 
     // Debug
-    debug::add(4, "CLI: help", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: help", 'info');
 
     // Return
     return $response;
@@ -142,7 +142,7 @@ public function list_packages($vars, network $client)
     }
 
     // Debugh   // Debug
-    debug::add(4, 'CLI: list_packages', __FILE__, __LINE__, 'info');
+    debug::add(4, 'CLI: list_packages', 'info');
 
     // Return
     return $response;
@@ -168,7 +168,7 @@ public function search($vars, network $client)
     $response = $client->search($term);
 
     // Debug
-    debug::add(4, tr("CLI: search -- term: {1}", $term), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: search -- term: {1}", $term), 'info');
 
     // Return
     return $response;
@@ -190,13 +190,13 @@ public   function install($vars, package $package)
     foreach ($vars as $alias) { 
 
         // Debug
-        debug::add(4, tr("CLI: Starting install of package: {1}", $alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Starting install of package: {1}", $alias), 'info');
 
         // Install package
         $package->install($alias);
 
         // Debug
-        debug::add(4, tr("CLI: Complete install of package: {1}", $alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Complete install of package: {1}", $alias), 'info');
 
         $response .= "Successfully installed the package, $alias\n";
     }
@@ -240,7 +240,7 @@ public function scan($vars, package $package)
         $client->install_configuration();
 
         // Debug
-        debug::add(4, tr("CLI: Scanned package: {1}", $alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Scanned package: {1}", $alias), 'info');
 
         // Success
         $response .= "Succesfully scanned the package, $alias\n";
@@ -271,7 +271,7 @@ public function create_package($vars, package $package, network $client)
     $name = $vars[2] ?? $pkg_alias;
 
     // Debug
-    debug::add(4, tr("CLI: Starting creation of package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Starting creation of package: {1}", $pkg_alias), 'info');
 
     // CHeck if package exists
     if ($row = db::get_row("SELECT * FROM internal_packages WHERE alias = %s", $pkg_alias)) { 
@@ -303,7 +303,7 @@ public function create_package($vars, package $package, network $client)
     $package_id = $package->create((int) $repo_id, $pkg_alias, $name);
 
     // Debug
-    debug::add(4, tr("CLI: Completed creation of package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed creation of package: {1}", $pkg_alias), 'info');
 
     // Return
     return "Successfully created the new package '$pkg_alias', and you may begin development.\n\n";
@@ -323,7 +323,7 @@ public function delete_package($vars)
 { 
 
     // Debug
-    debug::add(4, tr("CLI: Starting deletion of package: {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Starting deletion of package: {1}", $vars[0]), 'info');
 
     // Ensure package exists
     if (!$row = db::get_row("SELECT * FROM internal_packages WHERE alias = %s", $vars[0])) { 
@@ -335,7 +335,7 @@ public function delete_package($vars)
     $package->remove($vars[0]);
 
     // Debug
-    debug::add(4, tr("CLI: Completed deletion of package: {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed deletion of package: {1}", $vars[0]), 'info');
 
     // Response
     return "Successfully deleted the package, $vars[0]\n";
@@ -370,14 +370,14 @@ public function publish($vars)
         }
 
         // Debug
-        debug::add(4, tr("CLI: Starting to publish package: {1}", $alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Starting to publish package: {1}", $alias), 'info');
 
         // Publish
         $client = new package();
         $client->publish($alias);
 
         // Debug
-        debug::add(4, tr("CLI: Completed publishing package: {1}", $alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Completed publishing package: {1}", $alias), 'info');
 
         // Success message
         $response .= "Successfully published the package, $alias\n";
@@ -407,7 +407,7 @@ public function create_upgrade($vars)
     $version = $vars[1] ?? '';
 
     // Debug
-    debug::add(4, tr("CLI: Starting to create upgrade point for package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Starting to create upgrade point for package: {1}", $pkg_alias), 'info');
 
     // Check package
     if ($pkg_alias == '') { 
@@ -427,7 +427,7 @@ public function create_upgrade($vars)
     $upgrade_id = $client->create($pkg_alias, $version);
 
     // Debug
-    debug::add(4, tr("CLI: Completed vreating upgrade point for package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed vreating upgrade point for package: {1}", $pkg_alias), 'info');
 
     // Return response
     $version = db::get_field("SELECT version FROM internal_upgrades WHERE id = %i", $upgrade_id);
@@ -451,7 +451,7 @@ public function publish_upgrade($vars)
     $version = $vars[1] ?? '';
 
     // Debug
-    debug::add(4, tr("CLI: Start publishing upgrade point for package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start publishing upgrade point for package: {1}", $pkg_alias), 'info');
 
     // Initial checks
     if ($pkg_alias == '') { 
@@ -503,7 +503,7 @@ public function publish_upgrade($vars)
     $client->publish((int) $upgrade['id']);
 
     // Debug
-    debug::add(4, tr("CLI: Completed publishing upgrade point for package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed publishing upgrade point for package: {1}", $pkg_alias), 'info');
 
     // Set response
     $response = "Successfully published the appropriate upgrade for package, $pkg_alias\n\n";
@@ -568,7 +568,7 @@ public function check_upgrades($vars, network $client)
     }
 
     // Debug
-    debug::add(4, "CLI: check_upgrades done", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: check_upgrades done", 'info');
 
     // Return
     return $response;
@@ -598,13 +598,13 @@ public function upgrade($vars, network $client, upgrade $upgrade_client)
     foreach ($vars as $pkg_alias) { 
 
         // Debug
-        debug::add(4, tr("CLI: Starting upgrade of package: {1}", $pkg_alias), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Starting upgrade of package: {1}", $pkg_alias), 'info');
 
         // Install upgrades
         $new_version = $upgrade_client->install($pkg_alias);
 
         // Debug
-        debug::add(4, tr("CLI: Completed upgrade of package: {1} to version {2}", $pkg_alias, $new_version), __FILE__, __LINE__, 'info');
+        debug::add(4, tr("CLI: Completed upgrade of package: {1} to version {2}", $pkg_alias, $new_version), 'info');
 
         // Add to response
         $response .= "Successfully upgraded the packages $pkg_alias to v$new_version\n";
@@ -631,7 +631,7 @@ public function create_theme($vars)
     $repo_id = $vars[2] ?? 0;
 
     // Debug
-    debug::add(4, tr("CLI: Start theme creation, alias: {1}, area: {2}", $alias, $area), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start theme creation, alias: {1}, area: {2}", $alias, $area), 'info');
 
     // Get repo ID
     if ($repo_id == 0) { 
@@ -648,7 +648,7 @@ public function create_theme($vars)
     $response .= "\t/public/themes/$alias\n\n";
 
     // Debug
-    debug::add(4, tr("CLI: Completed theme creation, alias: {1}, area: {2}", $alias, $area), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed theme creation, alias: {1}, area: {2}", $alias, $area), 'info');
 
     // Return
     return $response;
@@ -666,14 +666,14 @@ public function publish_theme($vars)
 { 
 
     // Debug
-    debug::add(4, tr("CLI: Start publishing theme: {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start publishing theme: {1}", $vars[0]), 'info');
 
     // Upload theme
     $theme = new theme();
     $theme->publish($vars[0]);
 
     // Debug
-    debug::add(4, tr("CLI: Completed publishing theme: {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed publishing theme: {1}", $vars[0]), 'info');
 
     // Give response
     return "Successfully published the theme, $vars[0]\n";
@@ -722,7 +722,7 @@ public function list_themes($vars, network $client)
     }
 
     // Debug
-    debug::add(4, "CLI: list_themes", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: list_themes", 'info');
 
     // Return
     return $response;
@@ -743,7 +743,7 @@ public function install_theme($vars)
     $theme_alias = $vars[0] ?? '';
 
     // Debug
-    debug::add(4, tr("CLI: Start installing theme: {1}", $theme_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start installing theme: {1}", $theme_alias), 'info');
 
 
     // Install theme
@@ -751,7 +751,7 @@ public function install_theme($vars)
     $theme->install($theme_alias);
 
     // Debug
-    debug::add(4, tr("CLI: Completed installing theme: {1}", $theme_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed installing theme: {1}", $theme_alias), 'info');
 
     // Return
     return "Successfully downloaded and installed the theme, $theme_alias\n";
@@ -772,14 +772,14 @@ public function delete_theme($vars)
     $theme_alias = $vars[0] ?? '';
 
     // Debug
-    debug::add(4, tr("CLI: Start theme deletion: {1}", $theme_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start theme deletion: {1}", $theme_alias), 'info');
 
     // Delete theme
     $theme = new theme();
     $theme->remove($theme_alias);
 
     // Debug
-    debug::add(4, tr("CLI: Completed theme deletion: {1}", $theme_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed theme deletion: {1}", $theme_alias), 'info');
 
     // Return
     return "Successfully deleted the theme, $theme_alias\n";
@@ -815,7 +815,7 @@ public function change_theme($vars)
     }
 
     // Debug
-    debug::add(4, tr("CLI: Changed theme on area '{1}' to theme: {2}", $area, $theme_alias), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Changed theme on area '{1}' to theme: {2}", $area, $theme_alias), 'info');
 
     // Return
     return "Successfully changed the theme of area %area to the theme $theme_alias\n";
@@ -849,7 +849,7 @@ public function create($vars)
     $owner = $vars[2] ?? '';
 
     // Debug
-    debug::add(4, tr("CLI: Start component creation, type: {1}, component alias: {2}, owner: {3}", $type, $comp_alias, $owner), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start component creation, type: {1}, component alias: {2}, owner: {3}", $type, $comp_alias, $owner), 'info');
 
     // Perform checks
     if ($type == '') { 
@@ -873,7 +873,7 @@ public function create($vars)
     }
 
     // Debug
-    debug::add(4, tr("CLI: Completed component creation, type: {1}, component alias: {2}, owner: {3}", $type, $comp_alias, $owner), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed component creation, type: {1}, component alias: {2}, owner: {3}", $type, $comp_alias, $owner), 'info');
 
     // Return
     return $response;
@@ -896,7 +896,7 @@ public function delete($vars)
     $type = strtolower($vars[0]);
 
     // Debug
-    debug::add(4, tr("CLI: Start component deletion, type: {1}, component alias: {2}", $type, $vars[1]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Start component deletion, type: {1}, component alias: {2}", $type, $vars[1]), 'info');
 
     // Check if component exists
     if (!list($package, $parent, $alias) = components::check($type, $vars[1])) { 
@@ -907,7 +907,7 @@ public function delete($vars)
     pkg_component::remove($type, $vars[1]);
 
     // Debug
-    debug::add(4, tr("CLI: Completed component deletion, type: {1}, component alias: {2}", $type, $vars[1]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Completed component deletion, type: {1}, component alias: {2}", $type, $vars[1]), 'info');
 
     // Return
     return "Successfully deleted the component of type $type, with alias $vars[1]\n\n";
@@ -930,7 +930,7 @@ public function debug($vars)
     app::update_config_var('core:debug', $vars[0]);
 
     // Debug
-    debug::add(4, tr("CLI: Updated debug mode to {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Updated debug mode to {1}", $vars[0]), 'info');
 
     // Return
     return "Successfully changed debugging mode to $vars[0]\n";
@@ -962,7 +962,7 @@ public function mode($vars)
 
     // Debug
     $level = $vars[1] ?? app::_config('core:debug_level');
-    debug::add(4, tr("CLI: Updated server mode to {1}, debug level to {2}", $mode, $level), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Updated server mode to {1}, debug level to {2}", $mode, $level), 'info');
 
     // Return
     return "Successfully updated server mode to $mode, and debug level to $level\n";
@@ -991,7 +991,7 @@ public function server_type($vars) {
     app::update_config_var('core:server_type', $type);
 
     // Debug
-debug::add(2, tr("CLI: Updated server type to {1}", $type), __FILE__, __LINE__);
+debug::add(2, tr("CLI: Updated server type to {1}", $type));
 
     // Return
     return "Successfully updated server type to $type\n";
@@ -1043,7 +1043,7 @@ public function add_repo($vars, network $client)
     );
 
     // Debug
-    debug::add(4, tr("CLI: Added new repository, {1}", $host), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Added new repository, {1}", $host), 'info');
 
     // Return
     return "Successfully added new repository, $host\n";
@@ -1074,7 +1074,7 @@ public function update_repo($vars)
     "id = %i", $row['id']);
 
     // Debug
-    debug::add(4, tr("CLI: Updated repository login information, host: {1}", $vars[0]), __FILE__, __LINE__, 'info');
+    debug::add(4, tr("CLI: Updated repository login information, host: {1}", $vars[0]), 'info');
 
     // Give response
     return "Successfully updated repo with new username and password.\n";
@@ -1121,7 +1121,7 @@ public function update_masterdb($vars)
     redis::hmset('config:db_master', $vars);
 
     // Debug
-    debug::add(4, "Updated master database connection information", __FILE__, __LINE__, 'info');
+    debug::add(4, "Updated master database connection information", 'info');
 
     // Return
     return "SUccessfully updated master database information.\n";
@@ -1142,7 +1142,7 @@ public function clear_dbslaves()
     redis::del('config:db_slaves');
 
     // Debug
-    debug::add(4, "CLI: Removed all database slave servers", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: Removed all database slave servers", 'info');
 
     // Return
     return "Successfully cleared all database slave servers.\n";
@@ -1184,7 +1184,7 @@ public function update_rabbitmq()
     redis::hmset('config:rabbitmq', $vars);
 
     // Debug
-    debug::add(4, "CLI: Updated RabbitMQ connection information", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: Updated RabbitMQ connection information", 'info');
 
     // Return
     return "Successfully updated RabbitMQ connection information.\n";
@@ -1208,7 +1208,7 @@ public function compile_core($vars)
     $destdir = $client->compile_core();
 
     // Debug
-    debug::add(4, "CLI: Compiled core Apex framework", __FILE__, __LINE__, 'info');
+    debug::add(4, "CLI: Compiled core Apex framework", 'info');
 
     // Return
     return  "Successfully compiled the core Apex framework, and it is located at $destdir\n\n";

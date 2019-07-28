@@ -57,7 +57,7 @@ public function generate_rsa_keypair(int $userid, string $type = 'user', string 
 { 
 
     // Debug
-    debug::add(2, tr("Start generating RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Start generating RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), 'info');
 
     // Set config args
     $config = array(
@@ -92,7 +92,7 @@ public function generate_rsa_keypair(int $userid, string $type = 'user', string 
     $key_id = db::insert_id();
 
     // Debug
-    debug::add(1, tr("Generated RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Generated RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), 'info');
 
     // Return
     return (int) $key_id;
@@ -128,7 +128,7 @@ public function change_rsa_password(int $userid, string $type, string $old_passw
     "id = %i", $key_id);
 
     // Debug
-    debug::add(1, tr("Updated password on RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Updated password on RSA key-pair for user ID# {1}, user type: {2}", $userid, $type), 'info');
 
     // Return
     return true;
@@ -160,7 +160,7 @@ public function get_key(int $userid, string $type = 'user', string $key_type = '
     }
 
     // Debug
-    debug::add(5, tr("Retrieved RSA encryption key, userid: {1}, user type: {2}, key type: {3}", $userid, $type, $key_type), __FILE__, __LINE__);
+    debug::add(5, tr("Retrieved RSA encryption key, userid: {1}, user type: {2}, key type: {3}", $userid, $type, $key_type));
 
     // Return
     return array($row['id'], $key);
@@ -222,12 +222,12 @@ public function encrypt_user(string $data, array $recipients):int
         );
 
         // Debug
-        debug::add(5, tr("Encrypted data via AES256 to recipient: {1}", $recipient), __FILE__, __LINE__);
+        debug::add(5, tr("Encrypted data via AES256 to recipient: {1}", $recipient));
 
     }
 
     // Debug
-    debug::add(5, "Finished encrypting AES256 data to all listed recipients", __FILE__, __LINE__);
+    debug::add(5, "Finished encrypting AES256 data to all listed recipients");
 
     // Return
 return $data_id;
@@ -298,7 +298,7 @@ public function encrypt_basic(string $data, string $password = ''):string
 { 
 
     // Debug
-    debug::add(4, "Basic encrypt of data", __FILE__, __LINE__);
+    debug::add(4, "Basic encrypt of data");
 
     if ($password == '') { $password = app::_config('core:encrypt_password'); }
     $encrypted = openssl_encrypt($data, app::_config('core:encrypt_cipher'), md5($password), 0, app::_config('core:encrypt_iv'));
@@ -315,7 +315,7 @@ public function decrypt_basic(string $data, string $password = '')
 { 
 
     // Debug
-    debug::add(4, "Basic decrypt of data", __FILE__, __LINE__);
+    debug::add(4, "Basic decrypt of data");
 
     // Decrypt
     if ($password == '') { $password = app::_config('core:encrypt_password'); }

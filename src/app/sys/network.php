@@ -62,7 +62,7 @@ public function list_packages(string $type = 'package')
 { 
 
     // Debug
-    debug::add(5, "Starting to list_packages from all repos", __FILE__, __LINE__);
+    debug::add(5, "Starting to list_packages from all repos");
 
     // Go through all repos
     $packages = array(); $done = array();
@@ -70,7 +70,7 @@ public function list_packages(string $type = 'package')
     foreach ($rows as $row) { 
 
         // Debug
-        debug::add(5, tr("Sending list_packages request to repo ID# {1}, host: {2}", $row['id'], $row['host']), __FILE__, __LINE__);
+        debug::add(5, tr("Sending list_packages request to repo ID# {1}, host: {2}", $row['id'], $row['host']));
 
         // Send repo request
         iF (!$response = $this->send_repo_request((int) $row['id'], '', 'list', array('type' => $type), true)) { 
@@ -92,11 +92,11 @@ public function list_packages(string $type = 'package')
         }
 
         // Debug
-        debug::add(5, tr("Finished getting list_packages from repo ID# {1}, host: {2}", $row['id'], $row['host']), __FILE__, __LINE__);
+        debug::add(5, tr("Finished getting list_packages from repo ID# {1}, host: {2}", $row['id'], $row['host']));
     }
 
     // Debug
-    debug::add(3, "Finished executing list_packages on all repos, returning results", __FILE__, __LINE__);
+    debug::add(3, "Finished executing list_packages on all repos, returning results");
 
     // Return
     return $packages;
@@ -116,7 +116,7 @@ public function check_package(string $pkg_alias, string $type = 'package'):array
 { 
 
     // Debug
-    debug::add(5, tr("Starting check_package of all repos for package alias: {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(5, tr("Starting check_package of all repos for package alias: {1}", $pkg_alias));
 
     // Go through repos
     $repos = array();
@@ -124,7 +124,7 @@ public function check_package(string $pkg_alias, string $type = 'package'):array
     foreach ($rows as $row) { 
 
         // Debug
-        debug::add(5, tr("Sending check_package repo request for package alias: {1}, to repo ID# {2}, host: {3}", $pkg_alias, $row['id'], $row['host']), __FILE__, __LINE__);
+        debug::add(5, tr("Sending check_package repo request for package alias: {1}, to repo ID# {2}, host: {3}", $pkg_alias, $row['id'], $row['host']));
 
         // Send request
         if (!$vars = $this->send_repo_request((int) $row['id'], $pkg_alias, 'check', array('type' => $type), true)) { 
@@ -133,7 +133,7 @@ public function check_package(string $pkg_alias, string $type = 'package'):array
 
         // Check
         $ok = $vars['exists'] ?? 0;
-        debug::add(5, tr("Received check_package response from repo of {1} for package alias {2} from repo ID# {3}, host: {4}", $ok, $pkg_alias, $row['id'], $row['host']), __FILE__, __LINE__);
+        debug::add(5, tr("Received check_package response from repo of {1} for package alias {2} from repo ID# {3}, host: {4}", $ok, $pkg_alias, $row['id'], $row['host']));
 
         // Continue, if not exists
         if ($ok != 1) { continue; }
@@ -144,7 +144,7 @@ public function check_package(string $pkg_alias, string $type = 'package'):array
     }
 
     // Debug
-    debug::add(3, "Finished sending check_package repo request to all repos", __FILE__, __LINE__);
+    debug::add(3, "Finished sending check_package repo request to all repos");
 
     // Return
     return $repos;
@@ -167,7 +167,7 @@ public function search(string $term):string
 { 
 
     // Debug
-    debug::add(5, tr("Starting to search packages on all repos for term: {1}", $term), __FILE__, __LINE__);
+    debug::add(5, tr("Starting to search packages on all repos for term: {1}", $term));
 
     // Go through repos
     $results = '';
@@ -180,7 +180,7 @@ public function search(string $term):string
         );
 
         // Debug
-        debug::add(5, tr("Searching packages for term: {1} on repo ID# {2}, host: {3}", $term, $row['id'], $row['host']), __FILE__, __LINE__);
+        debug::add(5, tr("Searching packages for term: {1} on repo ID# {2}, host: {3}", $term, $row['id'], $row['host']));
 
         // Send request
         if (!$vars = $this->send_repo_request((int) $row['id'], '', 'search', $request, true)) { 
@@ -202,7 +202,7 @@ public function search(string $term):string
     }
 
     // Debug
-    debug::add(3, tr("Finished search packages on all repos for term: {1}", $term), __FILE__, __LINE__);
+    debug::add(3, tr("Finished search packages on all repos for term: {1}", $term));
 
     // Return
     return $results;

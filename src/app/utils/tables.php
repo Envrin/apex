@@ -31,7 +31,7 @@ public function get_details($table, string $table_id = ''):array
 { 
 
     // Debug
-    debug::add(4, tr("Getting details of data table, {1}", $table), __FILE__, __LINE__);
+    debug::add(4, tr("Getting details of data table, {1}", $table));
 
     // Set variables
     $page = app::_post('page') ?? 1;

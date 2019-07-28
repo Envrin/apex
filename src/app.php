@@ -489,7 +489,7 @@ public static function update_config_var(string $var, $value)
 { 
 
     // Debug
-    debug::add(5, tr("Updating configuration variable {1} to value: {2}", $var, $value), __FILE__, __LINE__);
+    debug::add(5, tr("Updating configuration variable {1} to value: {2}", $var, $value));
 
     redis::hset('config', $var, $value);
     self::$config[$var] = $value;
@@ -1060,7 +1060,7 @@ public static function set_res_http_status(int $code)
     self::$res_status = $code;
 
     // Debug
-    debug::add(1, tr("Changed HTTP response status to {1}", $code), __FILE__, __LINE__);
+    debug::add(1, tr("Changed HTTP response status to {1}", $code));
 
 }
 
@@ -1078,7 +1078,7 @@ public static function set_res_content_type(string $type)
     self::$res_content_type = $type;
 
     // Debug
-    debug::add(1, tr("Set response content-type to {1}", $type), __FILE__, __LINE__);
+    debug::add(1, tr("Set response content-type to {1}", $type));
 
 }
 
@@ -1103,7 +1103,7 @@ public static function set_res_body(string $body)
     self::$res_body = $body;
 
     // Debug
-    debug::add(2, "Set response contents", __FILE__, __LINE__);
+    debug::add(2, "Set response contents");
 
 }
 
@@ -1151,7 +1151,7 @@ public static function echo_response()
 { 
 
     // Debug
-    debug::add(2, "Outputting response to web browser", __FILE__, __LINE__);
+    debug::add(2, "Outputting response to web browser");
 
     // Set HTTP status code
     http_response_code(self::$res_status);
@@ -1182,7 +1182,7 @@ public static function echo_template(string $uri, bool $prepend_area = false)
 { 
 
     // Debug
-    debug::add(1, tr("Forcing non-standard output of template: {1}", $uri), __FILE__, __LINE__);
+    debug::add(1, tr("Forcing non-standard output of template: {1}", $uri));
 
     // Set route
     if ($prepend_area === true && self::$area != 'public') { 

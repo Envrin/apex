@@ -49,7 +49,7 @@ private function rotate_log_files()
 { 
 
     // Debug
-    debug::add(3, "Starting to rotate log files", __FILE__, __LINE__);
+    debug::add(3, "Starting to rotate log files");
 
     // Set variables
     $logdir = SITE_PATH . '/log/';
@@ -79,7 +79,7 @@ private function rotate_log_files()
 
     }
 
-    debug::add(2, tr("Successfully completed rotating log files"), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Successfully completed rotating log files"), 'info');
 
 }
 
@@ -91,7 +91,7 @@ private function delete_expired_session_logs()
 
 
     // Debug
-    debug::add(3, "Starting to delete expired session logs", __FILE__, __LINE__, 'info');
+    debug::add(3, "Starting to delete expired session logs", 'info');
 
     // Delete admin logs
     $start_date = date::subtract_interval(app::_config('core:session_retain_logs'));
@@ -104,7 +104,7 @@ private function delete_expired_session_logs()
     }
 
     // Debug
-    debug::add(2, "Successfully deleted all expired session log data", __FILE__, __LINE__, 'info');
+    debug::add(2, "Successfully deleted all expired session log data", 'info');
 
 }
 
@@ -175,7 +175,7 @@ private function check_file_hash()
     }
 
     // Debug
-    debug::add(2, "Successfully completed check of all system file hashes for modifications", __FILE__, __LINE__, 'info');
+    debug::add(2, "Successfully completed check of all system file hashes for modifications", 'info');
 
 
 }

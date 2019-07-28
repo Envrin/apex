@@ -1,7 +1,7 @@
 
 # `apex` CLI Commands
 
-Apex comes with both in the installation directory, an apex.php script and an `apex` phar archive.  Both are
+Within the installation directory Apex comes with both, an apex.php script and an `apex` phar archive.  Both are
 the exact same, but you may move the `apex` phar archive within your environment path (ie. /usr/bin/) allowing
 you to simply type "apex" instead of "php apex.php" to perform CLI commands.
 
@@ -15,10 +15,10 @@ explains all available commands.
 4. <a href="#system">System Maintenance</a>
 
 
-<a name="general">
+<a name="general"></a>
 ## General Commands
 
-Various general CLI commands are avialble allowing you to search all repositories for packages, install and
+Various general CLI commands are available allowing you to search all repositories for packages, install and
 upgrade packages / themes, plus more.  Below describes all general CLI commands available.
 
 #### `list_packages`
@@ -86,7 +86,7 @@ installed on the system.
 
 
 
-<a name="package">
+<a name="package"></a>
 ## Package / Upgrade Development
 
 Various CLI commands are available allowing you to easily create, publish, and delete packages and upgrades
@@ -176,7 +176,7 @@ note, this only deletes the theme from your local system, and not any repositori
 
 
 
-<a name="component">
+<a name="component"></a>
 ## Component Development
 
 There are a couple commands you will be using very frequently during development to create and delete
@@ -243,9 +243,9 @@ variables or menus, run this to reflect the changes within the database and syst
 
 
 
-<a name="system">
+<a name="system"></a>
 ## System Maintenance
-
+    
 There are several CLI commands available for general system maintenance, such as addinf / updating
 repositories, updating connection information for both mySQL master database and RabbitMQ, and more.  Below
 explains all system maintenance commands available.

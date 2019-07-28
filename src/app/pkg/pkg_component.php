@@ -63,7 +63,7 @@ public static function create(string $type, string $comp_alias, string $owner = 
     }
 
     // Debug
-    debug::add(4, tr("Starting to create component, type: {1}, package: {2}, parent: {3}, alias: {4}, owner: {5}", $type, $package, $parent, $alias, $owner), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to create component, type: {1}, package: {2}, parent: {3}, alias: {4}, owner: {5}", $type, $package, $parent, $alias, $owner));
 
     // Get PHP filename
     $php_file = components::get_file($type, $alias, $package, $parent);
@@ -90,7 +90,7 @@ public static function create(string $type, string $comp_alias, string $owner = 
     file_put_contents($php_file, $code);
 
     // Debug
-    debug::add(5, tr("Created new PHP file for components at {1}", $php_file), __FILE__, __LINE__);
+    debug::add(5, tr("Created new PHP file for components at {1}", $php_file));
 
     // Save .tpl file as needed
     $tpl_file = components::get_tpl_file($type, $alias, $package, $parent);
@@ -114,7 +114,7 @@ public static function create(string $type, string $comp_alias, string $owner = 
     }
 
     // Debug
-debug::add(4, tr("Successfully created new component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+debug::add(4, tr("Successfully created new component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Return
     return array($type, $alias, $package, $parent);
@@ -137,7 +137,7 @@ protected static function create_view(string $uri, string $package)
     }
 
     // Debug
-    debug::add(4, tr("Starting to create new template at, {1}", $uri), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to create new template at, {1}", $uri));
 
     // Set filenames
     $uri = trim(strtolower($uri), '/');
@@ -156,7 +156,7 @@ protected static function create_view(string $uri, string $package)
     self::add('view', $uri, '', 0, $package);
 
     // Debug
-    debug::add(4, tr("Successfully created new template at, {1}", $uri), __FILE__, __LINE__);
+    debug::add(4, tr("Successfully created new template at, {1}", $uri));
 
     // Return
     return array('view', $uri, $package, '');
@@ -193,7 +193,7 @@ public static function add(string $type, string $comp_alias, string $value = '',
         }
 
         // Debug
-        debug::add(5, tr("Updating existing component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+        debug::add(5, tr("Updating existing component, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
         // Update database
         if (count($updates) > 0) { 
@@ -211,7 +211,7 @@ public static function add(string $type, string $comp_alias, string $value = '',
     }
 
     // Debug
-    debug::add(4, tr("Adding new component to database, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias), __FILE__, __LINE__);
+    debug::add(4, tr("Adding new component to database, type: {1}, package: {2}, parent: {3}, alias: {4}", $type, $package, $parent, $alias));
 
     // Add component to DB
     db::insert('internal_components', array(
@@ -256,7 +256,7 @@ protected static function add_checks(string $type, string $comp_alias, string $v
 { 
 
     // Split alias
-    $vars = explode(":", strtolower($comp_alias));
+    $vars = explode(":", $comp_alias);
     if ($type != 'view' && count($vars) < 2 || count($vars) > 3) { 
         throw new ComponentException('invalid_comp_alias', $type, $comp_alias);
     }
@@ -352,7 +352,7 @@ public static function remove(string $type, string $comp_alias)
 { 
 
     // Debug
-    debug::add(4, tr("Deleting component, type: {1}, comp alias: {2}", $type, $comp_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Deleting component, type: {1}, comp alias: {2}", $type, $comp_alias));
 
     // Check if component exists
     if (!list($package, $parent, $alias) = components::check($type, $comp_alias)) { 
@@ -423,7 +423,7 @@ public static function remove(string $type, string $comp_alias)
     }
 
     // Debug / log
-    debug::add(2, tr("Deleted component.  owner {1}, type: {2}, package: {3}, alias {4}, parent: {5}", $package, $type, $package, $alias, $parent), __FILE__, __LINE__);
+    debug::add(2, tr("Deleted component.  owner {1}, type: {2}, package: {3}, alias {4}, parent: {5}", $package, $type, $package, $alias, $parent));
 
     // Return
     return true;

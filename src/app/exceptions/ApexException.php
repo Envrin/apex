@@ -92,7 +92,7 @@ protected function report()
 { 
 
     // Add debug log, which also adds to general logger
-    debug::add(1, $this->message, $this->file, $this->line, $this->log_level, $this->is_system);
+    debug::add(1, $this->message, $this->log_level, $this->is_system);
 
     // Add SQL error, if needed
     if ($this instanceof DBException) { 

@@ -59,7 +59,7 @@ public static function add(string $filename, string $contents, string $type, $re
 { 
 
     // Debug
-    debug::add(4, tr("Starting to add image with type: {1}, record_id: {2}, size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to add image with type: {1}, record_id: {2}, size: {3}", $type, $record_id, $size));
 
     // Save image to filesystem
     $tmpfile = tempnam(sys_get_temp_dir(), 'apex');
@@ -94,7 +94,7 @@ public static function add(string $filename, string $contents, string $type, $re
     );
 
     // Debug
-    debug::add(3, tr("Added new image to database, type: {1}, record_id: {2}", $type, $record_id), __FILE__, __LINE__);
+    debug::add(3, tr("Added new image to database, type: {1}, record_id: {2}", $type, $record_id));
 
     // Return
     return $image_id;
@@ -115,7 +115,7 @@ public static function upload(string $form_field, string $type, $record_id = '',
 { 
 
     // Debug
-    debug::add(4, tr("Starting to upload / add new image of type: {1}, record_id: {2},from form field: {3}", $type, $record_id, $form_field), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to upload / add new image of type: {1}, record_id: {2},from form field: {3}", $type, $record_id, $form_field));
 
     // Get the uploaded file
     if (!list($filename, $mime_type, $contents) = forms::get_uploaded_file($form_field)) { 
@@ -245,7 +245,7 @@ public static function add_thumbnail(string $image_type, $record_id, string $siz
     $thumb_id = self::add($filename, $thumb_contents, $image_type, $record_id, $size, $is_default);
 
     // Debug
-    debug::add(4, tr("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size), __FILE__, __LINE__);
+    debug::add(4, tr("Created thumbnail for image of type: {1}, record_id: {2} of size: {3}", $type, $record_id, $size));
 
     // Return
     return $thumb_id;

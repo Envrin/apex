@@ -49,7 +49,7 @@ public function insert(int $repo_id, string $pkg_alias, string $name, string $ac
     }
 
     // Debug
-    debug::add(2, tr("Inserting new package into database, alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Inserting new package into database, alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id), 'info');
 
     // Insert into db
     db::insert('internal_packages', array(
@@ -81,7 +81,7 @@ public function create(int $repo_id, string $pkg_alias, string $name, string $ac
 { 
 
     // Debug
-    debug::add(5, tr("Starting creation of package alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id), __FILE__, __LINE__);
+    debug::add(5, tr("Starting creation of package alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id));
 
     // Insert package to database
     $package_id = $this->insert($repo_id, $pkg_alias, $name, $access, $version);
@@ -99,7 +99,7 @@ public function create(int $repo_id, string $pkg_alias, string $name, string $ac
     file_put_contents("$pkg_dir/remove.sql", '');
 
     // Save package.php file
-    $pkg_file = base64_decode('PD9waHAKCm5hbWVzcGFjZSBhcGV4OwoKdXNlIGFwZXhccGtnXHBhY2thZ2U7CgoKY2xhc3MgcGtnX35hbGlhc34gCnsKCiAgICAvLyBCYXNpYyBwYWNrYWdlIHZhcmlhYmxlcwogICAgcHVibGljICRhY2Nlc3MgPSAnfmFjY2Vzc34nOwogICAgcHVibGljICRuYW1lID0gJ35uYW1lfic7CiAgICBwdWJsaWMgJGRlc2NyaXB0aW9uID0gJyc7CgovKioKKiBUaGUgY29uc3RydWN0b3IgdGhhdCBkZWZpbmVzIHRoZSB2YXJpb3VzIGNvbmZpZ3VyYXRpb24gCiogYXJyYXlzIG9mIHRoZSBwYWNrYWdlIHN1Y2ggYXMgY29uZmlnIHZhcnMsIGhhc2hlcywgCiogbWVudXMsIGFuZCBzbyBvbi4KKgoqIFBsZWFzZSBzZWUgdGhlIEFwZXggZG9jdW1lbnRhdGlvbiBmb3IgYSBmdWxsIGV4cGxhbmF0aW9uLgoqLwpwdWJsaWMgZnVuY3Rpb24gX19jb25zdHJ1Y3QoKSAKewoKLyoqKioqKioqKioKKiBDb25maWcgVmFyaWFibGVzCiogICAgIEFycmF5IG9mIGtleS12YWx1ZSBwYWlycyBmb3IgYWRtaW4gL3N5c3RlbSAKKiAgICAgZGVmaW5lZCBzZXR0aW5ncywgYXZhaWxhYmxlIHZpYSB0aGUgcmVnaXN0cnk6OiRjb25maWcgYXJyYXkuCioqKioqKioqKiovCgokdGhpcy0+Y29uZmlnID0gYXJyYXkoKTsKCgovKioqKioqKioqKgoqIEhhc2hlcwoqICAgICBBcnJheSBvZiBhc3NvY2lhdGl2ZSBhcnJheXMgdGhhdCBkZWZpbmUgdmFyaW91cyBsaXN0cyBvZiBrZXktdmFsdWUgcGFpcnMgdXNlZC4KKiAgICAgVXNlZCBmb3IgcXVpY2tseSBnZW5lcmF0aW5nIHNlbGVjdCAvIGNoZWNrYm94IC8gcmFkaW8gbGlzdHMgdmlhIGNyZWF0ZV9oYXNoX29wdGlvbnMoKSBhbmQgZ2V0X2hhc2hfdmFyaWFibGUoKSBmdW5jdGlvbnMuCioqKioqKioqKiovCgokdGhpcy0+aGFzaCA9IGFycmF5KCk7CgoKLyoqKioqKioqKioKKiBNZW51cwoqICAgICBNZW51cyBmb3IgdGhlIGFkbWluaXN0cmF0aW9uIHBhbmVsLCBtZW1iZXIncyBhcmVhLCAKKiAgICAgIGFuZCBwdWJsaWMgc2l0ZS4gIFBsZWFzZSByZWZlciB0byBkZXZlbG9wZXIgZG9jdW1lbnRhdGlvbiAKKiAgICAgIGZvciBmdWxsIGRldGFpbHMuCioqKioqKioqKiovCgokdGhpcy0+bWVudXMgPSBhcnJheSgpOwoKCi8qKioqKioqKioqCiogRXh0ZXJuYWwgRmlsZXMKKiAgICAgT25lIGRpbWVuc2lvbmFsIGFycmF5IG9mIGFsbCBleHRlcm5hbCBmaWxlcywgcmVsYXRpdmUgdG8gdGhlIGluc3RhbGxhdGlvbiBkaXJlY3RvcnkuCiogICAgIChlZy4gJy9wbHVnaW5zL3NvbWVkaXIvbXlfcGx1Z2luLmpzJykKKioqKioqKioqKi8KCiR0aGlzLT5leHRfZmlsZXMgPSBhcnJheSgpOwoKCn0KCi8qKgoqIEluc3RhbGwgQmVmb3JlCiogICAgICBFeGVjdXRlZCBiZWZvcmV0aGUgaW5zdGFsbGF0aW9uIG9mIGEgcGFja2FnZSBiZWdpbnMuCiovCnB1YmxpYyBmdW5jdGlvbiBpbnN0YWxsX2JlZm9yZSgpCnsKCn0KCi8qKgoqIEluc3RhbGwgQWZ0ZXIKKiAgICAgRXhlY3V0ZWQgYWZ0ZXIgaW5zdGFsbGF0aW9uIG9mIGEgcGFja2FnZSwgb25jZSBhbGwgU1FMIGlzIGV4ZWN1dGVkIGFuZCBjb21wb25lbnRzIGFyZSBpbiBwbGFjZS4KKi8KcHVibGljIGZ1bmN0aW9uIGluc3RhbGxfYWZ0ZXIoKSAKewoKfQoKLyoqCiogUmVzZXQKKiAgICAgIEV4ZWN1dGVkIHdoZW4gYWRtaW4gcmVzZXRzIHRoZSBwYWNrYWdlIHRvIGRlZmF1bHQgc3RhdGUgYWZ0ZXIgaXQgd2FzIGluc3RhbGxlZC4KKi8KcHVibGljIGZ1bmN0aW9uIHJlc2V0KCkgCnsKCn0KCi8qKgoqIFJlc2V0IHJlZGlzLiAgSXMgZXhlY3V0ZWQgd2hlbiBhZG1pbmlzdHJhdG9yIHJlc2V0cyB0aGUgcmVkaXMgZGF0YWJhc2UsIAoqIGFuZCBzaG91bGQgcmVnZW5lcmF0ZSBhbGwgcmVkaXMga2V5cyBhcyBuZWNlc3NhcnkgZnJvbSB0aGUgbXlTUUwgZGF0YWJhc2UKKi8KcHVibGljIGZ1bmN0aW9uIHJlc2V0X3JlZGlzKCkKewoKfQoKLyoqCiogUmVtb3ZlCiogICAgICBFeGVjdXRlZCB3aGVuIHRoZSBwYWNrYWdlIGlzIHJlbW92ZWQgZnJvbSB0aGUgc2VydmVyLgoqLwpwdWJsaWMgZnVuY3Rpb24gcmVtb3ZlKCkgCnsKCn0KCgp9Cgo=');
+    $pkg_file = base64_decode('PD9waHAKZGVjbGFyZShzdHJpY3RfdHlwZXMgPSAxKTsKCm5hbWVzcGFjZSBhcGV4XGV0YzsKCnVzZSBhcGV4XGFwcDsKdXNlIGFwZXhcc3ZjXGRiOwp1c2UgYXBleFxzdmNccmVkaXM7CgoKLyoqCiAqIFRoZSBwYWNrYWdlIGNvbmZpZ3VyYXRpb24sIGluY2x1ZGluZyB2YXJpb3VzIHByb3BlcnRpZXMsIAogKiBhbmQgUEhQIGNvZGUgdG8gYmUgZXhlY3V0ZWQgZHVyaW5nIGluc3RhbGwsIHJlc2V0LCBhbmQgCiAqIHJlbW92YWwgb2YgdGhlIHBhY2thZ2UuCiAqLwpjbGFzcyBwa2dffmFsaWFzfiAKewoKICAgIC8vIEJhc2ljIHBhY2thZ2UgdmFyaWFibGVzCiAgICBwdWJsaWMgJGFjY2VzcyA9ICd+YWNjZXNzfic7CiAgICBwdWJsaWMgJG5hbWUgPSAnfm5hbWV+JzsKICAgIHB1YmxpYyAkZGVzY3JpcHRpb24gPSAnJzsKCi8qKgogKiBEZWZpbmUgcGFja2FnZSBjb25maWd1cmF0aW9uLgogKgogKiBUaGUgY29uc3RydWN0b3IgdGhhdCBkZWZpbmVzIHRoZSB2YXJpb3VzIGNvbmZpZ3VyYXRpb24gCiAqIGFycmF5cyBvZiB0aGUgcGFja2FnZSBzdWNoIGFzIGNvbmZpZyB2YXJzLCBoYXNoZXMsIG1lbnVzLCBleHRlcm5hbCBmaWxlcywgYW5kIHNvIG9uLgogKgogKiBGb3IgZnVsbCBkZXRhaWxzIG9uIHRoaXMgZmlsZSwgcGxlYXNlIHZpc2l0IHRoZSBkb2N1bWVudGF0aW9uIGF0OgogKiAgICAgaHR0cHM6Ly9hcGV4LXBsYXRmb3JtLm9yZy9kb2NzL3BhY2thZ2VfY29uZmlnCiAqLwpwdWJsaWMgZnVuY3Rpb24gX19jb25zdHJ1Y3QoKSAKewoKICAgIC8qKgogICAgICogQ29uZmlnIFZhcmlhYmxlcwogICAgICogCiAgICAgKiAgICAgQXJyYXkgb2Yga2V5LXZhbHVlIHBhaXJzIGZvciBhZG1pbiAvc3lzdGVtIAogICAgICogICAgIGRlZmluZWQgc2V0dGluZ3MsIGF2YWlsYWJsZSB2aWEgdGhlIGFwcDo6X2NvbmZpZygka2V5KSBtZXRob2QuCiAgICAgKi8KICAgICR0aGlzLT5jb25maWcgPSBhcnJheSgpOwoKCiAgICAvKioKICAgICAqIEhhc2hlcwogICAgICogCiAgICAgKiAgICAgQXJyYXkgb2YgYXNzb2NpYXRpdmUgYXJyYXlzIHRoYXQgZGVmaW5lIHZhcmlvdXMgbGlzdHMgb2Yga2V5LXZhbHVlIHBhaXJzIHVzZWQuCiAgICAgKiAgICAgVXNlZCBmb3IgcXVpY2tseSBnZW5lcmF0aW5nIHNlbGVjdCAvIGNoZWNrYm94IC8gcmFkaW8gbGlzdHMgdmlhIAogICAgICogaGFzaGVzOjpjcmVhdGVfb3B0aW9ucyAvIGhhc2hlczpnZXRfaGFzaF92YXIoKSBtZXRob2RzLgogICAgICovCiAgICAkdGhpcy0+aGFzaCA9IGFycmF5KCk7CgoKICAgIC8qKgogICAgICogTWVudXMKICAgICAqCiAgICAgKiAgICAgTWVudXMgZm9yIHRoZSBhZG1pbmlzdHJhdGlvbiBwYW5lbCwgbWVtYmVyJ3MgYXJlYSwgCiAgICAgKiAgICAgIGFuZCBwdWJsaWMgc2l0ZS4gIFBsZWFzZSByZWZlciB0byBkZXZlbG9wZXIgZG9jdW1lbnRhdGlvbiBmb3IgZnVsbCBkZXRhaWxzLgogICAgICovCiAgICAkdGhpcy0+bWVudXMgPSBhcnJheSgpOwoKCiAgICAvKioKICAgICAqIEV4dGVybmFsIEZpbGVzCiAgICAgKgogICAgICogICAgIE9uZSBkaW1lbnNpb25hbCBhcnJheSBvZiBhbGwgZXh0ZXJuYWwgZmlsZXMsIHJlbGF0aXZlIHRvIHRoZSBpbnN0YWxsYXRpb24gZGlyZWN0b3J5LgogICAgICogICAgIChlZy4gJy9wbHVnaW5zL3NvbWVkaXIvbXlfcGx1Z2luLmpzJykKICAgICAqLwogICAgJHRoaXMtPmV4dF9maWxlcyA9IGFycmF5KCk7CgoKICAgIC8qKgogICAgICogUGxhY2Vob2xkZXJzCiAgICAgKgogICAgICogQXNzb2NpYXRpdmUgYXJyYXlzLCBrZXlzIGJlaW5nIGEgVVJJLCBhbmQgdmFsdWVzIGJlaW5nIGFuIGFycmF5IG9mIHBsYWNlaG9sZGVyIAogICAgICogYWxpYXNlcy4gIFZhbHVlcyBvZiBlYWNoIHBsYWNlaG9sZGVyIGNhbiBiZSBkZWZpbmVkIHdpdGhpbiB0aGUgCiAgICAgKiBhZG1pbmlzdHJhdGlvbiBwYW5lbCwgYW5kIHBsYWNlZCB3aXRoaW4gcGFnZXMgaW4gdGhlIHB1YmxpYyAKICAgICAqIHNpdGUgLyBtZW1iZXIncyBhcmVhIHdpdGggYSB0YWcgc3VjaCBhczoKICAgICAqCiAgICAgKiAgICAgPGE6cGxhY2Vob2xkZXIgYWxpYXMrIkFMSUFTIj4KICAgICAqCiAgICAgKiBUaGlzIGFsbG93cyB5b3UgYXMgdGhlIGRldmVsb3BlciB0byBpbmNsdWRlIHZpZXdzIHdpdGhpbiB1cGdyYWRlcywgYW5kIAogICAgICogdGhlIGFkbWluaXN0cmF0b3IgdG8gcmV0YWluIHRoZSB0ZXh0dWFsIG1vZGlmaWNhdGlvbnMgd2l0aG91dCB0aGVtIGJlaW5nIG92ZXJ3cml0dGVuIAogICAgICogZHVlIHRvIGFuIHVwZ3JhZGUuCiAgICAgKi8KICAgICR0aGlzLT5wbGFjZWhvbGRlcnMgPSBhcnJheSgpOwoKCiAgICAvKioKICAgICAqIEJveGxpc3RzCiAgICAgKiAKICAgICAqIFVzZWQgbWFpbmx5IHRvIG9yZ2FuaXplIHNldHRpbmdzIHBhZ2VzLCBhbmQgZXhhbXBsZSBpcyAKICAgICAqIHRoZSBTZXR0aW5ncy0+VXNlcnMgbWVudSBvZiB0aGUgYWRtaW5pc3RyYXRpb24gcGFuZWwuICBUaGlzIGFycmF5IAogICAgICogYWxsb3dzIHlvdSB0byBhZGQgaXRlbXMgdG8gYW4gZXhpc3RpbmcgYm94bGlzdCwgb3IgCiAgICAgKiBjcmVhdGUgeW91ciBvd24uICBQbGVhc2UgcmVmZXIgdG8gZGV2ZWxvcGVyIAogICAgICogZG9jdW1lbnRhdGlvbiBmb3IgZnVsbCBkZXRhaWxzLgogICAgICovCiAgICAkdGhpcy0+Ym94bGlzdHMgPSBhcnJheSgpOwoKCiAgICAvKioKICAgICAqIERlZmF1bHQgbm90aWZpY2F0aW9ucy4KICAgICAqCiAgICAgKiBBbnkgZGVmYXVsdCBlLW1haWwgbm90aWZpY2F0aW9ucyB5b3Ugd291bGQgbGlrZSBhdXRvbWF0aWNhbGx5IGNyZWF0ZWQgCiAgICAgKiBkdXJpbmcgaW5zdGFsbGF0aW9uIG9mIHRoZSBwYWNrYWdlLiAgcGxlYXNlIHJlZmVyIAogICAgICogdG8gdGhlIGRldmVsb3BlciBkb2N1bWVudGF0aW9uIGZvciBmdWxsIGRldGFpbHMgb2YgdGhpcyBhcnJheS4KICAgICAqLwogICAgJHRoaXMtPm5vdGlmaWNhdGlvbnMgPSBhcnJheSgpOwoKCn0KCi8qKgogKiBJbnN0YWxsIEJlZm9yZQogKgogKiAgICAgIEV4ZWN1dGVkIGJlZm9yZXRoZSBpbnN0YWxsYXRpb24gb2YgYSBwYWNrYWdlIGJlZ2lucy4KICovCnB1YmxpYyBmdW5jdGlvbiBpbnN0YWxsX2JlZm9yZSgpCnsKCn0KCi8qKgogKiBJbnN0YWxsIEFmdGVyCiAqCiAqICAgICBFeGVjdXRlZCBhZnRlciBpbnN0YWxsYXRpb24gb2YgYSBwYWNrYWdlLCBvbmNlIGFsbCBTUUwgaXMgZXhlY3V0ZWQgYW5kIGNvbXBvbmVudHMgYXJlIGluc3RhbGxlZC4KICovCnB1YmxpYyBmdW5jdGlvbiBpbnN0YWxsX2FmdGVyKCkgCnsKCn0KCi8qKgogKiBSZXNldAogKgogKiAgICAgIEV4ZWN1dGVkIHdoZW4gYWRtaW4gcmVzZXRzIHRoZSBwYWNrYWdlIHRvIGRlZmF1bHQgc3RhdGUgYWZ0ZXIgaXQgd2FzIGluc3RhbGxlZC4KICovCnB1YmxpYyBmdW5jdGlvbiByZXNldCgpIAp7Cgp9CgovKioKICogUmVzZXQgcmVkaXMuICAKICogCiAqIElzIGV4ZWN1dGVkIHdoZW4gYWRtaW5pc3RyYXRvciByZXNldHMgdGhlIHJlZGlzIGRhdGFiYXNlLCAKICogYW5kIHNob3VsZCByZWdlbmVyYXRlIGFsbCByZWRpcyBrZXlzIGFzIG5lY2Vzc2FyeSBmcm9tIHRoZSBteVNRTCBkYXRhYmFzZQogKi8KcHVibGljIGZ1bmN0aW9uIHJlc2V0X3JlZGlzKCkKewoKfQoKLyoqCiAqIFJlbW92ZQogKgogKiAgICAgIEV4ZWN1dGVkIHdoZW4gdGhlIHBhY2thZ2UgaXMgcmVtb3ZlZCBmcm9tIHRoZSBzZXJ2ZXIuCiAqLwpwdWJsaWMgZnVuY3Rpb24gcmVtb3ZlKCkgCnsKCn0KCgp9Cgo=');
     $pkg_file = str_replace("~alias~", $pkg_alias, $pkg_file);
     $pkg_file = str_replace("~version~", $version, $pkg_file);
     $pkg_file = str_replace("~name~", $name, $pkg_file);
@@ -107,7 +107,7 @@ public function create(int $repo_id, string $pkg_alias, string $name, string $ac
     file_put_contents("$pkg_dir/package.php", $pkg_file);
 
     // Debug
-    debug::add(1, tr("Successfully created new package with alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id), __FILE__, __LINE__, 'info');
+    debug::add(1, tr("Successfully created new package with alias: {1}, name: {2}, repo_id: {3}", $pkg_alias, $name, $repo_id), 'info');
 
     // Return
     return $package_id;
@@ -126,7 +126,7 @@ public function validate_alias(string $pkg_alias):bool
 { 
 
     // Debug
-    debug::add(5, tr("Validating package alias: {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(5, tr("Validating package alias: {1}", $pkg_alias));
 
     // Ensure valid alias
     if ($pkg_alias == '') { return false; }
@@ -156,7 +156,7 @@ public function compile(string $pkg_alias):string
 { 
 
     // Debug
-    debug::add(3, tr("Start compiling pacakge for publication to repository, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Start compiling pacakge for publication to repository, {1}", $pkg_alias));
 
     // Load package
     $client = new package_config($pkg_alias);
@@ -170,7 +170,7 @@ public function compile(string $pkg_alias):string
     $this->tmp_dir = $tmp_dir;
 
     // Debug
-    debug::add(4, tr("Compiling, loaded package configuration and created tmp directory for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Compiling, loaded package configuration and created tmp directory for package, {1}", $pkg_alias));
 
     // Go through components
     $components = array();
@@ -201,7 +201,7 @@ public function compile(string $pkg_alias):string
     file_put_contents(SITE_PATH . '/etc/' . $pkg_alias . '/components.json', json_encode($components));
 
     // Debug
-    debug::add(4, tr("Compiling package, successfully compiled aall components and created componentss.sjon file for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Compiling package, successfully compiled aall components and created componentss.sjon file for package, {1}", $pkg_alias));
 
     // Copy over basic package files
     $pkg_dir = SITE_PATH . '/etc/' . $pkg_alias;
@@ -240,7 +240,7 @@ public function compile(string $pkg_alias):string
     file_put_contents("$tmp_dir/toc.json", json_encode($this->toc));
 
     // Debug
-    debug::add(4, tr("Compiling, gatheered all files and saved toc.json for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Compiling, gatheered all files and saved toc.json for package, {1}", $pkg_alias));
 
     // Create archive
     $version = db::get_field("SELECT version FROM internal_packages WHERE alias = %s", $pkg_alias);
@@ -248,7 +248,7 @@ public function compile(string $pkg_alias):string
     io::create_zip_archive($tmp_dir, $archive_file);
 
     // Debug
-    debug::add(3, tr("Successfully compiled package for publication, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Successfully compiled package for publication, {1}", $pkg_alias));
 
     // Return
     return $archive_file;
@@ -301,7 +301,7 @@ public function publish(string $pkg_alias, string $version = ''):bool
     unlink($archive_file);
 
     // Debug
-    debug::add(1, tr("Successfully published the package to repository, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully published the package to repository, {1}", $pkg_alias));
 
     // Return
     return true;
@@ -319,7 +319,7 @@ public function install(string $pkg_alias, int $repo_id = 0)
 { 
 
     // Debug
-    debug::add(3, tr("Starting download and install of package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting download and install of package, {1}", $pkg_alias));
 
     // Download package
     list($tmp_dir, $repo_id, $vars) = $this->download($pkg_alias, $repo_id);
@@ -345,7 +345,7 @@ public function download(string $pkg_alias, int $repo_id = 0)
 { 
 
     // Debug
-    debug::add(3, tr("Starting download of package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(3, tr("Starting download of package, {1}", $pkg_alias));
 
     // Initialize
     $network = new network();
@@ -380,7 +380,7 @@ public function download(string $pkg_alias, int $repo_id = 0)
     @unlink($zip_file);
 
     // Debug
-    debug::add(3, tr("Successfully downloaded package {1} and unpacked it at {2}", $pkg_alias, $tmp_dir), __FILE__, __LINE__);
+    debug::add(3, tr("Successfully downloaded package {1} and unpacked it at {2}", $pkg_alias, $tmp_dir));
 
     // Return
     return array($tmp_dir, $repo_id, $vars);
@@ -404,7 +404,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     io::create_dir($pkg_dir);
 
     // Debug
-    debug::add(4, tr("Starting package install from unpacked directory of package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Starting package install from unpacked directory of package, {1}", $pkg_alias));
 
     // Copy over /pkg/ files
     $files = array('components.json', 'package.php', 'install.sql', 'install_after.sql', 'reset.sql', 'remove.sql');
@@ -426,13 +426,13 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     }
 
     // Debug
-    debug::add(4, tr("Installing package, copied over all files to correct location, package {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Installing package, copied over all files to correct location, package {1}", $pkg_alias));
 
     // Run install SQL, if needed
     io::execute_sqlfile("$pkg_dir/install.sql");
 
     // Debug
-    debug::add(4, tr("Installing package, ran install.sql file for package {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Installing package, ran install.sql file for package {1}", $pkg_alias));
 
     // Load package
     $client = new Package_config($pkg_alias);
@@ -444,14 +444,14 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     }
 
     // Debug
-    debug::add(4, tr("Installing package, loaded configuration and executed any needed PHP for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Installing package, loaded configuration and executed any needed PHP for package, {1}", $pkg_alias));
 
     // Install configuration
     $client->install_configuration();
     $client->install_notifications($pkg);
 
     // Debug
-    debug::add(4, tr("Installing package, successfully installed configuration for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Installing package, successfully installed configuration for package, {1}", $pkg_alias));
 
     // Go through components
     $components = json_decode(file_get_contents("$pkg_dir/components.json"), true);
@@ -466,7 +466,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     io::execute_sqlfile("$pkg_dir/install_after.sql");
 
     // Debug
-    debug::add(4, tr("Installing package, successfully installed all components for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Installing package, successfully installed all components for package, {1}", $pkg_alias));
 
     // Execute PHP, if needed
     if (method_exists($pkg, 'install_after')) { 
@@ -495,7 +495,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     io::remove_dir($tmp_dir);
 
     // Debug
-    debug::add(1, tr("Successfully installed package from directory, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully installed package from directory, {1}", $pkg_alias));
 
     // Return
     return true;
@@ -511,7 +511,7 @@ public function remove(string $pkg_alias)
 { 
 
     // Debug
-    debug::add(1, tr("Starting removal of package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Starting removal of package, {1}", $pkg_alias));
 
     // Get package from DB
     if (!$pkg_row = db::get_row("SELECT * FROM internal_packages WHERE alias = %s", $pkg_alias)) { 
@@ -530,7 +530,7 @@ public function remove(string $pkg_alias)
     io::execute_sqlfile("$pkg_dir/remove.sql");
 
     // Debug
-    debug::add(4, tr("Removing package, successfully loaded configuration and executed remove.sql SQL for package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Removing package, successfully loaded configuration and executed remove.sql SQL for package, {1}", $pkg_alias));
 
     // Delete all components
     $comp_rows = db::query("SELECT * FROM internal_components WHERE owner = %s OR package = %s ORDER BY id DESC", $pkg_alias, $pkg_alias);
@@ -550,7 +550,7 @@ public function remove(string $pkg_alias)
     if (is_dir(SITE_PATH . '/docs/' . $pkg_alias)) { io::remove_dir(SITE_PATH . '/docs/' . $pkg_alias); }
 
     // Debug
-    debug::add(4, tr("Removing package, successfully deleted all components from package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(4, tr("Removing package, successfully deleted all components from package, {1}", $pkg_alias));
 
     // Remove package directories
     io::remove_dir($pkg_dir);
@@ -571,7 +571,7 @@ public function remove(string $pkg_alias)
     }
 
     // Debug
-    debug::add(1, tr("Successfully removed the package, {1}", $pkg_alias), __FILE__, __LINE__);
+    debug::add(1, tr("Successfully removed the package, {1}", $pkg_alias));
 
     // Return
     return true;
@@ -594,7 +594,7 @@ private function add_file(string $filename)
     $this->file_num++;
 
     // Debug
-    debug::add(5, tr("Added file to TOC during package compile, {1}", $filename), __FILE__, __LINE__);
+    debug::add(5, tr("Added file to TOC during package compile, {1}", $filename));
 
 
 }

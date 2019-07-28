@@ -49,7 +49,7 @@ CREATE TABLE internal_repos (
     description TEXT
 ) engine=InnoDB;	
 
-INSERT INTO internal_repos (is_ssl,host,name,description) VALUES (1, 'repo.apex-platform.org', 'Apex Public Repository', 'The main, public repository for the Apex Software Platform.');
+INSERT INTO internal_repos (is_ssl,host,name,description) VALUES (1, 'apex-platform.org', 'Apex Public Repository', 'The main, public repository for the Apex Software Platform.');
 
 CREATE TABLE internal_packages (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 

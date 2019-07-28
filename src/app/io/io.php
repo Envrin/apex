@@ -53,7 +53,7 @@ public function parse_dir(string $rootdir, bool $return_dirs = false)
 { 
 
     // Debug
-    debug::add(5, tr("Parsing the directory, {1}", $rootdir), __FILE__, __LINE__);
+    debug::add(5, tr("Parsing the directory, {1}", $rootdir));
 
     // Set variables
     $search_dirs = array('');
@@ -102,7 +102,7 @@ public function create_dir(string $dirname)
 { 
 
     // Debug
-    debug::add(4, tr("Creating new directory at {1}", $dirname), __FILE__, __LINE__);
+    debug::add(4, tr("Creating new directory at {1}", $dirname));
 
     if (is_dir($dirname)) { return; }
     $tmp = str_replace("/", "\\/", sys_get_temp_dir());
@@ -149,7 +149,7 @@ public function remove_dir(string $dirname)
 { 
 
     // Debug
-    debug::add(4, tr("Removing the directory at {1}", $dirname), __FILE__, __LINE__);
+    debug::add(4, tr("Removing the directory at {1}", $dirname));
 
     if (!is_dir($dirname)) { return true; }
     $tmp = str_replace("/", "\\/", sys_get_temp_dir());
@@ -214,7 +214,7 @@ public function send_http_request(string $url, string $method = 'GET', $request 
 { 
 
     // Debug
-    debug::add(2, tr("Sending HTTP request to the URL: {1}", $url), __FILE__, __LINE__);
+    debug::add(2, tr("Sending HTTP request to the URL: {1}", $url));
 
     // Send via cURL
     $ch = curl_init();
@@ -262,7 +262,7 @@ public function send_tor_request(string $url, string $method = 'GET', array $req
 { 
 
     // Debug
-    //debug::add(3, tr("Sending HTTP request ia Tor to the URL: {1}"< $url), __FILE__, __LINE__);
+    //debug::add(3, tr("Sending HTTP request ia Tor to the URL: {1}"< $url));
 
     // Send via cURL
     $ch = curl_init();
@@ -306,7 +306,7 @@ public function generate_random_string(int $length = 6, bool $include_chars = fa
 { 
 
     // Debug
-    debug::add(5, tr("Generating random string of length {1}", $length), __FILE__, __LINE__);
+    debug::add(5, tr("Generating random string of length {1}", $length));
 
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     if ($include_chars === true) { $characters = '!@#$%^&*()_-+=' . $characters . '!@#$%^&*()_-+='; }
@@ -337,7 +337,7 @@ public function execute_sqlfile(string $sqlfile)
     }
 
     // Debug
-    debug::add(4, tr("Starting to execute SQL file, {1}", $sqlfile), __FILE__, __LINE__);
+    debug::add(4, tr("Starting to execute SQL file, {1}", $sqlfile));
 
     // Execute SQL
     $sql_lines = SqlParser::parse(file_get_contents($sqlfile));
@@ -346,7 +346,7 @@ public function execute_sqlfile(string $sqlfile)
     }
 
     // Debug
-    debug::add(2, tr("Successfully executed SQL file against database, {1}", $sqlfile), __FILE__, __LINE__, 'info');
+    debug::add(2, tr("Successfully executed SQL file against database, {1}", $sqlfile), 'info');
 
 }
 
@@ -360,7 +360,7 @@ public function create_zip_archive(string $tmp_dir, string $archive_file)
 { 
 
     // Debug
-    debug::add(2, tr("Creating a new zip archive from directory {1} and aving at {2}", $tmp_dir, $archive_file), __FILE__, __LINE__);
+    debug::add(2, tr("Creating a new zip archive from directory {1} and aving at {2}", $tmp_dir, $archive_file));
  
     if (file_exists($archive_file)) { @unlink($archive_file); }
     $zip = new ZipArchive();
@@ -394,10 +394,10 @@ public function unpack_zip_archive(string $zip_file, string $dirname)
 { 
 
     // Debug
-    debug::add(2, tr("Unpacking zip archive {1} into the directory {2}", $zip_file, $dirname), __FILE__, __LINE__);
+    debug::add(2, tr("Unpacking zip archive {1} into the directory {2}", $zip_file, $dirname));
  
     // Debug
-    debug::add(3, tr("Unpacking zip archive {1} to directory {2}", $zip_file, $dirname), __FILE__, __LINE__);
+    debug::add(3, tr("Unpacking zip archive {1} to directory {2}", $zip_file, $dirname));
 
     // Ensure archive file exists
     if (!file_exists($zip_file)) { 
@@ -427,7 +427,7 @@ public function unpack_zip_archive(string $zip_file, string $dirname)
         if ($contents == '') { continue; }
 
         // Debug
-        debug::add(5, tr("Unpacking file from zip archive, {1}", $filename), __FILE__, __LINE__);
+        debug::add(5, tr("Unpacking file from zip archive, {1}", $filename));
 
         // Save file
         self::create_dir(dirname("$dirname/$filename"));
@@ -436,7 +436,7 @@ public function unpack_zip_archive(string $zip_file, string $dirname)
     zip_close($zip);
 
     // Debug
-    debug::add(3, tr("Successfully unpacked zip archive {1} to directory {2}", $zip_file, $dirname), __FILE__, __LINE__);
+    debug::add(3, tr("Successfully unpacked zip archive {1} to directory {2}", $zip_file, $dirname));
 
     // Return
     return true;
