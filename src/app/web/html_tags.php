@@ -581,7 +581,7 @@ public function phone(array $attr, string $text = ''):string
         if (in_array($vars[4], $codes)) { continue; }
         $codes[] = $vars[4];
     }
-    $codes = asort($codes);
+    asort($codes);
 
     // Create country options
     $country_options = '';
