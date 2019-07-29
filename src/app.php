@@ -570,6 +570,14 @@ public static function set_area(string $area)
     }
     self::$area = $area;
 
+    // Change theme as well
+    if ($area == 'members') { 
+        self::$theme = self::_config('users:theme_members');
+    } else { 
+        self::$theme = self::_config('core:theme_' . $area);
+    }
+
+
 }
 
 /**

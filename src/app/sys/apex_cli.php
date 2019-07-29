@@ -811,7 +811,7 @@ public function change_theme($vars)
     if ($area == 'members') { 
         app::update_config_var('users:theme_members', $theme_alias);
     } else { 
-        app::update_config_var('core:' . $area, $theme_alias);
+        app::update_config_var('core:theme_' . $area, $theme_alias);
     }
 
     // Debug
