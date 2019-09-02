@@ -9,11 +9,11 @@ use apex\app\pkg\package;
 class pkg_core
 {
 
-// Set package variables
-public $version = '1.1.9';
-public $access = 'public';
-public $name = 'Core Framework';
-public $description = 'The core package of the framework, and is required for all installations of the software.';
+    // Set package variables
+    public $version = '1.2.0';
+    public $access = 'public';
+    public $name = 'Core Framework';
+    public $description = 'The core package of the framework, and is required for all installations of the software.';
 
 /**
  * Define the base configuration of the package, 
