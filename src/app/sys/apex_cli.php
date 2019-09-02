@@ -818,7 +818,7 @@ public function change_theme($vars)
     debug::add(4, tr("CLI: Changed theme on area '{1}' to theme: {2}", $area, $theme_alias), 'info');
 
     // Return
-    return "Successfully changed the theme of area %area to the theme $theme_alias\n";
+    return "Successfully changed the theme of area $area to the theme $theme_alias\n";
 
 }
 

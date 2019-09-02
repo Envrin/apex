@@ -153,7 +153,7 @@ function tr(...$args):string
             $text = substr_replace($text, $value, $pos, 2);
         }
 
-        if (is_string($key)) { $replace['{' . $key . '}'] = filter_var($value, FILTER_SANITIZE_STRING); }
+        if (is_string($key)) { $replace['{' . $key . '}'] = $value; }
         $replace['{' . $x . '}'] = filter_var($value, FILTER_SANITIZE_STRING);
     $x++; }
 

@@ -5,10 +5,9 @@ namespace apex\core\form;
 
 use apex\app;
 use apex\svc\redis;
-use apex\app\interfaces\components\form;
 
 
-class db_server implements form
+class db_server 
 {
 
 

@@ -5,10 +5,9 @@ namespace apex\core\form;
 
 use apex\app;
 use apex\svc\db;
-use apex\app\interfaces\components\form;
 
 
-class cms_menus implements form
+class cms_menus 
 {
 
 
@@ -34,7 +33,7 @@ public function get_fields(array $data = array()):array
     $form_fields = array(
         'area' => array('field' => 'select', 'data_source' => 'hash:core:cms_menus_area'),
         'alias' => array('field' => 'textbox', 'label' => 'Alias / URI'),
-        'display_name' => array('field' => 'textbox', 'label' => 'Page Title'),
+        'name' => array('field' => 'textbox', 'label' => 'Page Title'),
         'order_num' => array('field' => 'textbox', 'width' => '60px'),
         'require_login' => array('field' => 'boolean', 'value' => 0),
         'require_nologin' => array('field' => 'boolean', 'value' => 0, 'label' => 'Require No Login'),

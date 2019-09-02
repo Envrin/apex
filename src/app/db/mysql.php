@@ -483,7 +483,7 @@ private function format_sql($args)
         // Check data type
         $is_valid = true;
         if ($match[1] == 'i' && $value != '0' && !filter_var($value, FILTER_VALIDATE_INT)) { $is_valid = false; }
-        elseif ($match[1] == 'd' && $value != '' && !preg_match("/^[0-9]+(\.[0-9]{1,})?$/", (string) $value)) { $is_valid = false; }
+        elseif ($match[1] == 'd' && $value != '' && !preg_match("/^[0-9]+(\.[0-9]{1,})?$/", (string) abs($value))) { $is_valid = false; }
         elseif ($match[1] == 'b' && $value != '0' && !filter_var($value, FILTER_VALIDATE_INT)) { $is_valid = false; }
         elseif ($match[1] == 'e' && !filter_var($value, FILTER_VALIDATE_EMAIL)) { $is_valid = false; }
         elseif ($match[1] == 'url' && !filter_var($value, FILTER_VALIDATE_URL)) { $is_valid = false; }

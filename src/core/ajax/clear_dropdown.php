@@ -7,7 +7,7 @@ use apex\app;
 use apex\svc\redis;
 
 
-class clear_dropdown   extends \apex\core/lib/Ajax
+class clear_dropdown 
 {
 
 

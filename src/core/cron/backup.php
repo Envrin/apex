@@ -5,14 +5,13 @@ namespace apex\core\cron;
 
 use apex\app;
 use apex\core\backups;
-use apex\app\interfaces\components\cron;
 
 
 /**
  * Small crontab job that handles the automated backups utilizing the library 
  * at /src/core/backups.php. 
  */
-class backup implements cron
+class backup 
 {
 
 

@@ -17,6 +17,11 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 	<!-- /global stylesheets -->
 
+	<!-- new modifications CSS -->
+	<link href="~theme_uri~/assets/css/newcss.css?v=1.60" rel="stylesheet" type="text/css">
+	<!-- /new modifications CSS -->
+
+
 	<!-- Core JS files -->
 	<script src="~theme_uri~/js/main/jquery.min.js"></script>
     <script src="~theme_uri~/js/main/jquery-ui.min.js"></script>
@@ -211,7 +216,7 @@
 				<li class="nav-item dropdown dropdown-user">
 					<a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
 						<img src="~theme_uri~/images/placeholders/placeholder.jpg" class="rounded-circle" alt="">
-						<span>~profile.full_name~ (~profile.username~)</span>
+						<span>~profile.full_name~</span>
 					</a>
 
 					<div class="dropdown-menu dropdown-menu-right">
@@ -304,7 +309,7 @@
             </div>
 
             <div class="content">
-                <div class="d-flex align-items-start flex-column flex-md-row">
+                <div class="">
 
                     <a:callouts>
 

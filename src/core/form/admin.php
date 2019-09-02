@@ -6,10 +6,9 @@ namespace apex\core\form;
 use apex\app;
 use apex\svc\db;
 use apex\svc\view;
-use apex\app\interfaces\components\form;
 
 
-class admin implements form
+class admin 
 {
 
 

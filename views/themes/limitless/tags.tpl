@@ -37,16 +37,17 @@
 
 [[form_table.separator]]
 <tr>
-    <td colspan="2" style="padding: 5px 25px;"><h5>~label~</h5></td>
+    <td colspan="2"><h5>~label~</h5></td>
 </tr>
 
 
 [[form.submit]]
-<button type="submit" name="submit" value="~value~" class="btn btn-primary btn-~size~">~label~</button>
-
+<div class="text-left">
+    <button type="submit" name="submit" value="~value~" class="btn btn-primary btn-~size~">~label~</button>
+</div>
 
 [[form.reset]]
-<button type="reset" class="btn btn-primary btn-md">Reset Form</button>
+<!-- <button type="reset" class="btn btn-primary btn-md">Reset Form</button> -->
 
 
 [[form.button]]
@@ -54,9 +55,10 @@
 
 
 [[form.boolean]]
-<input type="radio" name="~name~" class="form-control" value="1" ~chk_yes~> Yes 
-<input type="radio" name="~name~" class="form-control" value="0" ~chk_no~> No 
-
+<div class="radioform">
+    <input type="radio" name="~name~" class="form-control" value="1" ~chk_yes~ /> <span>Yes</span> 
+    <input type="radio" name="~name~" class="form-control" value="0" ~chk_no~ /> <span>No</span> 
+</div>
 
 [[form.select]]
 <select name="~name~" class="form-control" ~width~ ~onchange~>
@@ -68,16 +70,18 @@
 <input type="~type~" name="~name~" value="~value~" class="form-control" id="~id~" ~placeholder~ ~actions~ ~validation~ />
 
 
+
 [[form.textarea]]
-<textarea name="~name~" class="form-control" id="~id~" style="width: ~width~; height: ~height~;" ~placeholder~>~value~</textarea>
+<textarea name="~name~" class="form-control" id="~id~" style="width: 100%" ~placeholder~>~value~</textarea>
 
 
 [[form.phone]]
-<select name="~name~_country" class="form-control" style="width: 30px; float: left;">
-    ~country_code_options~
-</select> 
-<input type="text" name="~name~" value="~value~" class="form-control" style="width: 170px; float: left;" ~placeholder~>
-
+<div class="form-group">
+    <select name="~name~_country" class="form-control col-lg-2">
+        ~country_code_options~
+    </select> 
+    <input type="text" name="~name~" value="~value~" class="form-control col-lg-10"  ~placeholder~>
+</div>
 
 [[form.amount]]
 <span style="float: left;">~currency_sign~</span> 
@@ -105,10 +109,16 @@
 
 
 [[form.date_interval]]
-<input type="text" name="~name~_num" class="form-control" value="~num~" style="width: 30px; float: left;"> 
-<select name="~name~_period" class="form-control" style="width: 80px; float: left;">
-    ~period_options~
-</select>
+<div class="form-group">
+    <div class="col-lg-8" style="padding-left: 0">
+        <input type="text" name="~name~_num" class="form-control" value="~num~" > 
+    </div>
+    <div class="col-lg-4" style="padding-right: 0">
+        <select name="~name~_period" class="form-control" style="width: 100%" >
+            ~period_options~
+        </select>
+    </div>
+</div>
 
 
 
@@ -123,7 +133,7 @@
 
 [[box]]
 <div class="panel panel-default">
-    ~box_header~
+    <div class="panel-heading"> ~box_header~</div>
     <div class="panel-body">
         ~contents~
     </div>
@@ -148,9 +158,12 @@
 ********************
 
 [[input_box]]
-<div style="background: #cecece; width: 95%; margin: 12px; padding: 20px; font-size: 12pt; color: #eee;">
-    ~contents~
+<div class="panel panel-default search_user">
+    <div class="panel-body">
+        ~contents~
+    </div>
 </div>
+
 
 
 
@@ -167,8 +180,8 @@
 ********************
 
 [[callouts]]
-<div class="callout callout-~css_alias~ text-center"><p>
-    <i class="icon ~icon~"></i> ';
+<div class="callout callout-~css_alias~ text-center success"><p>
+    <i class="icon ~icon~"></i>
     ~messages~
 </p></div>
 
@@ -224,6 +237,7 @@
 ********************
 
 [[tab_control]]
+
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
         ~nav_items~
@@ -232,7 +246,8 @@
     <div class="tab-content">
         ~tab_pages~
     </div>
-</div>';
+</div>
+
 
 
 [[tab_control.nav_item]]
@@ -242,7 +257,7 @@
 [[tab_control.page]]
 <div class="tab-pane ~active~" id="tab~tab_num~">
     ~contents~
-</div>';
+</div>
 
 
 [[tab_control.css_active]]
@@ -262,14 +277,13 @@ active
 [[data_table]]
 <table class="table table-bordered table-striped table-hover" id="~table_id~">
     <thead>
-    ~search_bar~
-
+        ~search_bar~
     <tr>
         ~header_cells~
     </tr>
     </thead>
 
-    <tbody id="~table_id~_tbody">
+    <tbody id="~table_id~_tbody" class="bodytable">
         ~table_body~
     </tbody>
 
@@ -283,33 +297,34 @@ active
 
 
 [[data_table.th]]
-<th>~sort_asc~ ~name~ ~sort_desc~</th>
+<th class="boxheader"> <span>~name~</span> ~sort_desc~ ~sort_asc~</th>
 
 
 [[data_table.sort_asc]]
-<a href="javascript:ajax_send('core/sort_table', '~ajax_data~&sort_col=~col_alias~&sort_dir=asc', 'none');" border="0" title="Sort Ascending ~col_alias~">
+<a href="javascript:ajax_send('core/sort_table', '~ajax_data~&sort_col=~col_alias~&sort_dir=asc', 'none');" border="0" title="Sort Ascending ~col_alias~" class="asc">
     <i class="fa fa-sort-asc"></i>
 </a>
 
 
 [[data_table.sort_desc]]
-<a href="javascript:ajax_send('core/sort_table', '~ajax_data~&sort_col=~col_alias~&sort_dir=desc', 'none');" border="0" title="Sort Decending ~col_alias~">
+<a href="javascript:ajax_send('core/sort_table', '~ajax_data~&sort_col=~col_alias~&sort_dir=desc', 'none');" border="0" title="Sort Decending ~col_alias~" class="desc">
     <i class="fa fa-sort-desc"></i>
 </a>
 
 
 [[data_table.search_bar]]
 <tr>
-    <td colspan="~total_columns~" align="right">
-        <i class="fa fa-search"></i> 
-        <input type="text" name="search_~table_id~" placeholder="~search_label~..." class="form-control" style="width: 210px;"> 
-        <a href="javascript:ajax_send('core/search_table', '~ajax_data~', 'search_~table_id~');" class="btn btn-primary btn-md">~search_label~</a>
+    <td style="border-top:1px solid #ccc" colspan="~total_columns~" align="right">
+        <div class="formsearch">
+            <input type="text" name="search_~table_id~" placeholder="~search_label~..." class="form-control" style="width: 210px;"> 
+            <a href="javascript:ajax_send('core/search_table', '~ajax_data~', 'search_~table_id~');" class="btn btn-primary btn-md"><i class="fa fa-search"></i></a>
+        </div>
     </td>
 </tr>
 
 
 [[data_table.delete_button]]
-<a href=\"javascript:ajax_confirm('Are you sure you want to delete the checked records?', 'core/delete_rows', '~ajax_data~', '~form_name~');" class="btn btn-primary btn-md" style="float: left;">~delete_button_label~</a>
+<a href="javascript:ajax_confirm('Are you sure you want to delete the checked records?', 'core/delete_rows', '~ajax_data~', '');" class="btn btn-primary btn-md botontest" style="float: left;">~delete_button_label~</a>
 
 
 
@@ -353,6 +368,7 @@ active
     <div class="media-body">
         <a href="~url~">~message~
         <div class="text-muted font-size-sm">~time~</div>
+	</a>
     </div>
 </li>
 
@@ -389,10 +405,12 @@ active
 
 
 [[boxlist.item]]
-<li><p><a href="~url~">
-    <b>~title~</b><br />
-    ~description~
-</p></li>
+<li>
+    <a href="~url~">
+        <b>~title~</b><br />
+        ~description~
+    </a>
+</li>
 
 
 

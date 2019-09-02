@@ -7,10 +7,9 @@ use apex\app;
 use apex\svc\db;
 use apex\svc\view;
 use apex\core\notification;
-use apex\app\interfaces\components\form;
 
 
-class notification_message implements form
+class notification_message 
 {
 
 

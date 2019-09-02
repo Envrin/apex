@@ -7,7 +7,6 @@ use apex\app;
 use apex\svc\db;
 use apex\svc\view;
 use apex\svc\components;
-use apex\app\interfaces\components\htmlfunc;
 
 
 class display_tabcontrol
@@ -126,7 +125,7 @@ protected function get_tab_pages(array $tab_pages, string $parent, string $packa
 
             if ($num = array_search($match[2], $pages)) { 
                 if ($match[1] == 'after') { $num++; }
-                array_splce($pages, $num, 0, $alias);
+                array_splice($pages, $num, 0, $alias);
             } else { 
                 $position = 'bottom';
             }

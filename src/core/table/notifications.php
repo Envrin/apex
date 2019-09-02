@@ -6,10 +6,9 @@ namespace apex\core\table;
 use apex\app;
 use apex\svc\db;
 use apex\svc\components;
-use apex\app\interfaces\components\table;
 
 
-class notifications implements table
+class notifications 
 {
 
 

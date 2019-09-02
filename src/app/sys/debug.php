@@ -78,8 +78,8 @@ public function add(int $level, string $message, $log_level = 'debug', $is_syste
 
     // Get caller file and line number
     $trace = debug_backtrace();
-    $file = trim(str_replace(SITE_PATH, '', $trace[0]['file']), '/') ?? '';
-    $line_number = $trace[0]['line'] ?? 0;
+    $file = trim(str_replace(SITE_PATH, '', $trace[1]['file']), '/') ?? '';
+    $line_number = $trace[1]['line'] ?? 0;
 
     // Add log
     if ($log_level != 'debug') { 

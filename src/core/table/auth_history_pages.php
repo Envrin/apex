@@ -5,10 +5,9 @@ namespace apex\core\table;
 
 use apex\app;
 use apex\svc\db;
-use apex\app\interfaces\components\table;
 
 
-class auth_history_pages implements table
+class auth_history_pages 
 {
 
 

@@ -179,7 +179,7 @@ public function parse_data_source(string $data_source, string $value = '', strin
         // Get active currencies
         if ($source[1] == 'currency') { 
         $active_currency = db::get_column("SELECT abbr FROM transaction_currencies WHERE is_active = 1");
-    } else { $active_currency = array(); }
+        } else { $active_currency = array(); }
 
         $html = '';
         $rows = redis::hgetall('std:' . $source[1]);
@@ -204,7 +204,7 @@ public function parse_data_source(string $data_source, string $value = '', strin
 
             // Parse name
             $temp = $source[3];
-            foreach ($row as $key => $value) { $temp = str_ireplace("~$key~", $value, $temp); }
+            foreach ($row as $key => $val) { $temp = str_ireplace("~$key~", $val, $temp); }
 
             // Add to options
             $idcol = $source[4] ?? 'id';

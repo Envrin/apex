@@ -5,10 +5,9 @@ namespace apex\core\htmlfunc;
 
 use apex\app;
 use apex\emplate;
-use apex\app\interfaces\components\htmlfunc;
 
 
-class password_meter implements htmlfunc
+class password_meter 
 {
 
 

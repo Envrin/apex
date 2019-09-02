@@ -19,6 +19,7 @@ class UserException   extends ApexException
     // Properties
     private $error_codes = array(
         'not_exists' => "No user exists within the system with the ID# {id}"
+        'no_username' => "No user exists within the system with the username {username}"
     );
 /**
  * Construct 
@@ -26,12 +27,13 @@ class UserException   extends ApexException
  * @param string $message The exception message.
  * @param string $userid The ID# of the user.
  */
-public function __construct($message, $userid = 0)
+public function __construct($message, $userid = 0, $username = '')
 { 
 
     // Set variables
     $vars = array(
-        'id' => $userid
+        'id' => $userid, 
+        'username' => $username
     );
 
     // Get message

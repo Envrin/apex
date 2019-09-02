@@ -1,13 +1,9 @@
 
 # Training Guide
 
-**NOTE:** This training guide is currently out of date, and needs to be updated to support the previous
-restructuring upgrade of Apex.  This should be done within a few days at the most.
-
 This guide serves to take you through all aspects of developing quality online software operations with Apex,
 as quickly and efficiently as possible.  Instead of doing a standard "Hello World" app, we'll do something a
-little more real world, and develop a quick marketplace package.  Nothing large, and just a small package that
-allows administrator to define products, plus allows users to purchase products from the member's area.
+little more real world, and develop a quick online lottery operation.
 
 This training guide will cover the following concepts:
 
@@ -16,7 +12,6 @@ This training guide will cover the following concepts:
 - Utilize horizontal scaling support via RabbitMQ, ensuring scalability
 - Publish to a private repository, and install on a new system
 - Create and publish upgrades
--
 
 Below shows the table of contents for this training guide, and natrually, start at the [Getting
 Started](getting_started.md) page.

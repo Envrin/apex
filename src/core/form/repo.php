@@ -5,10 +5,9 @@ namespace apex\core\form;
 
 use apex\app;
 use apex\svc\db;
-use apex\app\interfaces\components\form;
 
 
-class repo implements form
+class repo 
 {
 
 

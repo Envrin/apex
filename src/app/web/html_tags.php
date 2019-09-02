@@ -263,7 +263,9 @@ public function __call(string $tag_name, $params)
 
     // Check for ft_TAGNAME field
     if (preg_match("/^ft_(.+)/", $tag_name, $match)) { 
-        $html = $this->ft_row($match[1], $params[0], $params[1]);
+        $attr = $params[0] ?? array();
+        $text = $params[1] ?? '';
+        $html = $this->ft_row($match[1], $attr, $text);
     } else { 
         $html = "<b>ERROR:</b> TESTING The special HTML tag '$tag_name' is not supported.";
     }
@@ -295,9 +297,10 @@ public function ft_custom(array $attr, string $text = ''):string
     $label = tr($label);
 
     // Set HTML
-    $html = "<tr><td><label for=\"$name\">" . $label . ":</label></td><td>";
-    $html .= $text;
-    $html .= "</td></tr>";
+    $html = $this->tags['form_table.row'];
+    $html = str_replace("~name~", $name, $html);
+    $html = str_replace("~label~", $label, $html);
+    $html = str_replace("~form_field~", $text, $html);
 
     // Return
     return $html;
@@ -910,7 +913,7 @@ public function pagination(array $attr, string $text = ''):string
         if ($page_num == $page) { 
             $items .= str_replace("~page~", $page_num, $this->tags['pagination.active_item']);
         } else {
-            $items .= $this->pagination_item($page, $url, $page);
+            $items .= $this->pagination_item($page, $url, (int) $page);
         }
     $x++; }
 

@@ -5,10 +5,9 @@ namespace apex\core\table;
 
 use apex\app;
 use apex\svc\db;
-use apex\app\interfaces\components\table;
 
 
-class login_notices implements table
+class login_notices 
 {
 
 

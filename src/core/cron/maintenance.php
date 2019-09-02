@@ -8,14 +8,13 @@ use apex\svc\db;
 use apex\svc\debug;
 use apex\app\io\io;
 use apex\app\utils\date;
-use apex\app\interfaces\components\cron;
 
 
 /**
  * Handles general core system maintenance including, rotate log files, delete 
  * old logged session data, check for modifications to the filesystem, etc. 
  */
-class maintenance implements cron
+class maintenance 
 {
 
 

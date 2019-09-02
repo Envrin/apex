@@ -6,10 +6,9 @@ namespace apex\core\table;
 use apex\app;
 use apex\svc\db;
 use apex\svc\io;
-use apex\app\interfaces\components\table;
 
 
-class cms_pages implements table
+class cms_pages 
 {
 
 

@@ -706,6 +706,11 @@ public function load_base_variables()
         $user_class = app::get_area() == 'admin' ? admin::class : user::class;
         $profile = app::make($user_class, ['id' => app::get_userid()])->load();
         $this->assign('profile', $profile);
+
+        // Go through profile fields
+        foreach ($profile as $key => $value) { 
+            view::assign($key, $value);
+        }
     }
 
 }
@@ -729,7 +734,7 @@ protected function merge_vars(string $html):string
 
         if (is_array($value)) { 
             foreach ($value as $skey => $svalue) { 
-                if (is_array($svalue)) { continue; }
+                if (is_array($svalue) || is_object($svalue)) { continue; }
                 $html = str_replace('~' . $key . '.' . $skey . '~', $svalue, $html);
             }
 
@@ -809,6 +814,8 @@ public function assign(string $name, $value)
     if (is_array($value)) { 
         foreach ($value as $k => $v) { 
         if (is_array($k) || is_array($v)) { continue; }
+        if (is_object($k) || is_object($v)) { continue; }
+
             $value[$k] = (string) $v;
         }
         $this->vars[$name] = $value;

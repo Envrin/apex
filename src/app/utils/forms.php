@@ -285,6 +285,41 @@ public function get_date_interval(string $name):string
 
 }
 
+/**
+ * Get date form field.
+ *
+ * Checks the <a:date> form field whether or not a date was selected, and 
+ * if yes, returns date formatted in YYY-MM-DD format.  Otherwise, results empty string.
+ *
+ * @param string $name The name of the <a:date> form field.
+ *
+ * @return mixed String formatted in YYY-MM-DD or empty string otherwise.
+ */
+public function get_date(string $name)
+{
+
+    // Initial checks
+    if (!app::has_post($name . '_day')) { return ''; }
+    if (!app::has_post($name . '_month')) { return ''; }
+    if (!app::has_post($name . '_year')) { return ''; }
+    if (app::_post($name . '_day') == '') { return ''; }
+    if (app::_post($name . '_month') == '') { return ''; }
+    if (app::_post($name . '_year') == '') { return ''; }
+
+    // Get date
+    $date = implode('-', array(
+        app::_post($name . '_year'), 
+        str_pad(app::_post($name . '_month'), 2, '0', STR_PAD_LEFT), 
+        str_pad(app::_post($name . '_day'), 2, '0', STR_PAD_LEFT), 
+    ));
+
+    // Return
+    return $date;
+
+}
+
+
+
 
 }
 

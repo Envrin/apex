@@ -5,7 +5,7 @@ Welcome to Apex, a powerful PHP software platform to efficiently develop, deploy
 online operations.  You  will be amazed at the simplicity for the quality.  Please take a few moments to
 browse the documentation below.
 
-Donations gratefully accepted.  Bitcoin address:  3JnYmUHhz1CKz9vgxX55qmBnzVRPirA21D
+Donations gratefully accepted.  Bitcoin address:  3JnYmUHhz1CKz9vgxX55qmBnzVRPirA21D or PayPal at payments@apex-platform.org.
 
 
 #### Other Documentation

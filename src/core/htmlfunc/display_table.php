@@ -7,7 +7,6 @@ use apex\app;
 use apex\svc\view;
 use apex\app\sys\components;
 use apex\app\utils\tables;
-use apex\app\interfaces\components\htmlfunc;
 
 
 class display_table
@@ -45,6 +44,11 @@ public function process(components $components, tables $utils, string $html, arr
         return "<B>ERROR:</b> The table component '$data[table] does not exist.";
     }
 
+    // Execute get_attributes method, if exists
+    if (method_exists($table, 'get_attributes')) { 
+        $table->get_attributes($data);
+    }
+
     // Set variables
     $id = $data['id'] ?? 'tbl_' . str_replace(":", "_", $data['table']);
     $has_search = isset($table->has_search) && $table->has_search == 1 ? 1 : 0;
@@ -58,11 +62,6 @@ public function process(components $components, tables $utils, string $html, arr
     $ajaxdata_vars['id'] = $id;
     unset($ajaxdata_vars['alias']);
     $ajaxdata = http_build_query($ajaxdata_vars);
-
-    // Execute get_attributes method, if exists
-    if (method_exists($table, 'get_attributes')) { 
-        $table->get_attributes($data);
-    }
 
     // Get table details
     $details = $utils->get_details($table, $id);

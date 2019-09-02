@@ -9,10 +9,9 @@ use apex\svc\debug;
 use apex\svc\view;
 use apex\svc\redis;
 use apex\app\utils\hashes;
-use apex\app\interfaces\components\tabcontrol;
 
 
-class debugger implements tabcontrol
+class debugger 
 {
 
 

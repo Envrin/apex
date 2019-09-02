@@ -6,10 +6,9 @@ namespace apex\core\table;
 use apex\app;
 use apex\svc\db;
 use apex\app\sys\network;
-use apex\app\interfaces\components\table;
 
 
-class available_packages implements table
+class available_packages 
 {
 
 

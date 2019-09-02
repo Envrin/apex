@@ -4,10 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\form;
 
 use apex\app;
-use apex\app\interfaces\components\form;
 
 
-class email_server implements form
+class email_server 
 {
 
 

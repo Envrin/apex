@@ -6,7 +6,6 @@ namespace apex\core\htmlfunc;
 use apex\app;
 use apex\svc\view;
 use apex\app\sys\components;
-use apex\app\interfaces\components\htmlfunc;
 
 
 class display_autosuggest
@@ -46,11 +45,12 @@ public function process(components $components, string $html = '', array $data =
     $placeholder = $data['placeholder'] ?? '';
 
     // Set HTML
-    $html = "<input type=\"hidden\" name=\"$idfield\" value=\"\" id=\"$idfield\" />\n";
+    $html = "<div class=\"form-group\">\n";
+    $html .= "<input type=\"hidden\" name=\"$idfield\" value=\"\" id=\"$idfield\" />\n";
     $html .= "<input type=\"text\" name=\"$name\" id=\"$name\" ";
     if ($placeholder != '') { $html .= "placeholder=\"$placeholder\" "; }
     if ($width != '') { $html .= "style=\"width: $width;\" "; }
-    $html .= "/>\n";
+    $html .= "/>\n</div>\n";
 
     // Get Javascript
     $js = "\t\t\$( \"#" . $name . "\" ).autocomplete({ \n";

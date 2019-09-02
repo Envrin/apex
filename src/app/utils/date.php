@@ -48,6 +48,16 @@ class date
     'Y' => 31536000
     );
 
+    // Names
+    private $names = array(
+        'I' => 'Minute', 
+        'H' => 'Hour', 
+        'D' => 'Day', 
+        'W' => 'Week', 
+        'M' => 'Month', 
+        'Y' => 'Year'
+    );
+
 /**
  * Get log date 
  *
@@ -172,6 +182,33 @@ public function last_seen($secs)
     return $seen;
 
 }
+
+/**
+ * Parse date interval into readable format
+ *
+ * @param string $interval The date interval
+ *
+ * @return string The formatted string
+ */
+public function parse_date_interval(string $interval)
+{
+
+    // Check
+    if (!preg_match("/^(\w)(\d+)$/", $interval, $match)) { 
+        return '';
+    }
+    if (!isset($this->names[$match[1]])) { return ''; }
+
+    // Get name
+    $name = $match[2] . ' ' . $this->names[$match[1]];
+    if ($match[2] > 1) { $name .= 's'; }
+
+    // Return
+    return $name;
+
+}
+
+
 
 
 }

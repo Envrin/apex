@@ -95,6 +95,7 @@ public function test_add_repo()
 
     // Send request
     $response = $this->send_cli('add_repo', array(app::_config('core:domain_name'), $_SERVER['apex_test_username'], $_SERVER['apex_test_password']));
+
     $this->assertStringContains($response, "Successfully added new repository", "Unable to add repository");
 
     // Get new repo ID

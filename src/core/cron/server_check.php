@@ -4,10 +4,9 @@ declare(strict_types = 1);
 namespace apex\core\cron;
 
 use apex\app;
-use apex\app\interfaces\components\cron;
 
 
-class server_check implements cron
+class server_check 
 {
 
 

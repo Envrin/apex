@@ -5,7 +5,6 @@ namespace apex\core\htmlfunc;
 
 use apex\app;
 use apex\app\sys\components;
-use apex\app\interfaces\components\htmlfunc;
 
 
 class display_form

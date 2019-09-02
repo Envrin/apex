@@ -6,10 +6,9 @@ namespace apex\core\table;
 use apex\app;
 use apex\svc\db;
 use apex\svc\redis;
-use apex\app\interfaces\components\table;
 
 
-class auth_history implements table
+class auth_history 
 {
 
 

@@ -5,10 +5,9 @@ namespace apex\core\table;
 
 use apex\app;
 use apex\svc\redis;
-use apex\app\interfaces\components\table;
 
 
-class db_servers implements table
+class db_servers 
 {
 
 

@@ -13,7 +13,6 @@ function ajax_send(function_alias, data, field_names) {
     }
     var form = document.forms[0];
 
-
     // Create request
     var request = '';
     var elements = field_names == '' ? form.elements : field_names.split(',');
