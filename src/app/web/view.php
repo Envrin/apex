@@ -467,7 +467,8 @@ protected function process_menu_row(string $html, array $row, string $submenus =
         $url = '';
         if (app::get_area() != 'public') { $url .= '/' . app::get_area(); }
         if ($row['parent'] != '') { $url .= '/' . $row['parent']; }
-        $url .= '/' . $row['alias'];
+        $url .= '/' . trim($row['alias'] . '/');
+
     } else { $url = ''; }
 
     // Merge HTML
@@ -703,13 +704,19 @@ public function load_base_variables()
 
     // Get profile
     if (app::get_userid() > 0) { 
-        $user_class = app::get_area() == 'admin' ? admin::class : user::class;
-        $profile = app::make($user_class, ['id' => app::get_userid()])->load();
-        $this->assign('profile', $profile);
 
-        // Go through profile fields
-        foreach ($profile as $key => $value) { 
-            view::assign($key, $value);
+        $ok = true;
+        if (app::get_area() != 'admin' && !redis::exists('user:' . app::get_userid())) { $ok = false; }
+        if ($ok === true) { 
+
+            $user_class = app::get_area() == 'admin' ? admin::class : user::class;
+            $profile = app::make($user_class, ['id' => app::get_userid()])->load();
+            $this->assign('profile', $profile);
+
+            // Go through profile fields
+            foreach ($profile as $key => $value) { 
+                view::assign($key, $value);
+            }
         }
     }
 

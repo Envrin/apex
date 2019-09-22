@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace apex\app\msg;
 
 use apex\app;
+use apex\svc\db;
 use apex\svc\debug;
 use apex\svc\redis;
 use apex\app\web\ajax;

@@ -9,11 +9,11 @@ use apex\app\pkg\package;
 class pkg_core
 {
 
-    // Set package variables
-    public $version = '1.2.0';
-    public $access = 'public';
-    public $name = 'Core Framework';
-    public $description = 'The core package of the framework, and is required for all installations of the software.';
+// Set package variables
+public $version = '1.2.2';
+public $access = 'public';
+public $name = 'Core Framework';
+public $description = 'The core package of the framework, and is required for all installations of the software.';
 
 /**
  * Define the base configuration of the package, 
@@ -169,15 +169,47 @@ $this->notifications[] = array(
     'cond_action' => '2fa'
 );
 
+// Dashboard items
+$this->dashboard_items = array(
+    array(
+        'area' => 'admin', 
+        'type' => 'top',
+        'divid' => 'members-online',  
+        'panel_class' => 'panel bg-teal-400', 
+        'is_default' => 1, 
+        'alias' => 'admins_online', 
+        'title' => 'Admins Online', 
+        'description' => 'The total number of administrators in currently online.'
+    ), 
+    array(
+        'area' => 'admin', 
+        'type' => 'right', 
+        'is_default' => 1, 
+        'alias' => 'blank', 
+        'title' => 'Blank / Default', 
+        'description' => 'Blank item used until other packages are installed' 
+    ), 
+    array(
+        'area' => 'admin', 
+        'type' => 'tab',
+        'is_default' => 1,  
+        'alias' => 'blank', 
+        'title' => 'Core - Blank / Default', 
+        'description' => 'A blank item used as a default before other packages are installed.'
+    )
+);
+ 
+
+
 
 }
 
 
-////////////////////////////////////////////////////////////
-// Define hashes
-////////////////////////////////////////////////////////////
-
-public function define_hashes() { 
+/**
+ * Define the hashes.
+ */
+public function define_hashes() 
+{
 
     $vars = array();
 
@@ -348,10 +380,9 @@ public function define_hashes() {
 }
 
 
-////////////////////////////////////////////////////////////
-// Install After
-////////////////////////////////////////////////////////////
-
+/**
+ * Install after.
+ */
 public function install_after() 
 {
 

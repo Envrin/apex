@@ -77,7 +77,8 @@ public function load()
         'ext_files',
         'boxlists',
         'placeholders',
-        'notifications'
+        'notifications', 
+        'dashboard_items'
     );
 
     foreach ($vars as $var) { 
@@ -126,6 +127,9 @@ public function install_configuration($pkg = '')
 
     // Install placeholders
     $this->install_placeholders($pkg);
+
+    // Install dashboard items
+    $this->install_dashboard_items($pkg);
 
     // Debug
     debug::add(2, tr("Completed configuration install / scan of package, {1}", $this->pkg_alias));
@@ -573,6 +577,96 @@ protected function install_placeholders($pkg)
         $alias = $row['uri'] . ':' . $row['alias'];
         if (in_array($alias, $done)) { continue; }
         db::query("DELETE FROM cms_placeholders WHERE id = %i", $row['id']);
+    }
+
+}
+
+/**
+ * Install dashboard items
+ */
+protected function install_dashboard_items($pkg)
+{
+
+    // Return, if no dashboard items
+    if (!isset($pkg->dashboard_items)) { return; }
+
+    // Add dashboard items
+    $done = array();
+    foreach ($pkg->dashboard_items as $vars) { 
+
+        // Set variables
+        $done[] = $vars['type'] . '_' . $vars['alias'];
+        $divid = $vars['divid'] ?? '';
+        $panel_class = $vars['panel_class'] ?? '';
+
+        // Update, if already exists
+        if ($row = db::get_row("SELECT * FROM dashboard_items WHERE package = %s AND alias = %s AND type = %s AND area = %s", $this->pkg_alias, $vars['alias'], $vars['type'], $vars['area'])) { 
+
+            // Update database
+            db::update('dashboard_items', array(
+                'area' => $vars['area'], 
+                'divid' => $divid,
+                'panel_class' => $panel_class,  
+                'title' => $vars['title'], 
+                'description' => $vars['description']), 
+            "id = %i", $row['id']);
+            continue;
+
+        }
+
+        // Add new item
+        db::insert('dashboard_items', array(
+            'package' => $this->pkg_alias, 
+            'area' => $vars['area'], 
+            'type' => $vars['type'], 
+            'divid' => $divid, 
+            'panel_class' => $panel_class, 
+            'alias' => $vars['alias'], 
+            'title' => $vars['title'], 
+            'description' => $vars['description'])
+        );
+
+    }
+
+    // Delete needed dashboard items
+    $rows = db::query("SELECT * FROM dashboard_items WHERE package = %s", $this->pkg_alias);
+    foreach ($rows as $row) { 
+        $alias = $row['type'] . '_' . $row['alias'];
+        if (in_array($alias, $done)) { continue; }
+        db::query("DELETE FROM dashboard_items WHERE id = %i", $row['id']);
+    }
+
+}
+
+/**
+ * Install default dashboard items
+ */
+public function install_default_dashboard_items($pkg)
+{
+
+    // Return, if no items
+    if (!isset($pkg->dashboard_items)) { return; }
+
+    // Go through items
+    foreach ($pkg->dashboard_items as $vars) { 
+        if (!isset($vars['is_default'])) { continue; }
+        if ($vars['is_default'] != 1) { continue; }
+
+        // Get profile ID
+        if (!$profile_id = db::get_field("SELECT id FROM dashboard_profiles WHERE area = %s AND is_default = 1", $vars['area'])) { 
+            continue;
+        }
+
+        // Delete core items, if they exist
+        db::query("DELETE FROM dashboard_profiles_items WHERE profile_id = %i AND type = %s AND package = %s", $profile_id, $vars['type'], $this->pkg_alias);
+
+        // Add to database
+        db::insert('dashboard_profiles_items', array(
+            'profile_id' => $profile_id, 
+            'type' => $vars['type'], 
+            'package' => $this->pkg_alias, 
+            'alias' => $vars['alias'])
+        );
     }
 
 }

@@ -7,7 +7,10 @@ with phpUnit, please take a look at the below two links to help familiarize your
 * [Getting Started with phpUnit](https://phpunit.de/getting-started/phpunit-7.html)
 * [phpUnit Assertions](https://phpunit.readthedocs.io/en/8.0/assertions.html)
 
-Below contains links to the seconds within this page:
+*NOTE:* When running unit tests, you will probably want to modify the /phpunit.xml file, line 13, and change the directory to your package 
+directory of /tests/PACKAGE_ALIAS.  This will help avoid any errors / failures due to misconfiguration with regards to testing the other packages.
+
+Below contains links to the sections within this page:
 
 1. <a href="#creating_tests">Creating / Executing Test Classes</a>
 2. <a href="#http_request">http_request($uri, $method, $post, $get, $cookie)</a>

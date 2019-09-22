@@ -59,5 +59,6 @@ Additional information regarding views can be found at the below links.
 5. [AJAX / Web Sockets](views_ajax.md)
 6. [2FA via E-Mail / SMS](views_2fa.md)
 7. [reCaptcha Integration](views_recaptcha.md)
+8. [Dashboards](views_dashboards.md)
 
 

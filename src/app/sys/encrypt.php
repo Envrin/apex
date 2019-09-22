@@ -168,6 +168,21 @@ public function get_key(int $userid, string $type = 'user', string $key_type = '
 }
 
 /**
+ * Hash a password.
+ * 
+ * Simply uses the password_hash() function, and only reason for this is to 
+ * hardcode the cost integer into only one spot throughout the code.
+ *
+ * @param string $password The Password to hash.
+ *
+ * @return string The resulting hashed password.
+ */
+public function hash_string(string $password):string
+{
+    return base64_encode(password_hash($password, PASSWORD_BCRYPT, array('COST' => 11)));
+}
+
+/**
  * Encrypt text to one or more users 
  *
  * @param string $data The data to encrypt

@@ -5,6 +5,7 @@ namespace apex\app\sys;
 
 use apex\app;
 use apex\app\exceptions\ContainerException;
+use apex\app\msg\emailer;
 
 /**
  * The dependency injection container.

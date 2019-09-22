@@ -146,6 +146,7 @@ get($key) | Get the value of the key from the container.
 has($key) | Returns a boolean as to whether or not the container contains the specified key.
 set($key, $value) | Set a new value within the container.
 make($class_name, array $params = []) | Creates and returns an instance of the specified class.  This instance is not saved within the container, and is only created with dependency injection, then returned.
+makeset($class_name, array $params = []) | Simliar to the make() method, except it also sets the returned object into the container.
 call([$class_name, $method], array $params = []) | Call a specific method within a class while performing dependency injection directly on the method.  This does not save anything within the container, and only calls the method, but does allow for method / setter injection.
 
 

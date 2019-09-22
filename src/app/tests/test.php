@@ -383,7 +383,7 @@ final public function assertHasTable(string $table_alias) { $this->checkHasTable
 /**
  * @Ignore
  */
-final public function assertNotHasTable(string $table_alias) { $this->checkHasTable($table_alias, true); }
+final public function assertNotHasTable(string $table_alias) { $this->checkHasTable($table_alias, false); }
 
 /**
  * @Ignore

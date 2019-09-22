@@ -28,6 +28,9 @@ DROP TABLE IF EXISTS internal_themes;
 DROP TABLE IF EXISTS internal_languages;
 DROP TABLE IF EXISTS internal_transactions;
 DROP TABLE IF EXISTS internal_file_hashes;
+DROP TABLE IF EXISTS dashboard_profiles_items;
+DROP TABLE IF EXISTS dashboard_profiles;
+DROP TABLE IF EXISTS dashboard_items;
 
 
 --------------------------------------------------
@@ -383,5 +386,41 @@ CREATE TABLE images_contents (
 ) engine=InnoDB;
 
 
+--------------------------------------------------
+-- Dashboards
+--------------------------------------------------
+
+CREATE TABLE dashboard_items (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    package VARCHAR(100) NOT NULL, 
+    area VARCHAR(30) NOT NULL DEFAULT 'admin', 
+    type ENUM('top','right','tab') NOT NULL, 
+    divid VARCHAR(100) NOT NULL DEFAULT '', 
+    panel_class VARCHAR(100) NOT NULL DEFAULT '', 
+    alias VARCHAR(255) NOT NULL, 
+    title VARCHAR(255) NOT NULL, 
+    description TEXT NOT NULL, 
+    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE
+) engine=InnoDB;
+
+CREATE TABLE dashboard_profiles (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    is_default TINYINT(1) NOT NULL DEFAULT 0, 
+    area VARCHAR(30) NOT NULL, 
+    userid INT NOT NULL
+) engine=InnoDB;
+
+INSERT INTO dashboard_profiles VALUES (1, 1, 'admin', 0);
+INSERT INTO dashboard_profiles VALUES (2, 1, 'members', 0);
+
+CREATE TABLE dashboard_profiles_items (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    profile_id INT NOT NULL, 
+    type ENUM('top','right','tab') NOT NULL, 
+    package VARCHAR(100) NOT NULL, 
+    alias VARCHAR(255) NOT NULL, 
+    FOREIGN KEY (profile_id) REFERENCES dashboard_profiles (id) ON DELETE CASCADE, 
+    FOREIGN KEY (package) REFERENCES internal_packages (alias) ON DELETE CASCADE 
+) engine=InnoDB;
 
 

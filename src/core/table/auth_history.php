@@ -8,19 +8,21 @@ use apex\svc\db;
 use apex\svc\redis;
 
 
+/**
+ * Table that shows the login history sessions of any 
+ * specified user or administrator.
+ */
 class auth_history 
 {
 
 
-
-
     // Columns
     public $columns = array(
-    'date_added' => 'Date Added',
-    'logout_date' => 'Logout Date',
-    'username' => 'Username',
-    'ip_address' => 'IP Address',
-    'manage' => 'Manage'
+        'date_added' => 'Date Added',
+        'logout_date' => 'Logout Date',
+        'username' => 'Username',
+        'ip_address' => 'IP Address',
+        'manage' => 'Manage'
     );
 
     //// Sortable columns
@@ -35,25 +37,23 @@ class auth_history
     public $form_name = 'auth_history_id';
     public $form_value = 'id';
 
-    /**
-     * Process attributes passed to function tag 
-     *
-     * Passes all attributes passed within the <a:function> tag in the TPL 
-     * template, and is used for things such as to show / hide templates, or set 
-     * variables to be used within the WHERE clause of the SQL statements, etc. 
-     *
-     * @param array $data The attributes contained within the <e:function> tag that called the table.
-     */
-
-
-
-
+/**
+ * Process attributes passed to function tag 
+ *
+ * Passes all attributes passed within the <a:function> tag in the TPL 
+ * template, and is used for things such as to show / hide templates, or set 
+ * variables to be used within the WHERE clause of the SQL statements, etc. 
+ *
+ * @param array $data The attributes contained within the <e:function> tag that called the table.
+ */
 public function get_attributes(array $data = array())
 { 
     $this->type = $data['type'];
     $this->userid = $data['userid'] ?? 0;
 
     if ($this->userid > 0) { unset($this->columns['username']); }
+    if (app::get_area() != 'admin') { unset($this->columns['manage']); }
+
 
 }
 

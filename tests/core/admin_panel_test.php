@@ -83,7 +83,7 @@ public function test_login()
     );
 
     $html = $this->http_request('/admin/login', 'POST', $vars);
-file_put_contents(SITE_PATH . '/public/error.html', $html);
+
     $this->assertPageTitleContains("Welcome");
 
 }
@@ -553,6 +553,43 @@ public function test_page_admin_settings_notifications()
     $this->assertfalse($row, "Unable to delete the e-mail notification");
 
 }
+
+/**
+ * Page -- Admin -> Settings -> Dashboard
+ */
+public function test_page_admin_settings_dashboard()
+{
+
+    // Ensure page loads
+    $html = $this->http_request('admin/settings/dashboard');
+    $this->assertPageTitle('Dashboard Settings');
+    $this->assertPageContains('Manage Dashboards');
+    $this->assertHasSubmit('change', 'Change');
+    $this->assertHasHeading(5, 'Add Dashboard Item');
+    $this->assertHasSubmit('add_item', 'Add Dashboard Item');
+
+    // Get database variables
+    $profile_id = db::get_field("SELECT id FROM dashboard_profiles WHERE area = 'admin' AND is_default = 1");
+    $item_id = db::get_field("SELECT id FROM dashboard_items WHERE area = 'admin' AND type = 'right' AND alias = 'blank'");
+
+    // Set request
+    $request = array(
+        'dashboard' => $profile_id, 
+        'item' => $item_id, 
+        'submit' => 'add_item'
+    );
+
+    // Send http request
+    $html = $this->http_request('admin/settings/dashboard', 'POST', $request);
+    $this->assertPageTitle('Dashboard Settings');
+    $this->assertHasCallout('success', 'Successfully added new dashboard item');
+
+    // Delete item
+    $item_id = db::get_field("SELECT id FROM dashboard_profiles_items WHERE profile_id = %i ORDER BY id DESC LIMIT 0,1", $profile_id);
+    db::query("DELETE FROM dashboard_profiles_items WHERE id = %i", $item_id);
+
+}
+
 
 /**
  * Maintenance->Package Manager page 

@@ -449,6 +449,7 @@ public function install_from_dir(string $pkg_alias, string $tmp_dir)
     // Install configuration
     $client->install_configuration();
     $client->install_notifications($pkg);
+    $client->install_default_dashboard_items($pkg);
 
     // Debug
     debug::add(4, tr("Installing package, successfully installed configuration for package, {1}", $pkg_alias));

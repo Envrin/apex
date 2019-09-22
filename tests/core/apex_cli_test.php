@@ -95,7 +95,6 @@ public function test_add_repo()
 
     // Send request
     $response = $this->send_cli('add_repo', array(app::_config('core:domain_name'), $_SERVER['apex_test_username'], $_SERVER['apex_test_password']));
-
     $this->assertStringContains($response, "Successfully added new repository", "Unable to add repository");
 
     // Get new repo ID
@@ -140,6 +139,7 @@ public function test_create_package()
 
     // Send request
     $response = $this->send_cli('create_package', array($this->pkg_alias, $this->repo_id));
+
     $this->assertStringContains($response, 'Successfully created the new package', "Unable to create new package with alias, $this->pkg_alias");
 
     // Check directories
@@ -914,7 +914,6 @@ public function test_create_theme()
     $theme_dir = SITE_PATH . '/views/themes/utest';
     $dirs = array(
         $theme_dir,
-        "$theme_dir/components",
         "$theme_dir/sections",
         "$theme_dir/layouts",
         SITE_PATH . '/public/themes/utest'

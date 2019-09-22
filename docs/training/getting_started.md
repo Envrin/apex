@@ -9,20 +9,20 @@ Once done, install a few base packages we will need with:
 
 ### Create Package
 
-Next, we need to create our new package which we will call "lottery".  You can do this in terminal with:
+Next, we need to create our new package which we will call "training".  You can do this in terminal with:
 
-`php apex.php create_package lottery`
+`php apex.php create_package training`
 
 When prompted to select a repository, enter 2 to specify the local repository that was installed with the
 devkit package.  This will create our new package including two directories at:
 
-- */src/lottery* -- Will hold the bulk of PHP code for this package.
-- */etc/lottery* -- The configuration of this package.
+- */src/training* -- Will hold the bulk of PHP code for this package.
+- */etc/training* -- The configuration of this package.
 
 
 ### Package Configuration
 
-The new file located at */etc/lottery/package.php* is the main configuration file for our package, and is explained in full on the 
+The new file located at */etc/training/package.php* is the main configuration file for our package, and is explained in full on the 
 [Package Configuration](../packages_config.md) page of the documentation.  The `__construct()` method is the main 
 method within this file, and can contain various arrays as summarized below.
 
@@ -35,8 +35,9 @@ Array | Description
 `$this->placeholders` | Allows you to place `<a:placeholder>` tags within member area / public templates, which then are replaced with the contents defined by the administrator via the CMS->Placeholders menu of the admin panel.  
 `$this->boxlists` | Used to add entries / define lists of settings.  For example, Settings->Users and Financial menus of the admin panel are examples of boxlists. 
 `$this->notifications` | Allows you to have default e-mail notifications created upon package installation, which are managed via the Settings->Notifiations menu of the administration panel.
+`$this->dashboard_teism` | Defines the various dashboard items / widegts that are available within this package.
 
-Now that we have the basic gist of this method, open up the */etc/lottery/package.php* file, and change
+Now that we have the basic gist of this method, open up the */etc/training/package.php* file, and change
 the `__construct()` method to:
 
 ~~~php
@@ -46,48 +47,46 @@ public function __construct()
 
 // Config variables
 $this->config = array(
-    'min_entrants' => 0,
-    'ticket_price' => 25,  
-    'fee' => 3.5
+    'daily_award' => 50
 );
 
 // Hash
 $this->hash = array();
 $this->hash['status'] = array(
-    'pending' => 'pending', 
-    'rollover' => 'Rolled Over', 
-    'complete' => 'Completed'
+    'pending' => 'Pending', 
+    'complete' => 'Competed', 
+    'rollover' => 'Rolled Over'
 );
 
-// Menus -- admin panel
+// Menus -- Admin Panel -- Lottery menu
 $this->menus = array();
 $this->menus[] = array(
-    'area' => 'admin',
-    'position' => 'after financial',
-    'type' => 'parent',
-    'icon' => 'fa fa-fw fa-card',
-    'alias' => 'lottery',
-    'name' => 'Lottery',
+    'area' => 'admin', 
+    'type' => 'parent', 
+    'position' => 'after financial', 
+    'icon' => 'fa fa-fw fa-card', 
+    'alias' => 'lottery', 
+    'name' => 'Lottery', 
     'menus' => array(
         'manage' => 'Manage Lotteries'
     )
 );
 
-// Menu -- admin panel settings
+// Menus -- Admin Settings
 $this->menus[] = array(
-    'area' => 'admin',
-    'parent' => 'settings',
-    'position' => 'bottom',
-    'alias' => 'lottery',
+    'area' => 'admin', 
+    'parent' => 'settings', 
+    'position' => 'bottom', 
+    'alias' => 'lottery', 
     'name' => 'Lottery'
 );
 
-// Menu - Member Area -- Lottery
+// Menus -- Member Area
 $this->menus[] = array(
-    'area' => 'members',
-    'parent' => 'financial',
-    'position' => 'top',
-    'alias' => 'lottery',
+    'area' => 'members', 
+    'parent' => 'financial', 
+    'position' => 'top', 
+    'alias' => 'lottery', 
     'name' => 'View Lotteries'
 );
 
@@ -101,7 +100,7 @@ $this->menus[] = array(
 We will explain the above code in detail just below, but every time you modify a package.php file, you must scan the
 package to update the database as necessary.  In terminal, simply type:
 
-`php apex.php scan lottery`
+`php apex.php scan training`
 
 Once done, if you login to either the administration panel or member's area, you will see the new menus we
 added.
@@ -116,26 +115,24 @@ of the documentation.
 
 ##### `$this->config`
 
-We added three configuration variables, which can be accessed anywhere within the software with:
+We added one configuration variable, which can be accessed anywhere within the software with:
 
 ~~~php
-$min_entrants = app::_config('lottery:min_entrants');
-$ticket_price = app::_config('lottery:ticket_price');
-$fee = app::_config('lottery:fee');
+$amount = app::_config('training:daily_award');
 ~~~with:
 
 You may also update the value of the configuration variables anywhere within the software by using the
 app::update_config_var() method such as:
 
 ~~~php
-$min_entrants = 50;
-app::update_config_var('lottery:min_entrants', $min_entrants);
+$award = 50;
+app::update_config_var('training:daily_award', $award);
 ~~~
 
 
 ##### `$this->hash`
 
-We added one hash for the loan status, which will be used later to easily populate select lists.
+We added one hash for the lottery status, which will be used later to easily populate select lists.
 
 
 ##### `$this->menus`

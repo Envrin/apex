@@ -413,4 +413,62 @@ active
 </li>
 
 
+********************
+* dashboard
+*
+* HTML snippets for the dashboard widgets.
+********************
+
+[[dashboard]]
+
+<div class="row boxgraf">
+    ~top_items~
+</div>
+
+<div class="panel panel-flat">
+    ~tabcontrol~
+</div>
+
+<div class="sidebar sidebar-light bg-transparent sidebar-component sidebar-component-right border-0 shadow-0 order-1 order-md-2 sidebar-expand-md">
+    <div class="sidebar-content">
+        ~right_items~
+    </div>
+</div>
+
+[[dashboard.top_item]]
+<div class="col-lg-4">
+    <div class="~panel_class~">
+        <div class="panel-body">
+
+            <h3 class="no-margin">3,450</h3>
+                ~title~
+            </div>
+            <div class="text-muted text-size-small">~contents~</div>
+        </div>
+        <div class="container-fluid">
+            <div id="~divid~"></div>
+        </div>
+    </div>
+</div>
+
+
+
+[[dashboard.right_item]]
+<div class="card">
+    <div class="card-header bg-transparent header-elements-inline">
+        <span class="card-title font-weight-semibold">~title~</span>
+    </div>
+    <div class="card-body">
+        <ul class="media-list">
+            <li class="media">
+                <div class="media-body">
+                    ~contents~
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+
 

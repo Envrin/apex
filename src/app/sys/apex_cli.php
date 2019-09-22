@@ -273,7 +273,7 @@ public function create_package($vars, package $package, network $client)
     // Debug
     debug::add(4, tr("CLI: Starting creation of package: {1}", $pkg_alias), 'info');
 
-    // CHeck if package exists
+    // Check if package exists
     if ($row = db::get_row("SELECT * FROM internal_packages WHERE alias = %s", $pkg_alias)) { 
         throw new PackageException('exists', $pkg_alias);
     }

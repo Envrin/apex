@@ -18,7 +18,7 @@ class UserException   extends ApexException
 
     // Properties
     private $error_codes = array(
-        'not_exists' => "No user exists within the system with the ID# {id}"
+        'not_exists' => "No user exists within the system with the ID# {id}", 
         'no_username' => "No user exists within the system with the username {username}"
     );
 /**

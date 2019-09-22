@@ -20,7 +20,7 @@ use apex\svc\debug;
  * --------------------------------------------------
  * 
  * <?php
-
+ *
  * namespace apex;
  *
  * use apex\app;
@@ -29,8 +29,8 @@ use apex\svc\debug;
  * // Lookup user's IP address
  * $ip = geoip::lookup();
  * print_r($ip);
- * 
-class geoip { 
+ */
+class geoip 
 {
 
 

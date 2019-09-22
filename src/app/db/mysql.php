@@ -364,6 +364,10 @@ public function query(...$args)
     //Format SQL
     list($hash, $bind_params, $values) = $this->format_sql($args);
 
+    // Debug
+    debug::add(3, tr("Executed SQL: {1}", $this->raw_sql));
+    debug::add_sql($this->raw_sql);
+
     // Bind params
     if (count($values) > 0) { 
         mysqli_stmt_bind_param($this->prepared[$hash], $bind_params, ...$values);
@@ -376,10 +380,6 @@ public function query(...$args)
 
     // Get result
     $result = mysqli_stmt_get_result($this->prepared[$hash]);
-
-    // Debug
-    debug::add(3, tr("Executed SQL: {1}", $this->raw_sql));
-    debug::add_sql($this->raw_sql);
 
     // Return
     return $result;

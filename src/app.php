@@ -123,7 +123,6 @@ public function __construct(string $reqtype = 'http')
     // Build container
     $this->build_container($reqtype);
 
-
     // Load config
     self::$config = redis::singleton();
 

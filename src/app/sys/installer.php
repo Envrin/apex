@@ -519,13 +519,13 @@ private function complete_install()
     file_put_contents(SITE_PATH . '/bootstrap/apex', $init_file);
 
     // Give success message
-    $admin_url = 'http://' . $this->domain_name . '/admin/';$admin_url = empty($_SERVER['HTTPS']) ? 'http://' : 'https://';
+    $admin_url = 'http://' . $this->domain_name . '/admin/';
     echo "Thank you!  The Apex Platform has now been successfully installed on your server.\n\n";
     if ($this->server_type == 'all' || $this->server_type == 'app') { 
         echo "To complete installation, please ensure the following crontab job is added.\n\n";
         echo "\t*/5 * * * * /cd " . SITE_PATH . "; /usr/bin/php -q php apex.php core.cron > /dev/null 2>&1\n\n";
         echo "You also need to place the Apex init script in its proper location by executing the following commands at the SSH prompt:\n\n";
-        echo "\tsudo mv bootstrap/apex /etc/init.d/apex\n";
+        echo "\tsudo cp bootstrap/apex /etc/init.d/apex\n";
         echo "\tsudo ln -s /etc/init.d/apex /etc/rc3.d/S30apex\n\n";
     }
     echo "You may continue to your administration panel and create your first administrator by visiting:\n\n\t$admin_url\n\n";

@@ -57,7 +57,7 @@ public function create()
         'require_2fa' => app::_post('require_2fa'),
         'require_2fa_phone' => app::_post('require_2fa_phone'),
         'username' => strtolower(app::_post('username')),
-        'password' => base64_encode(password_hash(app::_post('password'), PASSWORD_BCRYPT, array('COST' => 25))),
+        'password' => encrypt::hash_string(app::_post('password')), 
         'full_name' => app::_post('full_name'),
         'email' => app::_post('email'),
         'phone_country' => app::_post('phone_country'),
@@ -120,7 +120,7 @@ public function update()
 
     // Check password
     if (app::_post('password') != '' && app::_post('password') == app::_post('confirm-password')) { 
-        $updates['password'] = base64_encode(password_hash(app::_post('password'), PASSWORD_BCRYPT, array('COST' => 25)));
+        $updates['password'] = encrypt::hash_string(app::_post('password'));
     }
 
     // Update database

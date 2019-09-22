@@ -50,7 +50,11 @@ public function process(string $html, array $data = array()):string
     }
 
     // Get tab pages
-    $tab_pages = $this->get_tab_pages($tabcontrol->tabpages, $alias, $package);
+    if ($package == 'core' && $alias == 'dashboard') { 
+        $tab_pages = $tabcontrol->tabpages;
+    } else { 
+        $tab_pages = $this->get_tab_pages($tabcontrol->tabpages, $alias, $package);
+    }
 $tab_dir = SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias;
 
     // Go through tab pages
@@ -94,6 +98,11 @@ $tab_dir = SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias;
  */
 protected function get_tab_pages(array $tab_pages, string $parent, string $package)
 { 
+
+    // Return, if dashboard
+    if ($parent == 'dashboard' && $package == 'core') { 
+        return $tab_pages;
+    }
 
     // Set variables
     $pages = array_keys($tab_pages);
