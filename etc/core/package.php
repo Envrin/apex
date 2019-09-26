@@ -10,7 +10,7 @@ class pkg_core
 {
 
 // Set package variables
-public $version = '1.2.2';
+public $version = '1.2.3';
 public $access = 'public';
 public $name = 'Core Framework';
 public $description = 'The core package of the framework, and is required for all installations of the software.';
@@ -144,7 +144,7 @@ $this->ext_files = array(
     'public/plugins/sounds/notify.wav', 
     'public/themes/koupon/*',  
     'public/themes/limitless/*', 
-    'public/themes/supradmin/*', 
+    'public/themes/atlant_members/*', 
     'public/.htaccess', 
     'public/index.php', 
     'src/app.php', 
@@ -153,7 +153,7 @@ $this->ext_files = array(
     'tests/core/*', 
     'views/themes/koupon/*', 
     'views/themes/limitless/*', 
-    'views/themes/supradmin/*' 
+    'views/themes/atlant_members/*' 
 );
 
 
