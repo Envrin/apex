@@ -703,7 +703,7 @@ public function compile_core()
     }
 
     // Update GIthub repo
-    //$this->update_github_repo();
+    $this->update_github_repo();
 
     // Return
     return $destdir;

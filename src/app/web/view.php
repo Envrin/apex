@@ -125,20 +125,8 @@ public function parse():string
     // Set template path
     $this->template_path = app::get_area() == 'public' ? 'public/' . app::get_uri() : app::get_uri();
 
-    // Parse PHP code, if needed
-    $php_file = SITE_PATH . '/views/php/' . $this->template_path . '.php';
-    if (file_exists($php_file)) { 
-        require($php_file);
-        debug::add(4, tr("Loaded template PHP file for, {1}", $this->template_path));
-
-        // Grab $config again, in case it was modified
-        $this->vars['config'] = app::getall_config();
-    }
-
-    // Parse template path, if needed
-    if ($this->path_is_defined === false) { 
-        $this->template_path = app::get_area() == 'public' ? 'public/' . app::get_uri() : app::get_uri();
-    }
+    // Execute any necessary PHP code
+    $this->execute_php_file();
 
     // Get tpl file
     $tpl_file = SITE_PATH . '/views/tpl/' . $this->template_path . '.tpl';
@@ -203,10 +191,6 @@ public function parse_html(string $html):string
     // Merge vars
     $html = $this->merge_vars($html);
 
-    // Callouts
-    $html = str_ireplace("<a:callouts>", $html_tags->callouts($this->callouts), $html);
-    debug::add(5, tr("Processed template callouts"));
-
     // Process IF tags
     $html = $this->process_if_tags($html);
     debug::add(5, "Processed template IF tags");
@@ -218,6 +202,10 @@ public function parse_html(string $html):string
     // Process HTML functions
     $html = $this->process_function_tags($html);
     debug::add(5, tr("Processed template HTML function tags"));
+
+    // Callouts
+    $html = str_ireplace("<a:callouts>", $html_tags->callouts($this->callouts), $html);
+    debug::add(5, tr("Processed template callouts"));
 
     // Process page title
     $html = $this->process_page_title($html);
@@ -259,6 +247,39 @@ public function parse_html(string $html):string
 
     // Return
     return $html;
+
+}
+
+/**
+ * Parse .php file of a template.
+ *
+ */
+protected function execute_php_file()
+{
+
+    // Get .php filename
+    $php_file = SITE_PATH . '/views/php/' . $this->template_path . '.php';
+    if (!file_exists($php_file)) { return; }
+
+    // Execute PHP file
+    require($php_file);
+
+    // Debug
+    debug::add(4, tr("Loaded template PHP file for, {1}", $this->template_path));
+
+    // Grab $config again, in case it was modified
+    $this->vars['config'] = app::getall_config();
+
+    // Return, if template path was defined
+    if ($this->path_is_defined === true) { return; }
+
+    // Check if URI was changed
+    $chk_path = app::get_area() == 'public' ? 'public/' . app::get_uri() : app::get_uri();
+    if ($chk_path == $this->template_path) { return; }
+
+    // Execute PHP code again
+    $this->template_path = $chk_path;
+    $this->execute_php_file();
 
 }
 

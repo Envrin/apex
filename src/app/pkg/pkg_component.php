@@ -99,7 +99,7 @@ public static function create(string $type, string $comp_alias, string $owner = 
 // Create tab control directory
     if ($type == 'tabcontrol') { 
         io::create_dir(SITE_PATH . '/src/' . $package . '/tabcontrol/' . $alias);
-        io::create_dir(SITE_PATH . '/views/tabpage/' . $package . '/' . $alias);
+        io::create_dir(SITE_PATH . '/views/components/tabpage/' . $package . '/' . $alias);
     }
 
     // Add component

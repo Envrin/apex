@@ -114,12 +114,11 @@ private function checkPageTitle(string $title, bool $has = true)
 { 
 
     // Assert
-    $ok = $title == view::get_title() ? true : false;
-    if ($ok !== $has) { 
-        $not = $has === true ? ' NOT ' : '';
-        $this->asserttrue(false, tr("Title of page at {1}/{2} does $not equal the title: {3}", app::get_area(), app::get_uri(), $title));
+    $chk_title = view::get_title();
+    if ($has === true) { 
+        $this->assertEquals($title, $chk_title, tr("Title of page at {1}/{2} does NOT equal the title: {3}", app::get_area(), app::get_uri(), $title));
     } else { 
-        $this->asserttrue(true);
+        $this->assertNotEquals($title, $chk_title, tr("Title of page at {1}/{2} does equal the title: {3}", app::get_area(), app::get_uri(), $title));
     }
 
 }

@@ -97,8 +97,8 @@ class app extends container
      */
 
     private static $instance = null;
-    private $reqtype = 'http';
-    private $reqtype_original;
+    private static $reqtype = 'http';
+    private static $reqtype_original;
 
 /**
  * Initialize the application. 
@@ -127,7 +127,7 @@ public function __construct(string $reqtype = 'http')
     self::$config = redis::singleton();
 
     // Unpack request
-    if ($this->reqtype != 'cli') { 
+    if (self::$reqtype != 'cli') { 
         $this->unpack_request();
     }
 
@@ -199,8 +199,8 @@ private function build_container_old(string $reqtype)
 { 
 
     // Set request type
-    $this->reqtype = $reqtype;
-    $this->reqtype_original = $reqtype;
+    self::$reqtype = $reqtype;
+    self::$reqtype_original = $reqtype;
 
     // Build container
     $builder = new \DI\ContainerBuilder();
@@ -395,6 +395,7 @@ public function setup_test(string $uri, string $method = 'GET', array $post = []
     // Set URI
     self::$uri_locked = false;
     self::set_uri($uri);
+    self::$reqtype = 'test';
 
     // Set other input variables
     self::$method = $method;
@@ -544,16 +545,23 @@ public static function get_counter(string $counter, int $increment = 1):int
 }
 
 /**
+ * Get the request type
+ *
+ * @return string The request type
+ */
+public static function get_reqtype():string { return self::$reqtype; } 
+
+/**
  * Set the request type 
  *
  * @param string $reqtype The request type to set
  */
-public function set_reqtype(string $reqtype) { $this->reqtype = $type; }
+public static function set_reqtype(string $reqtype) { self::$reqtype = $type; }
 
 /**
  * Reset request type back to its original. 
  */
-public function reset_reqtype() { $this->reqtype = $this->reqtype_original; }
+public function reset_reqtype() { self::$reqtype = self::$reqtype_original; }
 
 /**
  * Set the area 
